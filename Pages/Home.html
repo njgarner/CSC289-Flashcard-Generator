@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <!-- External Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Bar Section -->
+    <header>
+        <div class="top-bar">
+            <p>Flash Card Generator</p>
+            <div class="login-content">
+                <!--Change to LogOut button when logged in-->
+                <button class="button" href="#" onclick="alert('switches to login page')">Login</button>
+                <button class="button" href="#" onclick="alert('switches to sign up page')">Sign Up</button>
+            </div>
+        </div>
+    </header>
+    <!-- Vertical Navigation Bar -->
+    <div class="nav-bar">
+        <a href="Home.html">Study Time</a> <!-- This will be the active page -->
+        <a href="#">Create Flashcards</a> <!-- This will navigate to create html -->
+        <a href="Library.html">Library</a> <!-- This will navigate to library html -->
+        <a href="Settings.html">Settings</a> <!-- This will navigate to settings html -->
+    
+        <!-- Dropdown for Recent/Favorite Decks -->
+        <div class="dropdown">
+            <button class="dropbtn">Favorite Decks</button>
+            <div class="dropdown-content">
+                <a href="#">Test</a>
+                <a href="#">Test2</a>
+            </div>
+        </div>
+        <!--Contactinfo-->
+        <div class="contact">
+            <p>Contact us!</p>>
+            <!--insert contact info-->
+        </div>
+    </div>
+    <!-- Main Content Section -->
+    <h1 class="page-title">Study Time!</h1>
+    <div class="content">
+        <div class="flashcard-display">
+            <!-- Left and Right Navigation Buttons -->
+            <div class="button">
+                <button id="previous" onclick="alert('switches to previous card')">Previous</button>
+                <!--Triggers flashcard classes to populate-->
+                <!-- Random Flashcard Button -->
+                <button id="rand-button" onclick="alert('switches to random card in deck')">Random</button>
+                <button id="next" onclick="alert('switches to next card')">Next</button>
+                <!--Triggers flashcard classes to populate-->
+            </div>
+        
+            <!--Flashcard Display Area -->
+            <div class="flashcard patrick-hand-regular">
+                <p>Test Text</p>
+                <!-- Text will be displayed here -->
+                <!--Trigger flashcard classes to populate-->
+            </div>
+
+            <!--Flip card button-->
+            <div class="button">
+                <button id="flip-button" onclick="alert('flips card over')">Flip</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
