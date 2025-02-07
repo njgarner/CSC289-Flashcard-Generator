@@ -1,0 +1,23 @@
+.main-content button {
+    height: 40px;
+    width: 100px;
+  }
+
+  .main-content {
+    margin-top: 200;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  .main-content input {
+    border-radius: 5px;
+    border-color:#3f9480;
+    border-style: solid;
+  }
+
+  .main-content button {
+    background-color: #84F3DA;
+    border-color: #3f9480;
+    border-radius: 5px;
+  }
