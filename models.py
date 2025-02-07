@@ -7,6 +7,10 @@ class Users(models.Model):
     password_hash = models.CharField(max_length=255, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.username
+    userAuth_objects = models.Manager()
+
 class FlashcardSet(models.Model):
     set_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
