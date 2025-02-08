@@ -1,0 +1,31 @@
+<html>
+<head>
+    <title>Create a Deck</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'deck_style.css' %}">
+</head>
+<body>
+
+<div class="main-content">
+    <h2 id="page-title">Create a Deck</h2>
+
+    <!-- Display the form -->
+    <form method="POST">
+        {% csrf_token %}
+        
+        <label for="title">Deck Name</label><br>
+        <input type="text" name="title" id="title" required><br><br>
+        
+        <label for="category">Category</label><br>
+        <input type="text" name="category" id="category" required><br><br>
+        
+        <label for="description">Description</label><br>
+        <textarea name="description" id="description"></textarea><br><br>
+
+        <button type="submit">Save Deck</button>
+    </form>
+
+</div>
+
+</body>
+</html>

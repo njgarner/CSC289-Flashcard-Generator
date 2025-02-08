@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'mysite',
 ]
 
 MIDDLEWARE = [
@@ -76,9 +77,9 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'database_name',
-        'USER': 'mysql_username',
-        'PASSWORD': 'mysql_password',
+        'NAME': 'flashcard_db',
+        'USER': 'root',
+        'PASSWORD': 'waketech',
         'HOST': 'localhost',
         'PORT': '3306',
     }

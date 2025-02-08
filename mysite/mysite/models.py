@@ -38,4 +38,3 @@ class ProgressTracking(models.Model):
     correctly_answered = models.IntegerField(default=0)
     last_reviewed = models.DateTimeField(auto_now=True)
 
-
