@@ -70,13 +70,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
 
-# Database
+# Database: Information here should refer to the MySQL database. Current information is placeholder.
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'database_name',
+        'USER': 'mysql_username',
+        'PASSWORD': 'mysql_password',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
