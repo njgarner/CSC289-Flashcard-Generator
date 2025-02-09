@@ -25,7 +25,7 @@ urlpatterns = [
     path('create_deck/', views.create_deck, name='create_deck'),
     path('delete_deck/<int:deck_id>/', views.delete_deck, name='delete_deck'),  # Ensure consistency here
     path('home', views.home, name="home"),
-    path('library', views.library_view, name="library_view"),
+    path('library/', views.library_view, name="library_view"),
     path('settings', views.settings, name="settings"),
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
 ]
