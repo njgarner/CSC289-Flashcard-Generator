@@ -23,4 +23,9 @@ urlpatterns = [
     path('login_user',views.login_user,name="login_user"),
     path("user_login/",views.user_login,name="user_login"),
     path('create_deck/', views.create_deck, name='create_deck'),
+    path('deck_list/', views.deck_list, name='deck_list'),
+    path('delete_deck/<int:deck_id>/', views.delete_deck, name='delete_deck'),
+    path('home',views.home,name="home"),
+    path('library',views.library_view,name="library_view"),
+    path('settings',views.settings,name="settings"),
 ]

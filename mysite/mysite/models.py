@@ -13,11 +13,12 @@ class Users(models.Model):
 
 class FlashcardSet(models.Model):
     set_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    #user = models.ForeignKey(Users, on_delete=models.CASCADE)
     title = models.CharField(max_length=100, null=False)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     is_shared = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    description = models.CharField(max_length=200, null=True)
 
 class Flashcard(models.Model):
     card_id = models.AutoField(primary_key=True)

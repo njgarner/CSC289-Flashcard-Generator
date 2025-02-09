@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Decks</title>
+</head>
+<body>
+    <h1>Flashcard Decks</h1>
+
+    {% if decks %}
+        <ul>
+            {% for deck in decks %}
+                <li>
+                    <strong>Title:</strong> {{ deck.title }} <br>
+                    <strong>Category:</strong> {{ deck.category.name }} <br>
+                    <strong>Description:</strong> {{ deck.description }} <br>
+
+                    {% if deck.set_id %}
+                        <!-- Delete Button (Only if deck has a valid ID) -->
+                        <form action="{% url 'delete_deck' deck.set_id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Delete</button>
+                        </form>
+                    {% else %}
+                        <p style="color: red;">Error: Deck ID is missing</p>
+                    {% endif %}
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No decks available.</p>
+    {% endif %}
+
+    <a href="{% url 'create_deck' %}">Create a New Deck</a>
+</body>
+</html>

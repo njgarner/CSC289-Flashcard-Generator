@@ -1,10 +1,16 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .models import Users, Flashcard, FlashcardSet
+from .models import Users, Flashcard, FlashcardSet, Category
 from django.contrib.auth.decorators import login_required
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'Home.html')
+
+def library_view(request):
+    return render(request, 'Library.html')
+
+def settings(request):
+    return render(request, 'Settings.html')
 
 def login_user(request):
     return render(request, 'login.html', {})  # Render the login page
@@ -32,30 +38,35 @@ def user_login(request):
     
     else:
         return render(request, 'login.html')  # Render the login page for GET request
-    
-def view_html(request):
-    return render(request, 'deck.html')
 
 def create_deck(request):
     if request.method == 'POST':
-        # Get data from the POST request
-        title = request.POST.get('title')  # Get deck name
-        category = request.POST.get('category')  # Get category
-        description = request.POST.get('description')  # Get description
+        title = request.POST.get('title')
+        category_name = request.POST.get('category')  # This is a string from the form
+        description = request.POST.get('description')
 
-        # You may also want to add custom validation here
-        if title and category:  # Simple validation
+        if title and category_name:  # Ensure required fields are filled
+            category, created = Category.objects.get_or_create(name=category_name)
+
             flashcard_set = FlashcardSet(
                 title=title,
-                category=category,
-                description=description,
-                user=request.user  # Associate with the logged-in user
+                category=category,  # Assign Category instance, not string
+                description=description
             )
             flashcard_set.save()
-            return redirect('deck_list')  # Redirect to the list of decks
+            return redirect('deck_list')
+
         else:
-            # Handle the case where required fields are missing
             error_message = "Please fill in all required fields."
             return render(request, 'deck.html', {'error_message': error_message})
 
     return render(request, 'deck.html')
+
+def deck_list(request):
+    decks = FlashcardSet.objects.all()  # Get all flashcard decks
+    return render(request, 'deck_list.html', {'decks': decks})
+
+def delete_deck(request, deck_id):
+    deck = get_object_or_404(FlashcardSet, set_id=deck_id)  # Get the deck or return 404
+    deck.delete()  # Delete the deck
+    return redirect('deck_list')  # Redirect back to the list of decks
