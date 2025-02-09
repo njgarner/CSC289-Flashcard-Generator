@@ -7,7 +7,8 @@ def home(request):
     return render(request, 'Home.html')
 
 def library_view(request):
-    return render(request, 'Library.html')
+    flashcard_sets = FlashcardSet.objects.all()  # Fetch all FlashcardSets
+    return render(request, 'Library.html', {'flashcard_sets': flashcard_sets})  # Pass the data to the template
 
 def settings(request):
     return render(request, 'Settings.html')
@@ -54,19 +55,20 @@ def create_deck(request):
                 description=description
             )
             flashcard_set.save()
-            return redirect('deck_list')
+            return redirect('library_view')
 
         else:
             error_message = "Please fill in all required fields."
-            return render(request, 'deck.html', {'error_message': error_message})
+            return render(request, 'Deck.html', {'error_message': error_message})
 
-    return render(request, 'deck.html')
+    return render(request, 'Deck.html')
 
-def deck_list(request):
-    decks = FlashcardSet.objects.all()  # Get all flashcard decks
-    return render(request, 'deck_list.html', {'decks': decks})
+def view_flashcard_set(request, set_id):
+    flashcard_set = FlashcardSet.objects.get(set_id=set_id)  # Get the FlashcardSet by its ID
+    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set})
 
 def delete_deck(request, deck_id):
-    deck = get_object_or_404(FlashcardSet, set_id=deck_id)  # Get the deck or return 404
+    deck = get_object_or_404(FlashcardSet, set_id=deck_id)  # Ensure 'set_id' is consistent here
     deck.delete()  # Delete the deck
-    return redirect('deck_list')  # Redirect back to the list of decks
+    return redirect('library_view')  # Redirect back to the library view
+

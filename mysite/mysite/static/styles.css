@@ -309,3 +309,38 @@ hr {
     border-top: 1px solid #84F3DA; /* Adds a subtle grey line */
     margin: 10px 0; /* Adds space above and below the line */
 }
+
+/* Container for the flashcard sets list */
+.flashcard-sets-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjusts to your existing size */
+    gap: 20px; /* Space between the cards */
+    padding: 20px;
+    justify-items: center; /* Centers each flashcard deck inside the grid cell */
+}
+
+/* Style for each flashcard set (buttons) */
+.flashcard-deck {
+    width: 200px;
+    height: 200px;
+    background-color: #84F3DA; /* Green background */
+    color: black; /* Black text color */
+    font-size: 15px; /* Font size for the content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    border: none; /* No border */
+    flex-direction: column; /* Stacks the content vertically */
+    text-align: center; /* Centers the text */
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Hover effect */
+.flashcard-deck:hover {
+    background-color: #00A682; /* Darker green on hover */
+    color: white; /* Text turns white */
+    border-color: #008B5C; /* Darker border on hover */
+}

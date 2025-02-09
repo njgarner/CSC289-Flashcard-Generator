@@ -18,9 +18,15 @@ DATABASES = {
 
 What we have working:
 
-We can view two different pages:
+We can now view these pages:
 
-http://127.0.0.1:8000/create_deck
+http://127.0.0.1:8000/create_deck/
 http://127.0.0.1:8000/login_user
+http://127.0.0.1:8000/home
+http://127.0.0.1:8000/library
+http://127.0.0.1:8000/settings
 
-Currently still in the process of making the interactions between front and back end work.
+Things we can do (currently without user authentication):
+
+- Add a flashcard deck
+- View what decks we have in the library

@@ -1,7 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-    <!-- External Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
@@ -13,48 +12,49 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
-    <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
             <p>Flash Card Generator</p>
             <div class="login-content">
-                <!--Change to LogOut button when logged in-->
                 <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
                 <button class="button" href="#" onclick="alert('switches to sign up page')">Sign Up</button>
             </div>
         </div>
     </header>
-    
-    <!-- Vertical Navigation Bar -->
+
     <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a> <!-- This will be the active page -->
-        <a href="#">Create Flashcards</a> <!-- This will navigate to create html -->
-        <a href="{% url 'library_view' %}">Library</a> <!-- This will navigate to the Library page -->
-        <a href="{% url 'settings' %}">Settings</a> <!-- This will navigate to settings html -->
-    
-        <!-- Dropdown for Recent/Favorite Decks -->
-        <div class="dropdown">
-            <button class="dropbtn">Favorite Decks</button>
-            <div class="dropdown-content">
-                <a href="#">Test</a>
-                <a href="#">Test2</a>
-            </div>
-        </div>
-        <!--Contactinfo-->
-        <div class="contact">
-            <p>Contact us!</p>>
-            <!--insert contact info-->
-        </div>
+        <a href="{% url 'home' %}">Study Time</a>
+        <a href="#">Create Flashcards</a>
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'settings' %}">Settings</a>
     </div>
-    <!-- Main Content Section -->
+
     <h1 class="page-title">Library</h1>
+
     <div class="content">
-        <!-- Button to add new boxes (top-left) -->
-        <div class="library-container">
+        <!-- Button to add new boxes, now inside the grid -->
+        <div class="flashcard-sets-list">
+            <!-- "Add Box" button as part of the grid -->
             <button class="add-box">
                 <a href="{% url 'create_deck' %}">+</a>
             </button>
+    
+            {% for flashcard_set in flashcard_sets %}
+            <div class="flashcard-deck">
+                <p>{{ flashcard_set.title }}</p>
+                <p>{{ flashcard_set.description }}</p>
+                <p>Category: {{ flashcard_set.category.name }}</p>
+                <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+            
+                <!-- Delete Button -->
+                <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </div>
+            {% empty %}
+                <p>No flashcard sets created yet.</p>
+            {% endfor %}
         </div>
     </div>
-</body>
-</html>
+    
