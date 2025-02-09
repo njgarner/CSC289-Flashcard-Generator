@@ -1,23 +1,27 @@
+
+
+/* Style for the main-content div */
+.main-content {
+  margin-top: 200;
+  margin-left: auto;
+  margin-right: auto; 
+  text-align: center; /* Aligns all the text and elements to go in the center of the div */
+  font-family: "Varela Round", sans-serif; /* Used to make the font for the text in this div to Varela Round from Google Fonts */
+}
+
+/* Styles the buttons to be a teal color to fit with the main colors of the website */
 .main-content button {
     height: 40px;
     width: 100px;
-  }
-
-  .main-content {
-    margin-top: 200;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-  }
-
-  .main-content input {
-    border-radius: 5px;
-    border-color:#3f9480;
-    border-style: solid;
-  }
-
-  .main-content button {
     background-color: #84F3DA;
     border-color: #3f9480;
     border-radius: 5px;
   }
+
+  /* Styles the input to be more rounded, and have the teal color */
+  .main-content input {
+    border-radius: 5px; /* Rounds the edges */
+    border-color:#3f9480;
+    border-style: solid; /* Makes the border visible */
+  }
+

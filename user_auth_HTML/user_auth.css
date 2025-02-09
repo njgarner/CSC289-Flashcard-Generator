@@ -1,12 +1,18 @@
+/* This CSS file is for styling the user authentication pages (Login and Sign Up) */
+
+
+/* Styles the "body" element of the Login and Sign Up page */
 body {
-    background-color: #84F3DA;
-    background-image: url('https://www.pngkey.com/png/full/271-2716327_overlay-pattern-png.png');
-    background-position: center;
-    background-size: cover;
-    background-blend-mode: overlay;
+    background-color: #84F3DA; /* Sets the background color to a very light teal */
+    background-image: url('https://www.pngkey.com/png/full/271-2716327_overlay-pattern-png.png'); /* Sets the background image to this png */
+    background-position: center; /* Positions the background image to be at the center */
+    background-size: cover; /* Makes the background image cover the body element */
+    background-blend-mode: overlay; 
+    font-family: "Varela Round", sans-serif; /* Used to make the font for the text in this div to Varela Round from Google Fonts */
 
 }
 
+/* Styles the authentication div, and the elements inside it */
 .auth-div {
     background-color: rgb(255, 255, 255);
     margin-top: 200;
@@ -22,12 +28,11 @@ body {
     border-style: solid;
   }
 
-  #auth-heading
-  {
-    
-  }
-
+  /* Styles the buttons to be a teal color and rounded */
   .auth-div button {
     height: 50px;
     width: 100px;
+    background-color: #84F3DA;
+    border-color: #3f9480;
+    border-radius: 5px;
   }
