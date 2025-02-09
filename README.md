@@ -30,3 +30,5 @@ Things we can do (currently without user authentication):
 
 - Add a flashcard deck
 - View what decks we have in the library
+- Delete a deck
+- View deck info
