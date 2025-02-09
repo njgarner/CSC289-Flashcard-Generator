@@ -48,11 +48,39 @@
     <!-- Main Content Section -->
     <h1 class="page-title">Settings</h1>
     <div class="content">
-        <!--UserName-->
-        <!--Email-->
-        <!--Language-->
-        <!--Theme-->
-        <!--Change Password-->
+        <!-- UserName -->
+        <div class="setting-item">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="currentUsername">
+        </div>
+
+        <!-- Email -->
+        <div class="setting-item">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="user@example.com">
+        </div>
+
+        <hr>
+
+        <!-- Change Password -->
+        <div class="setting-item">
+            <label for="password">New Password</label>
+            <input type="password" id="password" name="password">
+        </div>
+        <div class="setting-item">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" name="confirm-password">
+        </div>
+        <div class="setting-item">
+            <button class="button" href="#" onclick="alert('password changed')">Change Password</button>
+        </div>
+
+        <hr>
+
+        <!-- Delete Account -->
+        <div class="setting-item">
+            <button class="delete-button" href="#" onclick="confirm('Delete Account?')">Delete Account</button>
+        </div>
     </div>
 </body>
 </html>
