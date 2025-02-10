@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -28,5 +28,6 @@ urlpatterns = [
     path('library/', views.library_view, name="library_view"),
     path('settings', views.settings, name="settings"),
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
+    path('', include("django.contrib.auth.urls")),
 ]
 
