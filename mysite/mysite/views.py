@@ -5,11 +5,7 @@ from .models import Users, Flashcard, FlashcardSet, Category
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User 
 
-# def create_user(username, password):
-    # user = User.objects.create_user(username=username,password=password)
-    # return user
-
-# new_user = create_user(username='', password='')
+# Create a new user
 
 def home(request):
     return render(request, 'Home.html')
@@ -26,8 +22,8 @@ def login_user(request):
 
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST.get['username']
-        password = request.POST.get['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
         user = authenticate(request, username=username, password=password)
 
@@ -37,6 +33,7 @@ def user_login(request):
             
             # Check if user exists
             if user is not None:
+                login(request, user)
                 return redirect('Home.html')
                 
             else:
@@ -44,7 +41,7 @@ def user_login(request):
                 return redirect('login.html')  # Redirect back to the login page
 
         except Exception as identifier:
-            messages.error(request, "Error logging in.")
+            messages.success(request, "Error logging in.")
             return redirect('login.html')  # Redirect back to the login page
     
     else:
