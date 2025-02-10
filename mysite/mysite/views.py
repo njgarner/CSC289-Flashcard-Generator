@@ -9,7 +9,7 @@ def create_user(username, password, email=None):
     user = User.objects.create_user(username=username,password=password)
     return user
 
-new_user = create_user(username='waketech', password='waketech')
+new_user = create_user(username='waketech', password='waketech1')
 
 def home(request):
     return render(request, 'Home.html')
