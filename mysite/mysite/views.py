@@ -5,11 +5,11 @@ from .models import Users, Flashcard, FlashcardSet, Category
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User 
 
-def create_user(username, password, email=None):
-    user = User.objects.create_user(username=username,password=password)
-    return user
+# def create_user(username, password):
+    # user = User.objects.create_user(username=username,password=password)
+    # return user
 
-new_user = create_user(username='waketech', password='waketech1')
+# new_user = create_user(username='', password='')
 
 def home(request):
     return render(request, 'Home.html')
