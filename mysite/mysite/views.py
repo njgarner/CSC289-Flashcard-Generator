@@ -20,6 +20,9 @@ def settings(request):
 def login_user(request):
     return render(request, 'login.html', {})  # Render the login page
 
+def signup_user(request):
+    return render(request, 'sign_up.html', {}) # render the signup page
+
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
