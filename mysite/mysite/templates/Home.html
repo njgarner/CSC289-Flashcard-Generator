@@ -19,7 +19,13 @@
             <p>Flash Card Generator</p>
             <div class="login-content">
                 <!--Change to LogOut button when logged in-->
+                {% if user.is_authenticated %}
+                  {% block content %}
+                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
+                  {% endblock %}
+                {% else %}
                 <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                {% endif %}
                 <button class="button" href="#" onclick="alert('switches to sign up page')">Sign Up</button>
             </div>
         </div>
