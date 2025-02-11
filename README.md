@@ -30,6 +30,9 @@ http://127.0.0.1:8000/signup_user/
 Things we can do (currently without user authentication):
 
 - Add a flashcard deck
-- View what decks we have in the library
+- View what decks we have in the library, as well as the flashcards that are in the deck
 - Delete a deck
-- View deck info
+- Add a flashcard to a specific deck
+
+What I'm working on tomorrow (Raegan):
+- Flashcard deletion
