@@ -19,8 +19,14 @@
             <p>Flash Card Generator</p>
             <div class="login-content">
                 <!--Change to LogOut button when logged in-->
+                {% if user.is_authenticated %}
+                  {% block content %}
+                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
+                  {% endblock %}
+                {% else %}
                 <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                <button class="button" href="#" onclick="alert('switches to sign up page')">Sign Up</button>
+                {% endif %}
+                <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
             </div>
         </div>
     </header>
@@ -28,7 +34,7 @@
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
         <a href="{% url 'home' %}">Study Time</a> <!-- This will be the active page -->
-        <a href="#">Create Flashcards</a> <!-- This will navigate to create html -->
+        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a> <!-- This will navigate to the Library page -->
         <a href="{% url 'settings' %}">Settings</a> <!-- This will navigate to settings html -->
     
