@@ -1,7 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from .models import Users, Flashcard, FlashcardSet, Category
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User 
+
+# Create a new user
 
 def home(request):
     return render(request, 'Home.html')
@@ -16,10 +20,15 @@ def settings(request):
 def login_user(request):
     return render(request, 'login.html', {})  # Render the login page
 
+def signup_user(request):
+    return render(request, 'sign_up.html', {}) # render the signup page
+
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
 
         try:
             # Use correct parameter names to get user
@@ -27,15 +36,16 @@ def user_login(request):
             
             # Check if user exists
             if user is not None:
-                return redirect('home')
+                login(request, user)
+                return redirect('Home.html')
                 
             else:
-                messages.error(request, "Failure to login. Please check your credentials.")
-                return redirect('login_user')  # Redirect back to the login page
+                messages.success(request, "Failure to login. Please check your credentials.")
+                return redirect('login.html')  # Redirect back to the login page
 
         except Exception as identifier:
-            messages.error(request, "Error logging in.")
-            return redirect('login_user')  # Redirect back to the login page
+            messages.success(request, "Error logging in.")
+            return redirect('login.html')  # Redirect back to the login page
     
     else:
         return render(request, 'login.html')  # Render the login page for GET request

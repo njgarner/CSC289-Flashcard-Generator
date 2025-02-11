@@ -25,8 +25,11 @@ http://127.0.0.1:8000/login_user
 http://127.0.0.1:8000/home
 http://127.0.0.1:8000/library
 http://127.0.0.1:8000/settings
+http://127.0.0.1:8000/signup_user/
 
 Things we can do (currently without user authentication):
 
 - Add a flashcard deck
 - View what decks we have in the library
+- Delete a deck
+- View deck info
