@@ -1,11 +1,10 @@
 <html>
+
 <head>
 <title>Sign Up</title>
 {% load static %}
 <link rel="stylesheet"  href="{% static 'user_auth.css' %}">
 </head>
-
-
 <body>
 <header>
 <div class="navigation-div"></div>
@@ -20,7 +19,8 @@
 <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
 </form>
 <button>Sign Up</button><br><br><br>
-<a href>Already have an account? Login here!</a>
+<a href="{% url 'login_user' %}">Already have an account? Login here!</a>
 </div>
 </body>
+
 </html>
