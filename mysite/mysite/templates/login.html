@@ -12,7 +12,7 @@
 </header>
 <div class="auth-div"><br><br>
 <h2 id="auth-heading">Login</h2><br>
-<form method="post" class="form-group">
+<form method="POST" class="form-group">
     {% csrf_token %}
     {% if messages %}
       {% for message in messages %}
@@ -30,7 +30,7 @@
 <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
 <button type="submit" class="btn btn-successs">Login</button><br><br><br>
 </form>
-<a href>Don't have an account? Sign Up Here!</a>
+<a href="{% url 'signup_user' %}">Don't have an account? Sign Up Here!</a>
 </div>
 </body>
 
