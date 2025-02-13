@@ -16,6 +16,14 @@ DATABASES = {
 
 ^^^ This is before we have aws configured
 
+## Install Required Python Packages
+py -m pip install Django cryptography pymysql
+
+## Start the Service
+cd C:\Code\CSC289-Flashcard-Generator\mysite
+python manage.py runserver
+
+
 What we have working:
 
 We can now view these pages:
