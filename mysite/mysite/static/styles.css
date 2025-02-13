@@ -1,0 +1,346 @@
+/* Top bar styles */
+.top-bar {
+    background-color: #84F3DA; /* Background color */
+    background-image: url('https://www.pngkey.com/png/full/271-2716327_overlay-pattern-png.png'); /* Path to your image */
+    background-size: cover; /* Make sure the image covers the entire area */
+    background-position: center; /* Center the image */
+    background-blend-mode: overlay; /* Blend the image with the background color */
+    color: black;              /* Text color */
+    display: flex;             /* Flexbox to arrange items */
+    justify-content: space-between; /* Title on the left, buttons on the right */
+    align-items: center;       /* Vertically center the items */
+    padding: 10px 20px;        /* Padding for spacing */
+    position: fixed;           /* Fixed at the top */
+    width: 100%;               /* Full width of the page */
+    top: 0;                    /* Align to the top */
+    left: 0;                   /* Align to the left */
+    z-index: 1000;             /* Ensure it stays above other content */
+    font-size: 25px;           /* Font size for title */
+    font-family: 'Varela Round', sans-serif; /* Font family */
+}
+
+/* Top bar button styles */
+.top-bar .login-content button {
+    padding: 10px 20px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 18px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: white; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for the buttons */
+.top-bar .button:hover {
+    background-color: gray; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Body styles */
+body {
+    padding-top: 50px; /* Adds space at the top to avoid overlap with the top bar */
+    font-family: 'Varela Round', sans-serif; /* Body font */
+    margin: 0; /* Remove default body margin */
+    display: flex; /* Using flexbox for centering */
+    align-items: flex-start; /* Align the content to the top */
+    height: 100vh; /* Take up full viewport height */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: flex-start; /* Start content from the top */
+}
+
+/* Main content container styles */
+.content {
+    display: flex;             /* Enable flexbox */
+    flex-direction: column;    /* Stack content vertically */
+    margin-left: 220px;        /* To the right of the nav bar */
+    padding-top: 40px;         /* To give space below the top bar */
+    width: calc(100% - 220px); /* Ensure content area adjusts to the right of the nav bar */
+    height: calc(100vh - 50px); /* Take full height minus top bar space */
+}
+
+.page-title{
+    margin-left: 20px; /* To the right of the nav bar */
+    padding-top: 50px; /* To give space below the top bar */
+    padding-left: 220px;
+}
+
+/* Main content buttons */
+.button button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for buttons */
+.button button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Left vertical navigation bar */
+.nav-bar {
+    position: fixed; /* Fixed position on the left */
+    top: 80px; /* Space below the top bar */
+    left: 0;
+    width: 200px; /* Width of the nav bar */
+    background-color: #333; /* Dark background */
+    color: white; /* Text color */
+    padding: 20px 0; /* Padding around the nav items */
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    height: calc(100vh - 80px); /* Full height minus top bar */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nav-bar a {
+    color: white; /* Link color */
+    text-decoration: none; /* Remove underline */
+    padding: 15px 20px; /* Padding around the links */
+    width: 100%; /* Make links take full width of nav bar */
+    text-align: center; /* Center text inside links */
+    border-bottom: 1px solid #ddd; /* Add a separator between items */
+    font-size: 18px; /* Font size for the links */
+}
+
+.nav-bar .contact {
+    font-family: varela round;
+    margin-top: auto; /* Push the contact link to the bottom */
+}
+
+.nav-bar a:hover {
+    background-color: #555; /* Hover effect */
+}
+
+/* Dropdown container */
+.dropdown {
+    position: relative; /* Position relative to the parent */
+    display: inline-block; /* Display as inline block */
+}
+
+/* Button that opens the dropdown */
+.dropbtn {
+    color: white; /* Link color */
+    text-decoration: none; /* Remove underline */
+    padding: 15px 20px; /* Padding around the links */
+    width: 100%; /* Make links take full width of nav bar */
+    text-align: center; /* Center text inside links */
+    border-bottom: 1px solid #ddd; /* Add a separator between items */
+    font-size: 18px; /* Font size for the links */
+    background-color: #333; /* Dark background */
+}
+
+/* The dropdown content (hidden by default) */
+.dropdown-content {
+    display: none; /* Hide the dropdown content */
+    position: absolute; /* Position it absolutely */
+    background-color: #333; /* Background color */
+    min-width: 160px; /* Minimum width */
+    z-index: 1; /* Ensure it stays above other content */
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: white; /* Text color */
+    padding: 12px 16px; /* Padding around the links */
+    text-decoration: none; /* Remove underline */
+    display: block; /* Make links take full width */
+}
+
+/* Change color of dropdown links when hovering */
+.dropdown-content a:hover {
+    background-color: #555; /* Hover effect */
+    color: white; /* Text color changes to black */
+}
+
+/* Show the dropdown content when hovering over the dropdown button */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #555; /* Hover effect */
+}
+
+/* Flashcard styles */
+.flashcard {
+    width: 600px;
+    height: 300px;
+    border: 2px solid #84F3DA;
+    padding: 30px;
+    margin: 20px;
+    text-align: center;
+    line-height: 150px; /* Centers the text vertically */
+    margin: 0 auto; /* Centers the element horizontally */
+    background-color: #f4f4f4;
+    color: #333;
+    font-size: 18px;
+}
+
+.flashcard-display {
+    display: flex;
+    height: calc(100vh - 120px); /* Takes full viewport height minus top bar and some padding */
+    flex-direction: column;  /* Stack the buttons above the flashcard */
+    align-items: center;     /* Center the content horizontally */
+    gap: 10px;               /* Add space between the buttons and flashcard */
+}
+
+.flashcard-display .button {
+    display: flex;
+    justify-content: center; /* Center the button */
+    align-items: center;     /* Vertically center the content */
+    width: 100%;             /* Make the buttons take the full width of the container */
+    max-width: 600px;        /* Set a max-width to match the flashcard width */
+    gap: 10px;     /* Add some padding to the left */
+    gap: 10px;    /* Add some padding to the right */
+}
+
+.flashcard-display .button .previous {
+    align-items: left; /* Align to the left */
+}
+
+.flashcard-display .button .next {
+    align-items: right; /* Align to the right */
+}
+
+.patrick-hand-regular {
+    font-family: 'Patrick Hand', cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Style for the Library box container */
+.library-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 60px); /* Allows grid to auto-adjust */
+    gap: 10px; /* Spacing between boxes */
+    padding-left: 10px; /* Space from the left edge */
+}
+
+/* Style for the Add Box button */
+.add-box {
+    width: 200px;
+    height: 200px;
+    background-color: #84F3DA; /* Green background */
+    color: black; /* Black text color */
+    font-size: 50px; /* Large font size for the plus symbol */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    border: none; /* Remove border */
+}
+
+
+/* hover effect */
+.content .add-box:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+.page-title {
+    text-align: center;
+    font-family: 'Varela Round', sans-serif;
+    margin-top: 20px;
+    font-size: 60px;
+}
+
+.setting-item {
+    margin-bottom: 20px; /* Adds space below each setting item */
+    font-family: varela round;
+    font-size: 20px; 
+}
+
+.setting-item button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 10px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for buttons */
+.setting-item button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+.setting-item .delete-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 10px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: rgb(255, 75, 75); /* Background color */
+    border: 2px solid rgb(124, 0, 0); /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for buttons */
+.setting-item .delete-button:hover {
+    background-color: #740e0e; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #420000; /* Darker border on hover */
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #84F3DA; /* Adds a subtle grey line */
+    margin: 10px 0; /* Adds space above and below the line */
+}
+
+/* Container for the flashcard sets list */
+.flashcard-sets-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjusts to your existing size */
+    gap: 20px; /* Space between the cards */
+    padding: 20px;
+    justify-items: center; /* Centers each flashcard deck inside the grid cell */
+}
+
+/* Style for each flashcard set (buttons) */
+.flashcard-deck {
+    width: 200px;
+    height: 200px;
+    background-color: #84F3DA; /* Green background */
+    color: black; /* Black text color */
+    font-size: 15px; /* Font size for the content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    border: none; /* No border */
+    flex-direction: column; /* Stacks the content vertically */
+    text-align: center; /* Centers the text */
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Hover effect */
+.flashcard-deck:hover {
+    background-color: #00A682; /* Darker green on hover */
+    color: white; /* Text turns white */
+    border-color: #008B5C; /* Darker border on hover */
+}

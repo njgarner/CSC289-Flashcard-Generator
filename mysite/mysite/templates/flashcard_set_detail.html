@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ flashcard_set.title }} - Details</title>
+</head>
+<body>
+    <h1>{{ flashcard_set.title }}</h1>
+    <p>{{ flashcard_set.description }}</p>
+    <p>Category: {{ flashcard_set.category.name }}</p>
+    <p>Created on: {{ flashcard_set.created_at }}</p>
+    <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
+
+    <h2>Flashcards in this Set:</h2>
+    <ul>
+        {% for flashcard in flashcards %}
+            <li>
+                <strong>Question:</strong> {{ flashcard.question }}<br>
+                <strong>Answer:</strong> {{ flashcard.answer }}
+                <br>
+            </li>
+        {% empty %}
+            <p>No flashcards available in this set.</p>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'library_view' %}">Back to Library</a>
+</body>
+</html>
