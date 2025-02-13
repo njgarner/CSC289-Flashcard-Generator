@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-a%n88vt#j1mgtipaz^ax)+-c=x2g()$7v3@uu+nl6k!cy(*7%^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -78,8 +78,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'flashcard_db',
-        'USER': 'root',
-        'PASSWORD': 'waketech',
+        'USER': 'flashcarduser',
+        'PASSWORD': 'Group1!!',
         'HOST': 'localhost',
         'PORT': '3306',
     }
