@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Generator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <p>Flash Card Generator</p>
+            <div class="login-content">
+                <!--Change to LogOut button when logged in-->
+                {% if user.is_authenticated %}
+                  {% block content %}
+                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
+                  {% endblock %}
+                {% else %}
+                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <a href="{% url 'home' %}">Study Time</a>
+        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'settings' %}">Settings</a>
+    </div>
+
+    <h1 class="page-title">Library</h1>
+
+    <div class="content">
+        <!-- Button to add new boxes, now inside the grid -->
+        <div class="flashcard-sets-list">
+            <!-- "Add Box" button as part of the grid -->
+            <button class="add-box">
+                <a href="{% url 'create_deck' %}">+</a>
+            </button>
+    
+            {% for flashcard_set in flashcard_sets %}
+            <div class="flashcard-deck">
+                <p>{{ flashcard_set.title }}</p>
+                <p>{{ flashcard_set.description }}</p>
+                <p>Category: {{ flashcard_set.category.name }}</p>
+                <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+            
+                <!-- Delete Button -->
+                <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </div>
+            {% empty %}
+                <p>No flashcard sets created yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
