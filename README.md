@@ -50,7 +50,8 @@ py -m pip install Django cryptography pymysql
 
 ## Start the Service
 cd C:\Code\CSC289-Flashcard-Generator\mysite
-python manage.py runserver
+
+python manage.py runserver 0.0.0.0:8000
 
 
 What we have working:
@@ -58,6 +59,7 @@ What we have working:
 We can now view these pages:
 
 http://127.0.0.1:8000/create_deck/
+
 http://127.0.0.1:8000/login_user
 http://127.0.0.1:8000/home
 http://127.0.0.1:8000/library

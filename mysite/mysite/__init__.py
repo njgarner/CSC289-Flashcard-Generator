@@ -1,5 +1,5 @@
 import pymysql
-
+pymysql.version_info = (1, 4, 3, "final", 0)
 from pymysql.constants import CLIENT
 
 pymysql.install_as_MySQLdb()
@@ -11,9 +11,9 @@ class Database:
 
         "host": "localhost",
 
-        "user": "root",
+        "user": "flashcarduser",
 
-        "password": "waketech",
+        "password": "Group1!!",
 
         "database": "flashcard_db",
 
