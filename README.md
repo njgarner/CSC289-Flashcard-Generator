@@ -21,8 +21,9 @@ Repository for CSC289 Flashcard Generator
 
 ## Creating and Running Database Schema
 1. cd C:\Code\CSC289-Flashcard-Generator\sql
-2. mysql -u root -p < create_schema.sql
-3. Will prompt for root password (Enter Password)
+2. Before creating schema, edit create_schema.sql to adjust application username and password (Line number 2) **That is the username and password you are going to put in the setting.py file for Django**
+3. mysql -u root -p < create_schema.sql
+4. Will prompt for root password (Enter Password)
 
 ## Dropping Database (For ReRun)
 1. cd C:\Code\CSC289-Flashcard-Generator\sql
