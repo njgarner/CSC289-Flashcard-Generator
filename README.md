@@ -1,6 +1,12 @@
 # CSC289-Flashcard-Generator
 Repository for CSC289 Flashcard Generator
 
+## AWS Environment
+AWS instance is running 24/7 with static IP. On top of every hour latest changes from main get pulled and service gets restarted.
+
+http://ec2-54-172-119-63.compute-1.amazonaws.com:8000/login_user?next=/home
+
+
 # Instructions for connecting to Database
 ## Installing MySQL
 1. Install MySQL Ver 8.x
