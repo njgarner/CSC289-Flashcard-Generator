@@ -17,7 +17,13 @@
         {% for flashcard in flashcards %}
             <li>
                 <strong>Question:</strong> {{ flashcard.question }}<br>
-                <strong>Answer:</strong> {{ flashcard.answer }}
+                <strong>Answer:</strong> {{ flashcard.answer }}<br>
+                
+                <!-- Delete flashcard form -->
+                <form action="{% url 'delete_flashcard' flashcard.card_id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Delete</button>
+                </form>
                 <br>
             </li>
         {% empty %}
