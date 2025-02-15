@@ -23,10 +23,10 @@
                   {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
-                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>                    </form>
+                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button></form>
                   {% endblock %}
                 {% else %}
-                    <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
                     <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
