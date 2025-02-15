@@ -38,6 +38,8 @@ def custom_logout(request):
     logout(request)
     return redirect('login_user')  # Redirect to your login page
 
+# def delete_user(request):
+
 def signup_user(request):
     if request.method == "POST":
         username = request.POST["username"]
