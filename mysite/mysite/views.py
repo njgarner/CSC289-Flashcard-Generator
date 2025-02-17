@@ -119,7 +119,7 @@ def user_login(request):
         
         if user is not None:
             login(request, user)  # Log the user in using Django's built-in login method
-            messages.success(request, "Login successful!")
+            # messages.success(request, "Login successful!")
             return redirect('home')  # Redirect to home after successful login
         else:
             messages.error(request, "Invalid username or password.")

@@ -16,14 +16,16 @@
         <div class="top-bar">
             <p>Flash Card Generator</p>
             <div class="login-content">
-                <!--Change to LogOut button when logged in-->
+                <!-- Change to LogOut button when logged in -->
                 {% if user.is_authenticated %}
                   {% block content %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button></form>
                   {% endblock %}
                 {% else %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
