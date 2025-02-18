@@ -81,7 +81,7 @@ DATABASES = {
         'USER': 'flashcarduser',
         'PASSWORD': 'Group1!!',
         'HOST': 'localhost',
-        'PORT': '8000',
+        'PORT': '3306',
     }
 }
 
