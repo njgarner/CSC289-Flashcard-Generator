@@ -4,13 +4,13 @@
 
 ### Project Overview
 
-The following project utilizes an **Agile** approach to software testing and development. This project will serve users/clients by giving them the means of creating their own flashcard decks. The project demonstrates how to properly operate platforms such as **AWS** and **AZURE**. The project will also implement behavior-driven (**BDD**) software development frameworks like **Django**. Expect to find information and resources on web application testing for the following:
+The following project utilizes an **Agile** approach to software testing and development. This project will serve users/clients by giving them the means of creating their own flashcard decks. The project demonstrates how to properly operate platforms such as **AWS** and **AZURE**. The project will also implement behavior-driven (**BDD**) software development frameworks like **Django**. Expect to find information and resources for the following:
 
 <br>**BDD**: Behavior-Driven Development
 <br>**TDD**: Test-Driven Development
 <br>**API**: Application Programming Interface
 <br>**CI/CD**: Continuous Integration and Development
-<br>**Django**: Create web applications
+<br>**Django**: Web Application Creation Software
 
 # <a name="_x7m16otabon9"></a><a name="_64tqgr9am01"></a>**Team Member Details** 
 
