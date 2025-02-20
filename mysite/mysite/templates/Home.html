@@ -18,24 +18,26 @@
         <div class="top-bar">
             <p>Flash Card Generator</p>
             <div class="login-content">
-                <!--Change to LogOut button when logged in-->
                 {% if user.is_authenticated %}
-                  {% block content %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
-                  {% endblock %}
+                    <!-- Proper logout form -->
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" type="submit">Logout</button>
+                    </form>
                 {% else %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
     </header>
+
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a> <!-- This will be the active page -->
+        <a href="{% url 'home' %}">Study Time</a>
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
-        <a href="{% url 'library_view' %}">Library</a> <!-- This will navigate to the Library page -->
-        <a href="{% url 'settings' %}">Settings</a> <!-- This will navigate to settings html -->
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'settings' %}">Settings</a>
     
         <!-- Dropdown for Recent/Favorite Decks -->
         <div class="dropdown">
@@ -45,12 +47,13 @@
                 <a href="#">Test2</a>
             </div>
         </div>
-        <!--Contactinfo-->
+
+        <!-- Contact Info -->
         <div class="contact">
-            <p>Contact us!</p>>
-            <!--insert contact info-->
+            <p>Contact us!</p>
         </div>
     </div>
+
     <!-- Main Content Section -->
     <h1 class="page-title">Study Time!</h1>
     <div class="content">
@@ -58,21 +61,16 @@
             <!-- Left and Right Navigation Buttons -->
             <div class="button">
                 <button id="previous" onclick="alert('switches to previous card')">Previous</button>
-                <!--Triggers flashcard classes to populate-->
-                <!-- Random Flashcard Button -->
                 <button id="rand-button" onclick="alert('switches to random card in deck')">Random</button>
                 <button id="next" onclick="alert('switches to next card')">Next</button>
-                <!--Triggers flashcard classes to populate-->
             </div>
         
-            <!--Flashcard Display Area -->
+            <!-- Flashcard Display Area -->
             <div class="flashcard patrick-hand-regular">
                 <p>Test Text</p>
-                <!-- Text will be displayed here -->
-                <!--Trigger flashcard classes to populate-->
             </div>
 
-            <!--Flip card button-->
+            <!-- Flip card button -->
             <div class="button">
                 <button id="flip-button" onclick="alert('flips card over')">Flip</button>
             </div>

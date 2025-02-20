@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-a%n88vt#j1mgtipaz^ax)+-c=x2g()$7v3@uu+nl6k!cy(*7%^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -78,8 +78,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'flashcard_db',
-        'USER': 'flashcarduser',
-        'PASSWORD': 'Group1!!',
+        'USER': 'root',
+        'PASSWORD': 'waketech',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -128,4 +128,14 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'auth.User'
-LOGIN_URL = 'login_user'
+
+LOGIN_URL = '/login_user'
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # Change for your email provider
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "radurdin42@gmail.com"
+EMAIL_HOST_PASSWORD = "itlh fcxj lkcw xbga"
+
+LOGOUT_REDIRECT_URL = 'login_user'
