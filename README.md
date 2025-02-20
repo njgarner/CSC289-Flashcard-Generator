@@ -131,7 +131,7 @@ http://127.0.0.1:8000/create_deck
 
 http://127.0.0.1:8000/login_user
 
-http://127.0.0.1:8000/home
+http://127.0.0.1:8000 -- this is the home page
 
 http://127.0.0.1:8000/library
 
@@ -139,12 +139,14 @@ http://127.0.0.1:8000/settings
 
 http://127.0.0.1:8000/signup_user
 
-Things we can do (currently without user authentication):
+Things we can do :
 
 - Add a flashcard deck
 - View what decks we have in the library, as well as the flashcards that are in the deck
 - Delete a deck
 - Add a flashcard to a specific deck
+- Delete a flashcard
+- Click the study button in order to view the flashcard on the study time page
 
 ### AWS Environment
 AWS instance is running 24/7 with static IP. On top of every hour latest changes from main get pulled and service gets restarted.
