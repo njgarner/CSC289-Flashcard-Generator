@@ -218,3 +218,13 @@ def delete_flashcard(request, card_id):
     flashcard = get_object_or_404(Flashcard, card_id=card_id)
     flashcard.delete()
     return redirect('library_view')  # Change this as needed
+
+
+####################### Study Time #############################
+
+@login_required
+def study_view(request, set_id):
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+
+    return render(request, 'Home.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})

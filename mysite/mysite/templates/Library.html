@@ -53,17 +53,23 @@
                 <p>{{ flashcard_set.title }}</p>
                 <p>{{ flashcard_set.description }}</p>
                 <p>Category: {{ flashcard_set.category.name }}</p>
+                
+                <!-- View Details Button -->
                 <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
-            
+        
+                <!-- New Study Button -->
+                <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+        
                 <!-- Delete Button -->
                 <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="delete-button">Delete</button>
                 </form>
             </div>
-            {% empty %}
-                <p>No flashcard sets created yet.</p>
-            {% endfor %}
+        {% empty %}
+            <p>No flashcard sets created yet.</p>
+        {% endfor %}
+        
         </div>
     </div>
     
