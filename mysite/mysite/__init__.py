@@ -6,7 +6,7 @@ pymysql.install_as_MySQLdb()
 
 class Database:
 
-
+    ########## local database credentials ###########
     database_cred = {
 
         "host": "localhost",
@@ -17,11 +17,28 @@ class Database:
 
         "database": "flashcard_db",
 
-        "autocommit": True,  # making sure updated, inserts, deletions are commited for every query
+        "autocommit": True,
 
         "cursorclass": pymysql.cursors.DictCursor,
 
     }
+
+    ############ aws database credentials ####################
+        #database_cred = {
+
+        #"host": "localhost",
+
+        #"user": "flashcarduser",
+
+        #"password": "Group1!!",
+
+        #"database": "flashcard_db",
+
+        #"autocommit": True,  # making sure updated, inserts, deletions are commited for every query
+
+        #"cursorclass": pymysql.cursors.DictCursor,
+
+    #}
 
 
     def __init__(self, database_cred: dict = None):

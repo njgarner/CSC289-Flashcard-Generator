@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-a%n88vt#j1mgtipaz^ax)+-c=x2g()$7v3@uu+nl6k!cy(*7%^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -74,6 +74,15 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database: Information here should refer to the MySQL database. Current information is placeholder.
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
+####
+####
+####        You need to uncomment / recomment the correct 'DATABASES' 
+####        to work with your local database, or the aws one.
+####
+####
+
+############### This is the local one: ###############
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -84,6 +93,29 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+
+############### This is the aws one: ###############
+
+#DATABASES = {
+    #'default': {
+        #'ENGINE': 'django.db.backends.mysql',
+        #'NAME': 'flashcard_db',
+        #'USER': 'flashcarduser',
+        #'PASSWORD': 'Group1!!',
+        #'HOST': 'localhost',
+        #'PORT': '3306',
+    #}
+#}
+
+
+####
+####
+####        Whenever you want to work locally, uncomment the local one and comment the aws one. 
+####        Whenever you make a push to github, please recomment the local one, and uncomment
+####        the aws one.
+####
+####
+
 
 
 # Password validation
@@ -129,7 +161,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'auth.User'
 
-LOGIN_URL = '/login_user'
+LOGIN_URL = 'login_user'
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"  # Change for your email provider
