@@ -92,6 +92,7 @@ If successful, you can proceed with using the local server. Doing this will not 
 You likely won't push the **\_\_init__.py** or **settings.py** files to GitHub. These files will rarely need to experience changes. But, If you were ever going to push these files to GitHub, on their own or in combination with other files, you would need to change the local files back to their AWS versions before doing so.
 
 When you want to return to the AWS server, rename the files to include local again:
+
 ``__init__local.py ``
 ``settings_local.py ``
 
