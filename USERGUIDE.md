@@ -89,28 +89,27 @@ If successful, you can proceed with using the local server. Doing this will not 
 
 ### Using AWS
 
-You likely won't push the **\_\_init__.py** or **settings.py** files to GitHub, since these files will rarely need to undergo changes. But If you are ever going to push these files to GitHub, on their own or in combination with other files you will need to change the files back to their AWS versions before doing so.
-
+You likely won't push the **\_\_init__.py** or **settings.py** files to GitHub. These files will rarely need to experience changes. But, If you were ever going to push these files to GitHub, on their own or in combination with other files, you would need to change the local files back to their AWS versions before doing so.
 
 When you want to return to the AWS server, rename the files to include local again:
 ``__init__local.py ``
 ``settings_local.py ``
 
-Now the files can go back in the **local folder** which should have **four files** again.
+Now, the files can go to the **local folder**, which should have **four files** again.
 
 ``__init__.py ``
 ``__init__local.py ``
 `` settings.py`` 
 `` settings_local.py``
 
-You put the original **AWS** files back in the **mysite** folder.
+The original **AWS** files should go in the **mysite** folder.
 
 | Folder (mysite)| Folder (local)     |
 | -------------- | ------------------ |
 | \_\_init__.py  | \_\_init__local.py |
 | settings.py    | settings_local.py  |
 
-Now if these files are pushed to GitHub they won't cause errors with the AWS server. When you need to test again simply revist the **Using Local** section and repeat the process over.
+Now, uploading these files won't cause errors with the AWS server. When you need to test again, revisit the **Using Local** section and repeat the process to get back to the local server.
 
 # Database Templates
 
