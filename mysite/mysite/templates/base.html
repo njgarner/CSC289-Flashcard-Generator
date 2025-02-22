@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <!-- External Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Change to Page Title{% endblock title %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <!-- Top Bar Section -->
+    <header>
+        <div class="top-bar">
+            <p>Flash Card Generator</p>
+            <div class="login-content">
+                <!--Change to LogOut button when logged in-->
+                {% if user.is_authenticated %}
+                  {% block content %}
+                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
+                  {% endblock %}
+                {% else %}
+                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    <!-- Vertical Navigation Bar -->
+    <div class="nav-bar">
+        <a href="{% url 'home' %}">Study Time</a> <!-- This will be the active page -->
+        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
+        <a href="{% url 'library_view' %}">Library</a> <!-- This will navigate to the Library page -->
+        <a href="{% url 'settings' %}">Settings</a> <!-- This will navigate to settings html -->
+    
+        <!-- Dropdown for Recent/Favorite Decks -->
+        <div class="dropdown">
+            <button class="dropbtn">Favorite Decks</button>
+            <div class="dropdown-content">
+                <a href="#">Test</a>
+                <a href="#">Test2</a>
+            </div>
+        </div>
+        <!--Contactinfo-->
+        <div class="contact">
+            <p>Contact us!</p>>
+            <!--insert contact info-->
+        </div>
+    </div>
+    {% block content %}
+    {% endblock content %}
+</body>
+</html>
