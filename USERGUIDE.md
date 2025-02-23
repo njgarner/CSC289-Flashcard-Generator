@@ -29,7 +29,49 @@ The following guide will provide instructions for using our software/system, des
 
 
 ### Diagram:
-``Not yet implemented.``
+```mermaid
+erDiagram
+    DECK ||--o{ USER : creates
+    DECK {
+        string deckName
+        string category
+        string description
+        string[] preset
+    }
+    APP ||--o{ USER : creates
+    USER {
+        string(99) username "Only 99 characters are allowed"
+        string password
+        string email
+    }
+    DECK ||--o{ FLASHCARD : contains
+    FLASHCARD {
+        string question
+        string answer
+    }
+    CLIENT ||--o{ APP : visits
+```
+```mermaid
+erDiagram
+    USER ||--o{ DECK : creates
+    USER {
+        string username
+        string password
+        string email
+    }
+    DECK ||--|{ FLASHCARD : contains
+    DECK {
+        string deckName
+        string category
+        string description
+        string[] preset
+    }
+    FLASHCARD {
+        string question
+        string answer
+        float proficiency
+    }
+```
 
 ## Workflow
 
