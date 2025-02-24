@@ -30,6 +30,35 @@ The following guide will provide instructions for using our software/system, des
 
 ### Diagram:
 ```mermaid
+flowchart LR
+    Client -- request --> Webserver
+    Webserver -- WSGI --> DjangoApp/Project
+    DjangoApp/Project -- ORM --> DjangoORM
+    DjangoORM -- close --x Database/MySQL
+```
+```mermaid
+flowchart LR
+    Database/MySQL -- results --> DjangoORM
+    DjangoORM -- process --> DjangoApp/Project
+    DjangoApp/Project -- generate response --> Webserver
+    Webserver -- response --x Client
+```
+
+
+```mermaid
+flowchart TD
+    A[Client] -- Enters --> B{Web / Internet}
+    D[Server / AWS] -- Manages / Delivers --> G{Database / MySQL}
+    B -- Requests --> C[Domain / URL]
+    C[Domain / URL] -- Accesses --> D
+    D -- Contains --> E[Software / Django]
+    E -- Creates  --> F[Data]
+    F -- Stores   --> G 
+```
+
+
+## Workflow
+```mermaid
 erDiagram
     DECK ||--o{ USER : creates
     DECK {
@@ -72,9 +101,6 @@ erDiagram
         float proficiency
     }
 ```
-
-## Workflow
-
 
 ### Instructions
 
