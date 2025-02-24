@@ -5,6 +5,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +19,8 @@
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <p>Flash Card Generator</p>
+            <!-- Made FlashLite clickable and linked to home.html -->
+            <a href="Home.html"><p class="flashlite-title">FlashLite</p></a>
             <div class="login-content">
                 <button class="button" onclick="alert('Switching to login page')">Login</button>
                 <button class="button" onclick="alert('Switching to sign-up page')">Sign Up</button>
@@ -36,16 +41,16 @@
                 <a href="#">Test2</a>
             </div>
         </div>
-        <div class="contact">
-            <p>Contact us!</p>>
-           
+        <div class="contact-btn-container">
+            <a href="About_Us.html">
+                <button class="contact-btn">Contact Us</button>
+            </a>
         </div>
     </div>
-    
 
     <!-- Main Content Section -->
     <div class="content">
-        <h1 class="page-title">About Us</h1>
+        <h1 class="page-title"><u>About Us</u></h1>
         <div class="about-container">
             <p class="about-text">Welcome to FlashLite, your ultimate tool for effective studying! Our mission is to make learning more engaging and accessible for students, professionals, and lifelong learners. We believe in the power of interactive flashcards to enhance memory retention and simplify complex topics.</p>
             
@@ -68,6 +73,16 @@
             <h2 class="about-subtitle">Learn More About Us</h2>
             <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
         </div>
+        
+        <!-- Terms and Conditions Button -->
+        <div class="terms-container">
+            <a href="terms.html">
+                <button class="terms-button">Terms and Conditions</button>
+            </a>
+        </div>
+        <footer class="footer">
+            <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+        </footer>
     </div>
 </body>
 </html>
