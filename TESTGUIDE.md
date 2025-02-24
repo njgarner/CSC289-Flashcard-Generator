@@ -44,7 +44,18 @@ If new code makes it to the main branch, it should be because it functions and d
 * **Remember** to use the **cloud-based server** after local tests **pass**.
 
 ### Diagram:
-```Not yet implemented.```
+```mermaid
+sequenceDiagram
+    participant local
+    participant mysite
+    link local: Server @ http://127.0.0.1:8000/
+    link mysite: Server @ http://ec2-54-172-119-63.compute-1.amazonaws.com:8000/home
+    local->> mysite: settings_local.py __init__local.py
+    mysite-->> local: settings.py __init__.py
+    Note right of mysite: Renaming
+    mysite->> local: settings_local.py __init__local.py
+    local-->> mysite: settings.py __init__.py
+```
 
 ## User Instructions
 
