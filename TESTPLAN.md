@@ -68,7 +68,22 @@ Here are the risks associated with our test plan and their mitigation strategies
 |                |                     |
 
 ## Diagram:
-```Not yet implemented.```
+```mermaid
+journey
+    title Testing Process
+    section Test Locally
+      Set up local server: 10: Developer, Tester
+      Implement code, feature,etc.: 10: Developer
+      Test code, feature, etc.: 10: Developer, Tester
+    section Upload code to GitHub / AWS
+      Edit files: 10: Developer, Tester
+      Push changes to main: 10: Developer, Tester
+    section Test AWS
+      Test from AWS server: 10: Tester
+      Finalize changes: 10: Developer
+
+```
+
 
 ## Testing Scope
 
