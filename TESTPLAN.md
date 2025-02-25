@@ -56,16 +56,16 @@ The purpose of the Test Plan for this specific project is to ensure we fulfill t
 
 Here are the risks associated with our test plan and their mitigation strategies.
 
-| Test Plan Risk | Mitigation Strategy |
-| -------------- | ------------------- |
-|                |                     |
-|                |                     |
-|                |                     |
-|                |                     |
-|                |                     |
-|                |                     |
-|                |                     |
-|                |                     |
+| Test Plan Risk          | Mitigation Strategy                                               |
+| ----------------------- | ----------------------------------------------------------------- |
+| Incomplete Requirements | Specify clear requirements for testing.                           |
+| Inadequate Resources    | Adjust the scope of testing and priortize.                        |
+| Undefined Scope         | Identify the goal and determine the purpose.                      |
+| Overwriting Code        | Utilize Git or other version control software.                    |
+| Insufficient Tools      | Resort to manual testing techniques like exploratory testing.     |
+| Conflicting Code        | Communicate the problem and use version control.                  |
+| Lack of Testing         | Ask team members to test a newly-implemented feature or function. |
+| Delayed Testing         | Work collaboratively and create user stories.                     |
 
 ## Diagram:
 ```mermaid
@@ -91,30 +91,34 @@ Here is information regarding the items/features/functions that will be tested, 
 
 **Items not in the scope of this test plan will be listed seperately.**
 
-| Test Item | Description | Date | Responsibility |
-| --------- | ----------- | ---- | -------------- |
-|           |             |      |                |
-|           |             |      |                |
-|           |             |      |                |
-|           |             |      |                |
-|           |             |      |                |
+| Test Item              | Description                            | Date | Responsibility       |
+| ---------------------- | -------------------------------------- | ---- | -------------------- |
+| Deck                   | Test if user can create decks.         | N/A  | Tester & Developer   |
+| Flashcard              | Test if user can create flashcards.    | N/A  | Tester & Developer   |
+| Publishing             | Test if user can publish decks.        | N/A  | Tester               |
+| Navigation             | Test if user can navigate efficiently. | N/A  | Tester               |
+| Pop-ups                | Test if pop-ups function and appear.   | N/A  | Developer            |
 
 
-### Test Plans / Strategies
+### Test Levels and Test Types / Strategies
 
 Here are the test plans and their strategies that will help prioritize the testing efforts and explain the techniques and approaches necessary for success.
 
-| Test Plan | Description | Strategy |
-| --------- | ----------- | -------- |
-|           |             |          |
-|           |             |          |
-|           |             |          |
-|           |             |          |
-|           |             |          |
+| Test Level | Description                                                                      | Strategy                                                 |
+| ---------- | -------------------------------------------------------------------------------  | -------------------------------------------------------- |
+| System     | Tests a complete and fully integrated software product.                          |  Cover all the paths.                                    | 
+| Acceptance | Tests whether it meets user needs and Software Requirements Specification (SRS). |  Determine if it is ready for release.                   |
+
+
+| Test Type  | Description                                              | Strategy                                                     |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------------------ |
+| Functional | Verifies that features and functions work as intended.   | Review and validate each feature.                            |
+| Usability  | Makes the design more user-friendly and intuitive.       | Identify feedback and improve the user experience.           |
+| Regression | Ensures new code has not broken previously working code. | Take a risk-based approach and diagnose high-priority areas. |
 
 ''
 
-### Using GitHub
+### Using GitHub / Git
 
 ```Not yet implemented.```
 
