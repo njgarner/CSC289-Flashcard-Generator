@@ -5,33 +5,35 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard Generator</title>
+    <title>Library - Flashcard Generator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <p>Flash Card Generator</p>
+            <!-- Made FlashLite clickable and linked to home.html -->
+            <a href="Home.html"><p class="flashlite-title">FlashLite</p></a>
             <div class="login-content">
-                <!--Change to LogOut button when logged in-->
-                <button class="button" href="#" onclick="alert('switches to login page')">Login</button>
-                <button class="button" href="#" onclick="alert('switches to sign up page')">Sign Up</button>
+                <button class="button" onclick="alert('Switching to login page')">Login</button>
+                <button class="button" onclick="alert('Switching to sign-up page')">Sign Up</button>
             </div>
         </div>
     </header>
-    
+
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
-        <a href="Home.html">Study Time</a> <!-- This will be the active page -->
-        <a href="#">Create Flashcards</a> <!-- This will navigate to create html -->
-        <a href="Library.html">Library</a> <!-- This will navigate to library html -->
-        <a href="Settings.html">Settings</a> <!-- This will navigate to settings html -->
-    
-        <!-- Dropdown for Recent/Favorite Decks -->
+        <a href="Home.html">Study Time</a>
+        <a href="Create.html">Create Flashcards</a>
+        <a href="Library.html">Library</a>
+        <a href="Settings.html">Settings</a>
         <div class="dropdown">
             <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
@@ -39,19 +41,27 @@
                 <a href="#">Test2</a>
             </div>
         </div>
-        <!--Contactinfo-->
+        <!-- Contact link now correctly points to About Us page -->
         <div class="contact">
-            <p>Contact us!</p>>
-            <!--insert contact info-->
+            <a href="About_Us.html"><p>Contact us!</p></a>
         </div>
     </div>
+
     <!-- Main Content Section -->
-    <h1 class="page-title">Library</h1>
+    <h1 class="page-title"><u>Library</u></h1>
     <div class="content">
         <!-- Button to add new boxes (top-left) -->
         <div class="library-container">
             <button class="add-box" onclick="alert('adds a new deck to library')" href="#">+</button>
         </div>
+        <div class="terms-container">
+            <a href="terms.html">
+                <button class="terms-button">Terms and Conditions</button>
+            </a>
+        </div>
+        <footer class="footer">
+            <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+        </footer>
     </div>
 </body>
 </html>
