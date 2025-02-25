@@ -1,12 +1,16 @@
-{% extends 'base.html'}
+{% extends 'base.html' %}
 
 {% block title %}Create Flashcard{% endblock title %}
-{% block content %}
-    <h2>Create Flashcard</h2>
+{% block main %}
+<h2 class="page-title">Create Flashcard</h2>
+<div class="content">
+    <div class="form-content">
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}  <!-- Render the form fields -->
         <button type="submit">Create Flashcard</button>
     </form>
-{% endblock content %}
+    </div>
+</div>
+{% endblock main %}
 
