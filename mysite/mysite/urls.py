@@ -34,7 +34,7 @@ urlpatterns = [
     path('', include("django.contrib.auth.urls")),
     path('create_flashcard/', views.create_flashcard, name='create_flashcard'),
     path("activate/<uidb64>/<token>/", views.activate_account, name="activate_account"),
-    path('logout/', views.custom_logout, name="logout_user"),
     path('', views.home, name='home'),
     path('delete_flashcard/<int:card_id>/', views.delete_flashcard, name='delete_flashcard'),
+    path('logout/', LogoutView.as_view(next_page='login_user'), name="logout_user"),
 ]
