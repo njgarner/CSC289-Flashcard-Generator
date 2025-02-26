@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <!-- External Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Flashcard Generator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <!-- Top Bar Section -->
+    <header>
+        <div class="top-bar">
+                <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
+                <div class="login-content"></div>
+                <!-- Change to LogOut button when logged in -->
+                <!-- Proper logout form -->
+                {% if user.is_authenticated %}
+                  {% block content %}
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" type="submit">Logout</button>
+                    </form>
+                  {% endblock %}
+                {% else %}
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    <!-- Vertical Navigation Bar -->
+    <div class="nav-bar">
+        <a href="{% url 'home' %}">Study Time</a>
+        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'settings' %}">Settings</a>
+        <div class="dropdown">
+            <button class="dropbtn">Favorite Decks</button>
+            <div class="dropdown-content">
+                <a href="#">Test</a>
+                <a href="#">Test2</a>
+            </div>
+        </div>
+        <!-- Contact link now correctly points to About Us page -->
+        <div class="contact">
+            <a href="{% url 'about' %}"><p>Contact us!</p></a>
+        </div>
+    </div>
+    </div>
+    {% block main %}
+    {% endblock main %}
+</body>
+</html>
