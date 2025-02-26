@@ -5,10 +5,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard Generator</title>
+    <title>Home - Flashcard Generator</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -16,30 +20,30 @@
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <p>Flash Card Generator</p>
-            <div class="login-content">
+                <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
+                <div class="login-content"></div>
+                <!-- Change to LogOut button when logged in -->
+                <!-- Proper logout form -->
                 {% if user.is_authenticated %}
-                    <!-- Proper logout form -->
+                  {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
                         <button class="button" type="submit">Logout</button>
                     </form>
+                  {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
     </header>
-
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
         <a href="{% url 'home' %}">Study Time</a>
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'settings' %}">Settings</a>
-    
-        <!-- Dropdown for Recent/Favorite Decks -->
         <div class="dropdown">
             <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
@@ -47,24 +51,23 @@
                 <a href="#">Test2</a>
             </div>
         </div>
-
-        <!-- Contact Info -->
+        <!-- Contact link now correctly points to About Us page -->
         <div class="contact">
-            <p>Contact us!</p>
+            <a href="{% url 'about' %}"><p>Contact us!</p></a>
         </div>
     </div>
 
     <!-- Main Content Section -->
-    <h1 class="page-title">Study Time!</h1>
+    <h1 class="page-title"><u>Study Time!</u></h1>
     <div class="content">
         <div class="flashcard-display">
             <!-- Left and Right Navigation Buttons -->
             <div class="button">
-                <button id="previous" onclick="alert('switches to previous card')">Previous</button>
-                <button id="rand-button" onclick="alert('switches to random card in deck')">Random</button>
-                <button id="next" onclick="alert('switches to next card')">Next</button>
+                <button id="previous" onclick="alert('Switches to previous card')">Previous</button>
+                <button id="rand-button" onclick="alert('Switches to random card in deck')">Random</button>
+                <button id="next" onclick="alert('Switches to next card')">Next</button>
             </div>
-        
+
             <!-- Flashcard Display Area -->
             <div class="flashcard patrick-hand-regular">
                 <p>Test Text</p>
@@ -72,9 +75,18 @@
 
             <!-- Flip card button -->
             <div class="button">
-                <button id="flip-button" onclick="alert('flips card over')">Flip</button>
+                <button id="flip-button" onclick="alert('Flips card over')">Flip</button>
             </div>
+            
         </div>
+        <div class="terms-container">
+            <a href="{% url 'terms' %}">
+                <button class="terms-button">Terms and Conditions</button>
+            </a>
+        </div>
+        <footer class="footer">
+            <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+        </footer>
     </div>
 </body>
 </html>
