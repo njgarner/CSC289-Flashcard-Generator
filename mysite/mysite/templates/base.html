@@ -12,21 +12,24 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard Generator</title>
+    <title>Home - Flashcard Generator</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
+    <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <p>Flash Card Generator</p>
-            <div class="login-content">
+                <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
+                <div class="login-content"></div>
                 <!-- Change to LogOut button when logged in -->
+                <!-- Proper logout form -->
                 {% if user.is_authenticated %}
                   {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
-                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button></form>
+                        <button class="button" type="submit">Logout</button>
+                    </form>
                   {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
@@ -35,56 +38,26 @@
             </div>
         </div>
     </header>
-
+    <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
         <a href="{% url 'home' %}">Study Time</a>
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'settings' %}">Settings</a>
-    </div>
-
-    <h1 class="page-title">Library</h1>
-
-    <div class="content">
-        <!-- Button to add new boxes, now inside the grid -->
-        <div class="flashcard-sets-list">
-            <!-- "Add Box" button as part of the grid -->
-            <button class="add-box">
-                <a href="{% url 'create_deck' %}">+</a>
-            </button>
-    
-            {% for flashcard_set in flashcard_sets %}
-            <div class="flashcard-deck">
-                <p>{{ flashcard_set.title }}</p>
-                <p>{{ flashcard_set.description }}</p>
-                <p>Category: {{ flashcard_set.category.name }}</p>
-                
-                <!-- View Details Button -->
-                <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
-        
-                <!-- New Study Button -->
-                <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
-        
-                <!-- Delete Button -->
-                <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="delete-button">Delete</button>
-                </form>
+        <div class="dropdown">
+            <button class="dropbtn">Favorite Decks</button>
+            <div class="dropdown-content">
+                <a href="#">Test</a>
+                <a href="#">Test2</a>
             </div>
-        {% empty %}
-            <p>No flashcard sets created yet.</p>
-        {% endfor %}
         </div>
-        <div class="terms-container">
-            <a href="{% url 'terms' %}">
-                <button class="terms-button">Terms and Conditions</button>
-            </a>
+        <!-- Contact link now correctly points to About Us page -->
+        <div class="contact">
+            <a href="{% url 'about' %}"><p>Contact us!</p></a>
         </div>
-        <footer class="footer">
-            <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
-        </footer>
     </div>
-    
-
+    </div>
+    {% block main %}
+    {% endblock main %}
 </body>
 </html>
