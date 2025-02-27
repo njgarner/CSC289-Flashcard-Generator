@@ -1,6 +1,7 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- External Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
@@ -11,7 +12,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard Generator</title>
+    <title>About Us - Flashcard Generator</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -19,14 +20,16 @@
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
-            <div class="login-content">
+                <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
+                <div class="login-content"></div>
                 <!-- Change to LogOut button when logged in -->
+                <!-- Proper logout form -->
                 {% if user.is_authenticated %}
                   {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
-                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>                    </form>
+                        <button class="button" type="submit">Logout</button>
+                    </form>
                   {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
@@ -35,15 +38,12 @@
             </div>
         </div>
     </header>
-    
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a> <!-- This will be the active page -->
+        <a href="{% url 'home' %}">Study Time</a>
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
-        <a href="{% url 'library_view' %}">Library</a> <!-- This will navigate to the Library page -->
-        <a href="{% url 'settings' %}">Settings</a> <!-- This will navigate to settings html -->
-    
-        <!-- Dropdown for Recent/Favorite Decks -->
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'settings' %}">Settings</a>
         <div class="dropdown">
             <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
@@ -51,48 +51,37 @@
                 <a href="#">Test2</a>
             </div>
         </div>
-        <!--Contactinfo-->
+        <!-- Contact link now correctly points to About Us page -->
         <div class="contact">
             <a href="{% url 'about' %}"><p>Contact us!</p></a>
         </div>
     </div>
     <!-- Main Content Section -->
     <div class="content">
-        <h1 class="page-title">Settings</h1>
-        <!-- UserName -->
-        <div class="setting-item">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="{{ user|safe }}" readonly>
+        <h1 class="page-title"><u>About Us</u></h1>
+        <div class="about-container">
+            <p class="about-text">Welcome to FlashLite, your ultimate tool for effective studying! Our mission is to make learning more engaging and accessible for students, professionals, and lifelong learners. We believe in the power of interactive flashcards to enhance memory retention and simplify complex topics.</p>
+            
+            <h2 class="about-subtitle">Our Team</h2>
+            <p class="about-text">We are a passionate group of students dedicated to improving the way people learn. Our goal is to provide an intuitive and user-friendly platform that helps you create, organize, and master your study materials.</p>
+            
+            <h2 class="about-subtitle">Why Choose Us?</h2>
+            <ul class="about-list">
+                <li>Easy-to-use interface for quick flashcard creation</li>
+                <li>Customizable study decks to fit your learning style</li>
+                <li>Cloud-based storage to access your flashcards anywhere</li>
+                <li>Interactive learning experience with a sleek design</li>
+                <li>Enhanced collaboration features for group study</li>
+                <li>And much more to come!</li>
+            </ul>
         </div>
-
-        <!-- Email -->
-        <div class="setting-item">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
+        
+        <!-- Embedded YouTube Video -->
+        <div class="video-container">
+            <h2 class="about-subtitle">Learn More About Us</h2>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
         </div>
-
-        <hr>
-
-        <!-- Change Password -->
-        <div class="setting-item">
-            <label for="password">New Password</label>
-            <input type="password" id="password" name="password">
-        </div>
-        <div class="setting-item">
-            <label for="confirm-password">Confirm Password</label>
-            <input type="password" id="confirm-password" name="confirm-password">
-        </div>
-        <div class="setting-item">
-            <button class="button" href="#" onclick="alert('password changed')">Change Password</button>
-        </div>
-
-        <hr>
-
-        <!-- Delete Account -->
-        <div class="setting-item">
-            <button class="delete-button" href="#" onclick="confirm('Delete Account?')">Delete Account</button>
-        </div>
-
+        
         <!-- Terms and Conditions Button -->
         <div class="terms-container">
             <a href="{% url 'terms' %}">
