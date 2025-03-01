@@ -54,14 +54,17 @@
                 <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
             
                 <!-- Delete Button -->
-                <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="delete-button">Delete</button>
-                </form>
+                <div>
+                    <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                    <button type="submit" class="print-button">Print</button>
+                </div>
             </div>
             {% empty %}
                 <p>No flashcard sets created yet.</p>
             {% endfor %}
         </div>
     </div>
-    
+    <script src="{% static 'print_SG_Library.js' %}"></script>
