@@ -31,5 +31,9 @@ urlpatterns = [
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
     path('', include("django.contrib.auth.urls")),
     path('create_flashcard/', views.create_flashcard, name='create_flashcard'),
+    path('flashcards/<int:set_id>/details/', views.get_flashcard_set_details, name='flashcard_set_details'),
+
 ]
+
+
 

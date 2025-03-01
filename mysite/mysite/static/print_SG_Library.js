@@ -16,8 +16,8 @@ document.querySelectorAll('.print-button').forEach(button => {
         hoverBox.style.transform = 'translate(-50%, -50%)';
         hoverBox.style.zIndex = '9999';
 
-        // Add text inside the hover box (you can modify this as needed)
-        hoverBox.innerHTML = "<p>This is a hover box!</p>";
+        // Add text inside the hover box
+        hoverBox.innerHTML = "<p>Select print options:</p>";
 
         // Exit button for closing the hover box
         let exitButton = document.createElement('button');
@@ -60,12 +60,12 @@ document.querySelectorAll('.print-button').forEach(button => {
 
         // Add image next to the first radio button
         let img1 = document.createElement('img');
-        img1.src = 'mysite/mysite/static/SG_Answers.jpeg'; // Replace with your image path
+        img1.src = ''; // Replace with your image path--SG_Answers.jpeg
         img1.style.position = 'absolute';
         img1.style.top = '40%';
         img1.style.left = '160px';  // Adjust as necessary to position next to the radio button
-        img1.style.width = '20px';  // Set the size of the image
-        img1.style.height = '20px';  // Adjust the height of the image
+        img1.style.width = '50px';  // Set the size of the image
+        img1.style.height = '50px';  // Adjust the height of the image
         hoverBox.appendChild(img1);
 
         let radio2 = document.createElement('input');
@@ -89,12 +89,12 @@ document.querySelectorAll('.print-button').forEach(button => {
 
         // Add image next to the second radio button
         let img2 = document.createElement('img');
-        img2.src = 'mysite/mysite/static/SG.jpeg';  // Replace with your image path
+        img2.src = '';  // Replace with your image path--SG.jpeg
         img2.style.position = 'absolute';
         img2.style.top = '50%';
         img2.style.left = '160px';  // Adjust as necessary to position next to the radio button
-        img2.style.width = '20px';  // Set the size of the image
-        img2.style.height = '20px';  // Adjust the height of the image
+        img2.style.width = '50px';  // Set the size of the image
+        img2.style.height = '50px';  // Adjust the height of the image
         hoverBox.appendChild(img2);
 
         // Add a button for printing the page
@@ -109,8 +109,50 @@ document.querySelectorAll('.print-button').forEach(button => {
         printButton.style.left = '50%';  
         printButton.style.transform = 'translateX(-50%)';  
         printButton.style.zIndex = '10000'; 
+        
+        // Attach the event listener for printing
         printButton.addEventListener('click', function() {
-            window.print();
+            // Get the set ID from the radio button or another method
+            const setId = 1;  // Change this to dynamically get the set ID
+
+            // Get the selected print option (with or without answers)
+            const printWithAnswers = radio1.checked;
+
+            // Fetch the flashcard set details via AJAX
+            fetch(`/flashcards/${setId}/details/`)  // Update the URL path if necessary
+                .then(response => response.json())
+                .then(data => {
+                    // Conditionally include or exclude answers based on the radio button
+                    const content = data.flashcards.map(flashcard => {
+                        if (printWithAnswers) {
+                            // Include both question and answer
+                            return `<li>
+                                        <strong>Question:</strong> ${flashcard.question}<br>
+                                        <strong>Answer:</strong> ${flashcard.answer}
+                                    </li>`;
+                        } else {
+                            // Only include question, no answer
+                            return `<li>
+                                        <strong>Question:</strong> ${flashcard.question}
+                                    </li>`;
+                        }
+                    }).join('');
+
+                    // Open a new window for printing
+                    let printWindow = window.open('', '', 'height=600,width=800');
+
+                    // Write the content into the new window
+                    printWindow.document.write('<html><head><title>Print Flashcards</title>');
+                    printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+                    printWindow.document.write('</head><body>');
+                    printWindow.document.write('<h1>' + data.title + '</h1>');  // Set title of the deck
+                    printWindow.document.write('<ul>' + content + '</ul>');  // Insert flashcards
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();  // Close the document for rendering
+
+                    printWindow.print();  // Trigger the print dialog
+                })
+                .catch(error => console.error('Error fetching deck details:', error));
         });
 
         // Append the print button to the hover box

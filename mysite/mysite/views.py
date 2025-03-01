@@ -133,3 +133,15 @@ def create_flashcard(request):
     form.fields['flashcard_set'].queryset = flashcard_sets
     
     return render(request, 'create_flashcard.html', {'form': form, 'flashcard_sets': flashcard_sets})
+@login_required
+def get_flashcard_set_details(request, set_id):
+    flashcard_set = FlashcardSet.objects.get(id=set_id)
+    flashcards = Flashcard.objects.filter(set=flashcard_set)
+    flashcards_data = [{'question': fc.question, 'answer': fc.answer} for fc in flashcards]
+
+    data = {
+        'title': flashcard_set.title,
+        'flashcards': flashcards_data
+    }
+
+    return JsonResponse(data)
