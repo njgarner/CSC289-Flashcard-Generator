@@ -4,8 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User  # Use the built-in User model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
-from .models import FlashcardSet, Category, Flashcard
+from mysite.models import FlashcardSet, Category, Flashcard
 from .forms import FlashcardForm
+from django.http import JsonResponse
+
 
 # Create a new user
 @login_required
@@ -133,10 +135,22 @@ def create_flashcard(request):
     form.fields['flashcard_set'].queryset = flashcard_sets
     
     return render(request, 'create_flashcard.html', {'form': form, 'flashcard_sets': flashcard_sets})
+
 @login_required
 def get_flashcard_set_details(request, set_id):
-    flashcard_set = FlashcardSet.objects.get(id=set_id)
-    flashcards = Flashcard.objects.filter(set=flashcard_set)
+
+    print("Existing FlashcardSet IDs:", list(FlashcardSet.objects.values_list('set_id', flat=True)))
+
+    try:
+        flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+    except FlashcardSet.DoesNotExist:
+        return JsonResponse({'error': f'Flashcard set with ID {set_id} not found'}, status=404)
+
+    print("we got here 1")
+    flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+    print("we got here 2")
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+    print("we got here 3")
     flashcards_data = [{'question': fc.question, 'answer': fc.answer} for fc in flashcards]
 
     data = {

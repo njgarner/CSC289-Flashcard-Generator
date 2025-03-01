@@ -1,5 +1,9 @@
 document.querySelectorAll('.print-button').forEach(button => {
     button.addEventListener('click', function() {
+        // Get the set ID from the button's data attribute
+        const setId = button.getAttribute('data-set-id');
+        console.log('Printing flashcards for set ID:', setId);
+
         // Create the hover box
         let hoverBox = document.createElement('div');
         hoverBox.classList.add('hover-box'); 
@@ -112,14 +116,11 @@ document.querySelectorAll('.print-button').forEach(button => {
         
         // Attach the event listener for printing
         printButton.addEventListener('click', function() {
-            // Get the set ID from the radio button or another method
-            const setId = 1;  // Change this to dynamically get the set ID
-
             // Get the selected print option (with or without answers)
             const printWithAnswers = radio1.checked;
 
-            // Fetch the flashcard set details via AJAX
-            fetch(`/flashcards/${setId}/details/`)  // Update the URL path if necessary
+            // Fetch the flashcard set details via AJAX using the dynamic setId
+            fetch(`/flashcards/${setId}/details/`)  // Dynamic URL based on clicked button's setId
                 .then(response => response.json())
                 .then(data => {
                     // Conditionally include or exclude answers based on the radio button

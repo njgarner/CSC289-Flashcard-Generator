@@ -59,7 +59,7 @@
                         {% csrf_token %}
                         <button type="submit" class="delete-button">Delete</button>
                     </form>
-                    <button type="submit" class="print-button">Print</button>
+                    <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
                 </div>
             </div>
             {% empty %}
