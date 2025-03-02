@@ -47,8 +47,11 @@
         <div class="dropdown">
             <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
-                <a href="#">Test</a>
-                <a href="#">Test2</a>
+                {% for favorite in favorite_decks %}
+                    <a href="{% url 'study_view' favorite.deck.set_id %}">{{ favorite.deck.title }}</a>
+                {% empty %}
+                    <p>No favorite decks.</p>
+                {% endfor %}
             </div>
         </div>
         <!--Contactinfo-->

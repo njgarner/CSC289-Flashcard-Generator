@@ -33,3 +33,12 @@ class ProgressTracking(models.Model):
     correctly_answered = models.IntegerField(default=0)
     last_reviewed = models.DateTimeField(auto_now=True)
 
+class FavoriteDeck(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    deck = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'deck')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.deck.title}"
