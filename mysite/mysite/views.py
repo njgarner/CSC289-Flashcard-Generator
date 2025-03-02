@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from .models import FlashcardSet, Category, Flashcard
-from .forms import FlashcardForm
+from .forms import FlashcardForm, ChangePasswordForm
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -13,6 +13,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
+from django.contrib.auth import update_session_auth_hash
+from django.shortcuts import render, redirect
+from django.core.exceptions import *
 
 # ======================== Main Pages ======================== #
 
@@ -38,6 +41,24 @@ def settings(request):
     return render(request, 'Settings.html')
 
 # ======================== User Authentication (Signup, Login, Logout) ======================== #
+
+def change_password(request):
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # To keep the user logged in
+            return redirect('password_change_done')
+        else:
+            for error in List(form.errors.values()):
+                messages.error(request, error)
+                return redirect('change-password/change_password.html')
+    else:
+        form = ChangePasswordForm(request.user)
+    return render(request, 'change-password/change_password.html', {'form': form})
+
+def password_change_done(request):
+    return render(request, 'change-password/password_change_done.html')
 
 def login_user(request):  # Login page
     return render(request, 'login.html')
