@@ -75,18 +75,15 @@
 
         <!-- Change Password -->
         <div class="setting-item">
-            <label for="password">New Password</label>
-            <input type="password" id="password" name="password">
-        </div>
-        <div class="setting-item">
-            <label for="confirm-password">Confirm Password</label>
-            <input type="password" id="confirm-password" name="confirm-password">
-        </div>
-        <div class="setting-item">
-            <button class="button" href="#" onclick="alert('password changed')">Change Password</button>
+            <a class="button" href="{% url 'password_reset' %}">Reset Password</button>
         </div>
 
         <hr>
+
+        <!-- Reset Password -->
+        <div class="setting-item">
+            <a class="button" href="{% url 'password_reset' %}">Reset Password</button>
+        </div>
 
         <!-- Delete Account -->
         <div class="setting-item">
