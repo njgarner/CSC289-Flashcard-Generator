@@ -75,15 +75,15 @@
 
         <!-- Change Password -->
         <div class="setting-item">
-            <a class="button" href="{% url 'password_reset' %}">Reset Password</button>
+            <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
+        </div>
+        
+        <!-- Reset Password -->
+        <div class="setting-item">
+            <button class="button" onclick="window.location.href='{% url 'password_reset' %}'">Reset Password</button>
         </div>
 
         <hr>
-
-        <!-- Reset Password -->
-        <div class="setting-item">
-            <a class="button" href="{% url 'password_reset' %}">Reset Password</button>
-        </div>
 
         <!-- Delete Account -->
         <div class="setting-item">
