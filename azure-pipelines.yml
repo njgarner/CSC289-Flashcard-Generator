@@ -10,7 +10,7 @@ trigger:
 pool:
   name: adoagent
   demands:
-    - Agent.name -equals ip-172-31-93-85
+    - Agent.name -equals adoagent
 
 stages:
   - stage: RunTests
