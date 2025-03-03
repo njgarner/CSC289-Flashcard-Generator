@@ -33,12 +33,12 @@ stages:
         steps:
           - checkout: self
           - script: |
-              systemctl stop flashcardapp.service
-              rm -rf /opt/flashcardapp/*
-              cp -r mysite/* /opt/flashcardapp/
-              chmod -R 750 /opt/flashcardapp
-              chown -R flashcardapp:flashcardapp /opt/flashcardapp
-              systemctl start flashcardapp.service
-              systemctl status flashcardapp.service
+              sudo systemctl stop flashcardapp.service
+              sudo rm -rf /opt/flashcardapp/*
+              sudo cp -r mysite/* /opt/flashcardapp/
+              sudo chmod -R 750 /opt/flashcardapp
+              sudo chown -R flashcardapp:flashcardapp /opt/flashcardapp
+              sudo systemctl start flashcardapp.service
+              sudo systemctl status flashcardapp.service
             displayName: 'Deploy Application'
 
