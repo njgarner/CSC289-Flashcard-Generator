@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Deletion{% endblock %}
+
+{% block main %}
+<h2 class="page-title">Delete your Account?</h2>
+<div class="content">
+  <p>Clicking confirm will delete all data associated with your account. Are you sure?</p>
+  <!-- Confirm Button -->
+  <div class="setting-item">
+    <button class="delete-button" onclick="confirm('Are you sure?')">Confirm</button>
+  </div>
+  <!-- Cancel Button -->
+  <div class="setting-item">
+    <button class="button" onclick="window.location.href='{% url 'settings' %}'">Cancel</button>
+  </div>
+  <br><br><br>
+  <footer class="footer">
+    <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+  </footer>
+</div>
+{% endblock main %}
