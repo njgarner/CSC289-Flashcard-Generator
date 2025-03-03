@@ -1,4 +1,4 @@
-# Flashcard Generator Test Plan Template
+# Flashcard Generator Test Plan
 
 ## Overview
 
