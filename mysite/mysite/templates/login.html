@@ -48,8 +48,8 @@
 
     <form method="POST" action="{% url 'user_login' %}" class="form-group">
         {% csrf_token %}
-        <input type="text" id="username-input" name="username" required placeholder="Enter username"><br><br>
-        <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
+        <input type="text" id="username-input" name="username" minlength="6" maxlength="30" required placeholder="Enter username"><br><br>
+        <input type="password" id="password-input" name="password" minlength="8" required placeholder="Enter password"><br><br>
         <button type="submit" class="btn btn-success">Login</button><br><br><br>
     </form>
     
