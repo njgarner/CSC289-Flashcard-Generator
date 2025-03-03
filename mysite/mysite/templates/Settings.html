@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcard Generator</title>
+    <title>Settings - Flashcard Generator</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -20,30 +20,28 @@
     <header>
         <div class="top-bar">
             <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
-            <div class="login-content">
+            <div class="login-content"></div>
                 <!-- Change to LogOut button when logged in -->
                 {% if user.is_authenticated %}
                   {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
-                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>                    </form>
+                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>                   
+                     </form>
                   {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
                     <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
-            </div>
         </div>
     </header>
-    
+
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a> <!-- This will be the active page -->
+        <a href="{% url 'home' %}">Study Time</a>
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
-        <a href="{% url 'library_view' %}">Library</a> <!-- This will navigate to the Library page -->
-        <a href="{% url 'settings' %}">Settings</a> <!-- This will navigate to settings html -->
-    
-        <!-- Dropdown for Recent/Favorite Decks -->
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'settings' %}">Settings</a>
         <div class="dropdown">
             <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
@@ -51,14 +49,16 @@
                 <a href="#">Test2</a>
             </div>
         </div>
-        <!--Contactinfo-->
+        <!-- Contact link now correctly points to About Us page -->
         <div class="contact">
             <a href="{% url 'about' %}"><p>Contact us!</p></a>
         </div>
     </div>
+
     <!-- Main Content Section -->
     <div class="content">
-        <h1 class="page-title">Settings</h1>
+        <h1 class="page-title"><u>Settings</u></h1>
+        
         <!-- UserName -->
         <div class="setting-item">
             <label for="username">Username</label>
@@ -72,7 +72,7 @@
         </div>
 
         <hr>
-
+        
         <!-- Change Password -->
         <div class="setting-item">
             <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
@@ -87,7 +87,7 @@
 
         <!-- Delete Account -->
         <div class="setting-item">
-            <button class="delete-button" href="#" onclick="confirm('Delete Account?')">Delete Account</button>
+            <button class="delete-button" onclick="confirm('Delete Account?')">Delete Account</button>
         </div>
 
         <!-- Terms and Conditions Button -->
