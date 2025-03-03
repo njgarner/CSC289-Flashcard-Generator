@@ -120,21 +120,29 @@ The key aspects of FlashLite's workflow:
 erDiagram
     DECK ||--o{ USER : creates
     DECK {
-        string deckName
-        string category
-        string description
-        string[] preset
+        VARCHAR(100) title
+        INT_NOT_NULL category_id
+        TEXT description
     }
     APP ||--o{ USER : creates
     USER {
-        string(99) username "Only 99 characters are allowed"
-        string password
-        string email
+        VARCHAR(50) username "Only 50 characters are allowed"
+        VARCHAR password
+        VARCHAR(100) email "Only 100 characters are allowed"
+        VARCHAR(255) password_hash "Only 255 characters are allowed"
+        TIMESTAMP created_at
     }
     DECK ||--o{ FLASHCARD : contains
     FLASHCARD {
-        string question
-        string answer
+        INT set_id
+        INT_NOT_NULL user_id
+        VARCHAR_NOT_NULL(100) title "Only 100 characters are allowed"
+        INT_NOT_NULL category_id
+        TINYINT(1) is_shared
+        TEXT_NOT_NULL question
+        TEXT_NOT_NULL answer
+        FOREIGN_KEY user_id
+        FOREIGN_KEY category_id
     }
     CLIENT ||--o{ APP : visits
 ```
@@ -142,21 +150,28 @@ erDiagram
 erDiagram
     USER ||--o{ DECK : creates
     USER {
-        string username
-        string password
-        string email
+        VARCHAR(50) username 
+        VARCHAR password
+        VARCHAR(100) email 
+        VARCHAR(255) password_hash
+        TIMESTAMP created_at
     }
     DECK ||--|{ FLASHCARD : contains
     DECK {
-        string deckName
-        string category
-        string description
-        string[] preset
+        VARCHAR(100) title
+        INT_NOT_NULL category_id
+        TEXT description
     }
     FLASHCARD {
-        string question
-        string answer
-        float proficiency
+        INT set_id
+        INT_NOT_NULL user_id
+        VARCHAR_NOT_NULL(100) title
+        INT_NOT_NULL category_id
+        TINYINT(1) is_shared
+        TEXT_NOT_NULL question
+        TEXT_NOT_NULL answer
+        FOREIGN_KEY user_id
+        FOREIGN_KEY category_id
     }
 ```
 
