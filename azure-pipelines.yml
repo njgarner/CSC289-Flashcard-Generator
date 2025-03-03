@@ -25,21 +25,20 @@ stages:
               cd mysite/mysite
               pytest
             displayName: 'Run Tests'
+  - stage: DeployApplication
+    jobs:
+      - job: DeployApplication
+        workspace:
+          clean: all
+        steps:
+          - checkout: self
+          - script: |
+              systemctl stop flashcardapp.service
+              rm -rf /opt/flashcardapp/*
+              cp -r mysite/* /opt/flashcardapp/
+              chmod -R 750 /opt/flashcardapp
+              chown -R flashcardapp:flashcardapp /opt/flashcardapp
+              systemctl start flashcardapp.service
+              systemctl status flashcardapp.service
+            displayName: 'Deploy Application'
 
-# steps:
-# - task: UsePythonVersion@0
-#   inputs:
-#     versionSpec: '$(PYTHON_VERSION)'
-#     architecture: 'x64'
-
-
-
-# - script: |
-#     python manage.py test
-#   displayName: 'Run tests'
-
-# - task: PublishTestResults@2
-#   inputs:
-#     testResultsFiles: '**/TEST-*.xml'
-#     testRunTitle: 'Python $(PYTHON_VERSION)'
-#   condition: succeededOrFailed()
