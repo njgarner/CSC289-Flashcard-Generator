@@ -55,6 +55,13 @@
     <h1 class="page-title">Study Time!</h1>
     <div class="content">
         <div class="flashcard-display">
+            <!-- Displays the deck selector, users will use this to select the Deck of flashcard they want to study -->
+            <label for="deck-selector">Choose a deck to study</label>
+            <select id="deck-selector" name="deck-selector">
+                <option value="" selected="">-----</option>
+                <option value="Placeholder">Placeholder</option>
+            </select><br>
+
             <!-- Left and Right Navigation Buttons -->
             <div class="button">
                 <button id="previous" onclick="alert('switches to previous card')">Previous</button>
@@ -67,8 +74,8 @@
         
             <!--Flashcard Display Area -->
             <div class="flashcard patrick-hand-regular">
-                <p>Test Text</p>
                 <!-- Text will be displayed here -->
+                <p class="flashcard-text">Test Text</p>
                 <!--Trigger flashcard classes to populate-->
             </div>
 
