@@ -1,25 +1,59 @@
 <html>
-    
 <head>
-<title>Login</title>
-{% load static %}
-<link rel="stylesheet"  href="{% static 'user_auth.css' %}">
+    <title>Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'user_auth.css' %}">
+    <style>
+        .alert {
+          padding: 20px;
+          background-color: #3e3577;
+          color: white;
+        }
+        
+        .closebtn {
+          margin-left: 15px;
+          color: white;
+          font-weight: bold;
+          float: right;
+          font-size: 22px;
+          line-height: 20px;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+        
+        .closebtn:hover {
+          color: black;
+        }
+        </style>
 </head>
 <body>
 <header>
-<div class="navigation-div"></div>
-<h1>Flash Card Generator</h1>
+    <div class="navigation-div"></div>
+    <h1>Flash Card Generator</h1>
 </header>
 <div class="auth-div"><br><br>
-<h2 id="auth-heading">Login</h2><br>
-<form method="POST" action="{% url 'user_login' %}" class="form-group">
-    {% csrf_token %}
-<input type="text"  id="username-input" name="username" required placeholder="Enter username"><br><br>
-<input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
-<button type="submit" class="btn btn-success">Login</button><br><br><br>
-</form>
-<a href="{% url 'signup_user' %}">Don't have an account? Sign Up Here!</a>
+    <h2 id="auth-heading">Login</h2><br>
+    <!-- Display Messages -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;
+            </span>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'user_login' %}" class="form-group">
+        {% csrf_token %}
+        <input type="text" id="username-input" name="username" required placeholder="Enter username"><br><br>
+        <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
+        <button type="submit" class="btn btn-success">Login</button><br><br><br>
+    </form>
+    
+    <a href="{% url 'signup_user' %}">Don't have an account? Sign Up Here!</a>
 </div>
 </body>
-
 </html>

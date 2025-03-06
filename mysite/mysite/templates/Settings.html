@@ -1,10 +1,13 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-    <!-- External Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,16 +19,18 @@
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <p>Flash Card Generator</p>
+            <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
             <div class="login-content">
-                <!--Change to LogOut button when logged in-->
+                <!-- Change to LogOut button when logged in -->
                 {% if user.is_authenticated %}
                   {% block content %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>                    </form>
                   {% endblock %}
                 {% else %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
@@ -48,23 +53,22 @@
         </div>
         <!--Contactinfo-->
         <div class="contact">
-            <p>Contact us!</p>>
-            <!--insert contact info-->
+            <a href="{% url 'about' %}"><p>Contact us!</p></a>
         </div>
     </div>
     <!-- Main Content Section -->
-    <h1 class="page-title">Settings</h1>
     <div class="content">
+        <h1 class="page-title">Settings</h1>
         <!-- UserName -->
         <div class="setting-item">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="currentUsername">
+            <input type="text" id="username" name="username" value="{{ user|safe }}" readonly>
         </div>
 
         <!-- Email -->
         <div class="setting-item">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="user@example.com">
+            <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
         </div>
 
         <hr>
@@ -88,6 +92,16 @@
         <div class="setting-item">
             <button class="delete-button" href="#" onclick="confirm('Delete Account?')">Delete Account</button>
         </div>
+
+        <!-- Terms and Conditions Button -->
+        <div class="terms-container">
+            <a href="{% url 'terms' %}">
+                <button class="terms-button">Terms and Conditions</button>
+            </a>
+        </div>
+        <footer class="footer">
+            <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+        </footer>
     </div>
 </body>
 </html>

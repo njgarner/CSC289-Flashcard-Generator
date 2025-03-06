@@ -1,3 +1,4 @@
+
 # Python Django
 # Test a Django project on multiple versions of Python.
 # Add steps that analyze code, save build artifacts, deploy, and more:
@@ -7,34 +8,37 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
-strategy:
-  matrix:
-    Python38:
-      PYTHON_VERSION: '3.8'
-    Python39:
-      PYTHON_VERSION: '3.9'
-    Python310:
-      PYTHON_VERSION: '3.10'
-  maxParallel: 3
+  name: adoagent
+  demands:
+    - Agent.name -equals adoagent
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(PYTHON_VERSION)'
-    architecture: 'x64'
+stages:
+  - stage: RunTests
+    jobs:
+      - job: RunTests
+        workspace:
+          clean: all
+        steps:
+          - checkout: self
+          - script: |
+              sudo apt install -y python3-pytest python3-pytest-django
+              cd mysite/mysite
+              pytest
+            displayName: 'Run Tests'
+  - stage: DeployApplication
+    jobs:
+      - job: DeployApplication
+        workspace:
+          clean: all
+        steps:
+          - checkout: self
+          - script: |
+              sudo systemctl stop flashcardapp.service
+              sudo rm -rf /opt/flashcardapp/*
+              sudo cp -r mysite/* /opt/flashcardapp/
+              sudo chmod -R 750 /opt/flashcardapp
+              sudo chown -R flashcardapp:flashcardapp /opt/flashcardapp
+              sudo systemctl start flashcardapp.service
+              sudo systemctl status flashcardapp.service
+            displayName: 'Deploy Application'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install prerequisites'
-
-- script: |
-    python manage.py test
-  displayName: 'Run tests'
-
-- task: PublishTestResults@2
-  inputs:
-    testResultsFiles: '**/TEST-*.xml'
-    testRunTitle: 'Python $(PYTHON_VERSION)'
-  condition: succeededOrFailed()

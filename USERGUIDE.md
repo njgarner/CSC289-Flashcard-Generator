@@ -1,202 +1,215 @@
 # Flashcard Generator User Guide
 
-## Overview
+## Scope & Overview
 
-The following guide will demonstrate how to access the project locally and using a cloud-based server powered by AWS. This guide will explain the differences between the two servers, their testing procedures, and their information.
+The following guide will provide instructions for using our software/system, describe how users work, and define the tasks they perform. It will also document every menu, function, and procedure in our application. This will include any precautions necessary to circumvent errors and malfunctions.
 
 ---
 
 > ## **``Table of Contents``**
 
-> ### <br>*Server Details*: <small>The characteristics of the separate servers</small>
-> ### <br>*Testing Protocol*: <small>Guide to testing and pushing changes</small>
-> ### <br>*Diagram*: <small>Visual aid on server switching</small>
+> ### <br>*Introduction*: <small>Explain the product, functionalities, and organization of sections</small>
+> ### <br>*Process*: <small>Define the process for using the product</small>
+> ### <br>*Diagram*: <small>Visual aid on user interaction</small>
 
 
-> ### <br>*User Instructions*: <small>Directions for accessing local and cloud servers</small>
-> ### <br>*Using local*: <small>How to start a local server</small>
-> ### <br>*Using AWS*: <small>How to start a AWS server</small>
+> ### <br>*Workflow*: <small>Describe the tasks for achieving specific goals</small>
+> ### <br>*Instructions*: <small>Step-by-step on user interactions</small>
+> ### <br>*Conventions*: <small>Rules for naming, coloring, and grouping code</small>
 
-> ### <br>*Database Templates*: <small>Backup code for database credentials</small>
+> ### <br>*Errors & Malfunctions*: <small>Precautionary procedures in case of emergency</small>
 
 
 ---
 
-# <a name="_x7m16otabon9"></a><a name="_64tqgr9am01"></a>**Server Details** 
+## Introduction
+**1.1 Intended use and unintended use**
 
-|**Server**|**Provider**|**URL**|
-| :- | :- | :- |
-|Local|Django|http://127.0.0.1:8000|
-|Cloud|AWS|http://ec2-54-172-119-63.compute-1.amazonaws.com:8000/login_user?next=/home|
+FlashLite is an interactive, free-to-use website intended for creating, storing, and sharing decks of flashcards. The website should be accessed on a desktop, from a browser, through a URL. Anyone can use the site, though it is purposefully designed with students and instructors in mind.
+
+This website should be used to:
+>* Create and share appropriate, informative flashcard decks suitable for learning.
+>* Study and gain knowledge in many academic and non-academic subjects.
+>* Get feedback on the learning level, proficiency, and mastery of concepts.
+>* Collaborate formally with other users through a shared, safe space.
+
+This website should not be used to:
+>* Share offensive, inappropriate, or otherwise harmful content. 
+>* Social network, conversate or connect with other users informally. 
+>* Cheat, plagiarize or steal the works of others.
+>* Publish misinformation or other inaccurate and otherwise false information
+
+This website may only be used according to its instructions as defined in this guide. All uses other than those directly stated within this guide are seen as unintended use.
 
 
+**1.2 General working principle**
 
-## Testing Protocol
-Think of the local server as a testing server. Changes you make to the server on your local PC won't affect others. You should ensure the code works locally before pushing it to AWS. On the cloud, we share a site and a database. If someone pushes broken code to the AWS server, **everyone suffers**. 
+This website's online platform is designed to help users study through interactive flashcard tools and allow them to create their decks and study sets to enhance their learning experience.
 
-We must test things locally before updating the code to cloud/AWS.
+The digital flashcard system can create curriculums, goals, and instructional methods on various topics by allowing users to design their cards. Users can access and utilize these decks and share them for others on the platform to see and use. 
 
-If new code makes it to the main branch, it should be because it functions and does not conflict with existing code or cause errors. 
+There are two ways to learn and interact with this website:
+- Creating your decks of flashcards for personal use or sharing.
+- Utilizing the public library of decks other users have created and shared.
 
-* **Remember** to use the **local server** for **testing** and **learning** code techniques.
+### Process
+**2.1 How to navigate and utilize the site features**
 
+To traverse the site, users have access to a navigational bar. This bar is available on every page for users that are logged in. It allows free exploration and use of all the site's functions and features. 
 
-* **Remember** to use the **cloud-based server** after local tests **pass**.
+These pages include:
+
+- *Home* - Also known as 'Study Time', this page automatically displays cards from the user's favorite decks.
+
+- *Create Flashcards* - This page allows users to create and customize their flashcards and decks.
+
+- *The Library* - In the library, users can find their decks and the decks other users have published to the site. Users can edit and manage their decks and flashcards from this page.
+
+- *Settings* - Users can access settings to change their passwords, delete their accounts, view their credentials, and make other account configurations. 
+
+- *Favorite Decks* - The user's favorite decks will appear in this drop-down menu. It conveniently lets them quickly access a deck from their favorites without searching for it in the library. 
+
+- *Contact* - Users can contact support and find links to all the site's social media accounts and services.
+
+- *About* - The site's Terms of Service (ToS) and other important legal documentation regarding the rules and regulations for using the product and service can be found here.
 
 ### Diagram:
-```Not yet implemented.```
-
-## User Instructions
-
-1. Download the 'local' folder from the main branch.
-2. Insert the 'local' folder inside your 'mysite' folder.
-3. Open the files contained within the 'local' folder in a code editor.
-4. Analyze and review code contents.
-5. Begin filling in your local database credentials where directed.
-6. Save the files once you've entered correct MySQL database credentials.
-
-### Using Local
-Whenever you want to use the local server. Take the **\_\_init__.py** and **settings.py** files out of the **mysite** folder. 
-
-Then, put them in the **local folder**.
-
-Your **local folder** should now contain **four files**:
-
-``__init__.py ``
-``__init__local.py ``
-`` settings.py`` 
-`` settings_local.py``
-
-Put the **__init__local.py** and **settings_local.py** files in the **mysite** folder.
-
-Your **mysite folder** should now contain:
-
-``__init__local.py ``
-``settings_local.py``
-
-Rename the files so they no longer have the word **local**. (\_\_init__.py & settings.py)
-
-You should follow the same CMD procedures for running a local project:
-
-``py manage.py migrate ``
-
-``py manage.py runserver ``
-
-**Remember** the files contained within your **local folder** are now the original **AWS** files.
-
-If successful, you can proceed with using the local server. Doing this will not affect your access to the AWS site, as the local server exists separately. Once you finish or are ready to push changes, proceed to the next section on **Using AWS**.  
+```mermaid
+flowchart LR
+    Client -- request --> Webserver
+    Webserver -- WSGI --> DjangoApp/Project
+    DjangoApp/Project -- ORM --> DjangoORM
+    DjangoORM -- close --x Database/MySQL
+```
+```mermaid
+flowchart LR
+    Database/MySQL -- results --> DjangoORM
+    DjangoORM -- process --> DjangoApp/Project
+    DjangoApp/Project -- generate response --> Webserver
+    Webserver -- response --x Client
+```
 
 
-### Using AWS
-
-You likely won't push the **\_\_init__.py** or **settings.py** files to GitHub. These files will rarely need to experience changes. But, If you were ever going to push these files to GitHub, on their own or in combination with other files, you would need to change the local files back to their AWS versions before doing so.
-
-When you want to return to the AWS server, rename the files to include local again:
-
-``__init__local.py ``
-``settings_local.py ``
-
-Now, the files can go to the **local folder**, which should have **four files** again.
-
-``__init__.py ``
-``__init__local.py ``
-`` settings.py`` 
-`` settings_local.py``
-
-The original **AWS** files should go in the **mysite** folder.
-
-| Folder (mysite)| Folder (local)     |
-| -------------- | ------------------ |
-| \_\_init__.py  | \_\_init__local.py |
-| settings.py    | settings_local.py  |
-
-Now, uploading these files won't cause errors with the AWS server. When you need to test again, revisit the **Using Local** section and repeat the process to get back to the local server.
-
-# Database Templates
-
-**The following is a record.** 
-
-**Treat this as a precautionary measure only.**
-
-In case the original database code is overwritten, lost, or altered.
-
-You can find the code for the cloud and local database below. 
-
-## Django / Local Database
+```mermaid
+flowchart TD
+    A[Client] -- Enters --> B{Web / Internet}
+    D[Server / AWS] -- Manages / Delivers --> G{Database / MySQL}
+    B -- Requests --> C[Domain / URL]
+    C[Domain / URL] -- Accesses --> D
+    D -- Contains --> E[Software / Django]
+    E -- Creates  --> F[Data]
+    F -- Stores   --> G 
+```
 
 
-### \_\_init__.py
+## Workflow
 
-``
+**3.1 Understanding and documenting workflows**
 
-    database_cred = {
+The key aspects of FlashLite's workflow:
 
-        "host": "localhost",
+> - **Creating a deck:** Starting by adding a title, category, and description, users can create a deck for holding flashcards.
+> - **Adding flashcards:** Whether terms and definitions or questions and answers, users can name their flashcards and customize the front and back sides of their cards.
+> - **Organizing and favoriting decks:** Arrange decks into categories and favorite decks to easily reference them later.
+> - **Studying with different modes:** Choose from multiple-choice options or practice writing answers.
+> - **Reviewing progress and proficiency:** Track your performance with statistics like proficiency, and identify areas requiring further study.
+> - **Sharing decks with other users:** Users can make their decks public from the library so other users can engage with them and collaboratively learn. 
 
-        "user": "root",
 
-        "password": "waketech",
-
-        "database": "flashcard_db",
-
-        "autocommit": True,
-
-        "cursorclass": pymysql.cursors.DictCursor,
-
+```mermaid
+erDiagram
+    DECK ||--o{ USER : creates
+    DECK {
+        VARCHAR(100) title
+        INT_NOT_NULL category_id
+        TEXT description
     }
-``
-
-### settings.py
-
-``
-
-    DATABASES = {
-      'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'flashcard_db',
-        'USER': 'root',
-        'PASSWORD': 'waketech',
-        'HOST': 'localhost',
-        'PORT': '3306',
+    APP ||--o{ USER : creates
+    USER {
+        VARCHAR(50) username "Only 50 characters are allowed"
+        VARCHAR password
+        VARCHAR(100) email "Only 100 characters are allowed"
+        VARCHAR(255) password_hash "Only 255 characters are allowed"
+        TIMESTAMP created_at
     }
-
-``
-
-## AWS Database 
-
-### \_\_init__.py
-
-``
-
-    database_cred = {
-
-        "host": "localhost",
-
-        "user": "flashcarduser",
-
-        "password": "Group1!!",
-
-        "database": "flashcard_db",
-
-        "autocommit": True,  # making sure updated, inserts, deletions are commited for every query
-
-        "cursorclass": pymysql.cursors.DictCursor,
-
+    DECK ||--o{ FLASHCARD : contains
+    FLASHCARD {
+        INT set_id
+        INT_NOT_NULL user_id
+        VARCHAR_NOT_NULL(100) title "Only 100 characters are allowed"
+        INT_NOT_NULL category_id
+        TINYINT(1) is_shared
+        TEXT_NOT_NULL question
+        TEXT_NOT_NULL answer
+        FOREIGN_KEY user_id
+        FOREIGN_KEY category_id
     }
-
-``
-
-### settings.py
-
-``
-
-    DATABASES = {
-      'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'flashcard_db',
-        'USER': 'flashcarduser',
-        'PASSWORD': 'Group1!!',
-        'HOST': 'localhost',
-        'PORT': '3306',
+    CLIENT ||--o{ APP : visits
+```
+```mermaid
+erDiagram
+    USER ||--o{ DECK : creates
+    USER {
+        VARCHAR(50) username 
+        VARCHAR password
+        VARCHAR(100) email 
+        VARCHAR(255) password_hash
+        TIMESTAMP created_at
     }
-``
+    DECK ||--|{ FLASHCARD : contains
+    DECK {
+        VARCHAR(100) title
+        INT_NOT_NULL category_id
+        TEXT description
+    }
+    FLASHCARD {
+        INT set_id
+        INT_NOT_NULL user_id
+        VARCHAR_NOT_NULL(100) title
+        INT_NOT_NULL category_id
+        TINYINT(1) is_shared
+        TEXT_NOT_NULL question
+        TEXT_NOT_NULL answer
+        FOREIGN_KEY user_id
+        FOREIGN_KEY category_id
+    }
+```
+
+### Instructions
+
+**4.1 Quickstart guide for a smooth and effective flashcard creating experience**
+
+Step 1. Open a browser and access the site's URL.
+
+Step 2. Existing users log in. New users sign up.
+
+Step 3. Access the flashcard deck creation tool to create a deck.
+
+Step 4. Create and fill your deck with individual flashcards.
+
+Step 5. Share your deck with other users or begin studying.
+
+### Conventions
+**5.1 Formatting decks and flashcards**
+
+Decks consist of three main pieces of information: A deck name, category, and description.
+
+Deck names should be unique and are the main source of identification for your deck. It is not possible to have decks with the same name. 
+
+The category classifies your deck by subject, concept, or other means. Decks are grouped based on whether or not they share a category. 
+
+The description is an optional means for describing the contents of your deck at length. Descriptions should be relevant to their deck's contents.
+
+Flashcards consist of three main pieces of information: A flashcard name, a question, and an answer.
+
+Flashcard names should be unique and are the main source for identifying your flashcards. Cards in the same deck cannot share a name.
+
+The question section of a flashcard is for posing a question, query, or other answerable statement. 
+
+The answer section of a flashcard can have multiple correct and incorrect answers. Answer sections can be in multiple-choice format or allow the user to type a single response.
+
+## Errors & Malfunctions
+
+**6.1 Things to avoid**
+
+Existing users should not attempt to create additional accounts using the same email.

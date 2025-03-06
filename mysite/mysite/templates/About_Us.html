@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- External Fonts -->
@@ -12,7 +12,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Change to Page Title{% endblock title %}</title>
+    <title>About Us - Flashcard Generator</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -56,8 +56,41 @@
             <a href="{% url 'about' %}"><p>Contact us!</p></a>
         </div>
     </div>
+    <!-- Main Content Section -->
+    <div class="content">
+        <h1 class="page-title"><u>About Us</u></h1>
+        <div class="about-container">
+            <p class="about-text">Welcome to FlashLite, your ultimate tool for effective studying! Our mission is to make learning more engaging and accessible for students, professionals, and lifelong learners. We believe in the power of interactive flashcards to enhance memory retention and simplify complex topics.</p>
+            
+            <h2 class="about-subtitle">Our Team</h2>
+            <p class="about-text">We are a passionate group of students dedicated to improving the way people learn. Our goal is to provide an intuitive and user-friendly platform that helps you create, organize, and master your study materials.</p>
+            
+            <h2 class="about-subtitle">Why Choose Us?</h2>
+            <ul class="about-list">
+                <li>Easy-to-use interface for quick flashcard creation</li>
+                <li>Customizable study decks to fit your learning style</li>
+                <li>Cloud-based storage to access your flashcards anywhere</li>
+                <li>Interactive learning experience with a sleek design</li>
+                <li>Enhanced collaboration features for group study</li>
+                <li>And much more to come!</li>
+            </ul>
+        </div>
+        
+        <!-- Embedded YouTube Video -->
+        <div class="video-container">
+            <h2 class="about-subtitle">Learn More About Us</h2>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+        </div>
+        
+        <!-- Terms and Conditions Button -->
+        <div class="terms-container">
+            <a href="{% url 'terms' %}">
+                <button class="terms-button">Terms and Conditions</button>
+            </a>
+        </div>
+        <footer class="footer">
+            <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+        </footer>
     </div>
-    {% block main %}
-    {% endblock main %}
 </body>
 </html>
