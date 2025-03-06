@@ -1,4 +1,4 @@
-# Flashcard Generator User Guide
+# Flashcard Generator Test Guide
 
 ## Overview
 
@@ -16,6 +16,7 @@ The following guide will demonstrate how to access the project locally and using
 > ### <br>*User Instructions*: <small>Directions for accessing local and cloud servers</small>
 > ### <br>*Using local*: <small>How to start a local server</small>
 > ### <br>*Using AWS*: <small>How to start a AWS server</small>
+> ### <br>*Using GitHub Desktop*: <small>How to use GitHub Desktop for testing</small>
 
 > ### <br>*Database Templates*: <small>Backup code for database credentials</small>
 
@@ -122,6 +123,8 @@ The original **AWS** files should go in the **mysite** folder.
 | settings.py    | settings_local.py  |
 
 Now, uploading these files won't cause errors with the AWS server. When you need to test again, revisit the **Using Local** section and repeat the process to get back to the local server.
+
+### Using GitHub Desktop
 
 # Database Templates
 

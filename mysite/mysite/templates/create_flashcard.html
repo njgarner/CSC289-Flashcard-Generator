@@ -1,16 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Flashcard</title>
-</head>
-<body>
-    <h2>Create Flashcard</h2>
+{% extends 'base.html' %}
+
+{% block title %}Create Flashcard{% endblock title %}
+{% block main %}
+<h2 class="page-title">Create Flashcard</h2>
+<div class="content">
+    <div class="form-content">
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}  <!-- Render the form fields -->
         <button type="submit">Create Flashcard</button>
     </form>
-</body>
-</html>
+    </div>
+    <footer class="footer">
+        <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+    </footer>
+</div>
+{% endblock main %}
+

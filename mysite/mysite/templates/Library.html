@@ -1,9 +1,14 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
+    <!-- External Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,18 +17,21 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
+    <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <p>Flash Card Generator</p>
+            <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
             <div class="login-content">
-                <!--Change to LogOut button when logged in-->
+                <!-- Change to LogOut button when logged in -->
                 {% if user.is_authenticated %}
                   {% block content %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Logout</button>
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>                    </form>
                   {% endblock %}
                 {% else %}
-                <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
@@ -51,8 +59,13 @@
                 <p>{{ flashcard_set.title }}</p>
                 <p>{{ flashcard_set.description }}</p>
                 <p>Category: {{ flashcard_set.category.name }}</p>
+                
+                <!-- View Details Button -->
                 <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
-            
+        
+                <!-- New Study Button -->
+                <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+        
                 <!-- Delete Button -->
                 <div>
                     <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
@@ -62,9 +75,20 @@
                     <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
                 </div>
             </div>
-            {% empty %}
-                <p>No flashcard sets created yet.</p>
-            {% endfor %}
+        {% empty %}
+            <p>No flashcard sets created yet.</p>
+        {% endfor %}
         </div>
+        <div class="terms-container">
+            <a href="{% url 'terms' %}">
+                <button class="terms-button">Terms and Conditions</button>
+            </a>
+        </div>
+        <footer class="footer">
+            <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+        </footer>
     </div>
     <script src="{% static 'print_SG_Library.js' %}"></script>
+
+</body>
+</html>

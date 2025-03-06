@@ -1,141 +1,185 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User  # Use the built-in User model
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
 from mysite.models import FlashcardSet, Category, Flashcard
 from .forms import FlashcardForm
 from django.http import JsonResponse
 
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.utils.html import strip_tags
 
-# Create a new user
-@login_required
+# ======================== Main Pages ======================== #
+
+@login_required  # Home page
 def home(request):
     return render(request, 'Home.html')
 
-@login_required
+@login_required  # Library page showing user's decks
 def library_view(request):
-    # Fetch only the flashcard sets that belong to the logged-in user
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
     return render(request, 'Library.html', {'flashcard_sets': flashcard_sets})
 
-@login_required
+@login_required  # About Us page
+def about(request):
+    return render(request, 'About_Us.html')
+
+@login_required  # Terms and conditions page
+def terms(request):
+    return render(request, 'Terms.html')
+
+@login_required  # User settings page
 def settings(request):
     return render(request, 'Settings.html')
 
-def login_user(request):
-    return render(request, 'login.html', {})  # Render the login page
+# ======================== User Authentication (Signup, Login, Logout) ======================== #
 
-def signup_user(request):
+def login_user(request):  # Login page
+    return render(request, 'login.html')
+
+def custom_logout(request):  # Logs out the user
+    logout(request)
+    return redirect('login_user')
+
+def signup_user(request):  # Signup page with email verification
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
         password = request.POST["password"]
 
-        # Check if user already exists
-        if User.objects.filter(username=username).exists():  # Use the built-in User model
+        if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken")
             return redirect("signup_user")
 
-        if User.objects.filter(email=email).exists():  # Use the built-in User model
+        if User.objects.filter(email=email).exists():
             messages.error(request, "Email already in use")
             return redirect("signup_user")
 
-        # Hash the password before storing it (handled by Django)
-        user = User.objects.create_user(username=username, email=email, password=password)
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password=make_password(password),
+            is_active=False
+        )
 
-        messages.success(request, "Account created successfully! Please log in.")
-        return redirect("login_user")  # Redirect to login page after signup
-
-    return render(request, "sign_up.html")  # Render the signup page
-
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        # Authenticate using the built-in Django User model
-        user = authenticate(request, username=username, password=password)
+        # Email verification setup
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        verification_link = f"http://{get_current_site(request).domain}/activate/{uid}/{token}/"
         
-        if user is not None:
-            login(request, user)  # Log the user in using Django's built-in login method
-            messages.success(request, "Login successful!")
-            return redirect('home')  # Redirect to home after successful login
+        html_message = render_to_string("email_verification.html", {
+            "username": username,
+            "verification_link": verification_link
+        })
+        
+        email_message = EmailMultiAlternatives(
+            subject="Verify Your Email - Flashcard App",
+            body=strip_tags(html_message),
+            from_email="noreply@yourdomain.com",
+            to=[email]
+        )
+        email_message.attach_alternative(html_message, "text/html")
+        email_message.send()
+
+        messages.success(request, "Check your email for verification.")
+        return redirect("login_user")
+
+    return render(request, "sign_up.html")
+
+def activate_account(request, uidb64, token):  # Activates user account via email link
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Account activated! You can now log in.")
+        return redirect("login_user")
+    else:
+        messages.error(request, "Invalid or expired activation link.")
+        return redirect("signup_user")
+
+def user_login(request):  # Logs in user
+    if request.method == 'POST':
+        user = authenticate(
+            request, 
+            username=request.POST.get('username'), 
+            password=request.POST.get('password')
+        )
+        if user:
+            login(request, user)
+            return redirect('home')
         else:
             messages.error(request, "Invalid username or password.")
-            return redirect('login_user')  # Redirect back to login
+            return redirect('login_user')
+    return render(request, 'login.html')
 
-    return render(request, 'login.html')  # Render login page for GET request
+# ======================== Flashcard Deck Management ======================== #
 
-@login_required
+@login_required  # Create a new deck
 def create_deck(request):
     if request.method == 'POST':
-        title = request.POST.get('title')
-        category_name = request.POST.get('category')  # This is a string from the form
-        description = request.POST.get('description')
-
-        if title and category_name:  # Ensure required fields are filled
-            category, created = Category.objects.get_or_create(name=category_name)
-
-            # Create the FlashcardSet and associate it with the logged-in user
-            flashcard_set = FlashcardSet(
-                title=title,
-                category=category,  # Assign Category instance, not string
-                description=description,
-                user=request.user  # Associate the current user with the flashcard set
+        title, category_name, description = (
+            request.POST.get('title'), 
+            request.POST.get('category'), 
+            request.POST.get('description')
+        )
+        
+        if title and category_name:
+            category, _ = Category.objects.get_or_create(name=category_name)
+            FlashcardSet.objects.create(
+                title=title, category=category, description=description, user=request.user
             )
-            flashcard_set.save()
-            return redirect('library_view')  # Redirect to library view after saving the deck
-
-        else:
-            error_message = "Please fill in all required fields."
-            return render(request, 'Deck.html', {'error_message': error_message})
-
+            return redirect('library_view')
+        messages.error(request, "Please fill in all required fields.")
     return render(request, 'Deck.html')
 
-@login_required
+@login_required  # View flashcard deck details
 def view_flashcard_set(request, set_id):
-    # Fetch the FlashcardSet by its set_id instead of id
-    flashcard_set = FlashcardSet.objects.get(set_id=set_id)  # Use 'set_id' as the primary key field name
-
-    # Fetch the flashcards related to this set
-    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)  # Assuming 'flashcard_set' is the field in Flashcard model
-
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
     return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
 
-@login_required
+@login_required  # Delete a deck
 def delete_deck(request, deck_id):
-    deck = get_object_or_404(FlashcardSet, set_id=deck_id)  # Ensure 'set_id' is consistent here
-    deck.delete()  # Delete the deck
-    return redirect('library_view')  # Redirect back to the library view
+    get_object_or_404(FlashcardSet, set_id=deck_id).delete()
+    return redirect('library_view')
 
-@login_required
+# ======================== Flashcard Management ======================== #
+
+@login_required  # Create a flashcard
 def create_flashcard(request):
-    # If the request is POST, process the form
-    if request.method == 'POST':
-        form = FlashcardForm(request.POST)
-        if form.is_valid():
-            flashcard_set = form.cleaned_data['flashcard_set']
-            
-            # Ensure that the flashcard set belongs to the current user
-            if flashcard_set.user == request.user:
-                print("SUCCESS")
-                form.save()  # Save the flashcard
-                return redirect('home')  # Redirect after successful form submission
-        else:
-            print("Form errors:", form.errors)
-    else:
-        form = FlashcardForm()
+    form = FlashcardForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        flashcard_set = form.cleaned_data['flashcard_set']
+        if flashcard_set.user == request.user:
+            form.save()
+            return redirect('home')
+    form.fields['flashcard_set'].queryset = FlashcardSet.objects.filter(user=request.user)
+    return render(request, 'create_flashcard.html', {'form': form})
 
-    # Filter to show only the flashcard sets that belong to the current user
-    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
-    
-    # Set the queryset for the flashcard_set field in the form dynamically
-    form.fields['flashcard_set'].queryset = flashcard_sets
-    
-    return render(request, 'create_flashcard.html', {'form': form, 'flashcard_sets': flashcard_sets})
+@login_required  # Delete a flashcard
+def delete_flashcard(request, card_id):
+    get_object_or_404(Flashcard, card_id=card_id).delete()
+    return redirect('library_view')
 
+# ======================== Study Mode ======================== #
+
+@login_required  # Study flashcards in a deck
+def study_view(request, set_id):
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+    return render(request, 'Home.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
 @login_required
 def get_flashcard_set_details(request, set_id):
 
