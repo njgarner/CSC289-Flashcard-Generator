@@ -17,16 +17,17 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
+    <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <p>Flash Card Generator</p>
+            <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
             <div class="login-content">
                 <!-- Change to LogOut button when logged in -->
                 {% if user.is_authenticated %}
                   {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
-                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button></form>
+                        <button class="button" onclick="window.location.href='{% url 'logout_user' %}'">Logout</button>                    </form>
                   {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
