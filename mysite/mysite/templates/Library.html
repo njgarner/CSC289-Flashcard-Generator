@@ -67,10 +67,13 @@
                 <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
         
                 <!-- Delete Button -->
-                <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="delete-button">Delete</button>
-                </form>
+                <div>
+                    <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                    <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+                </div>
             </div>
         {% empty %}
             <p>No flashcard sets created yet.</p>
@@ -85,7 +88,7 @@
             <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
         </footer>
     </div>
-    
+    <script src="{% static 'print_SG_Library.js' %}"></script>
 
 </body>
 </html>

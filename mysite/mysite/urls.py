@@ -38,4 +38,7 @@ urlpatterns = [
     path('delete_flashcard/<int:card_id>/', views.delete_flashcard, name='delete_flashcard'),
     path('logout/', LogoutView.as_view(next_page='login_user'), name="logout_user"),
     path('study/<int:set_id>/', views.study_view, name='study_view'),
+    path('flashcards/<int:set_id>/details/', views.get_flashcard_set_details, name='flashcard_set_details'),
+
 ]
+

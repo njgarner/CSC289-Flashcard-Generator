@@ -3,9 +3,11 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import make_password
-from .models import FlashcardSet, Category, Flashcard
+from django.contrib.auth.hashers import make_password, check_password
+from mysite.models import FlashcardSet, Category, Flashcard
 from .forms import FlashcardForm
+from django.http import JsonResponse
+
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -178,3 +180,26 @@ def study_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
     return render(request, 'Home.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+@login_required
+def get_flashcard_set_details(request, set_id):
+
+    print("Existing FlashcardSet IDs:", list(FlashcardSet.objects.values_list('set_id', flat=True)))
+
+    try:
+        flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+    except FlashcardSet.DoesNotExist:
+        return JsonResponse({'error': f'Flashcard set with ID {set_id} not found'}, status=404)
+
+    print("we got here 1")
+    flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+    print("we got here 2")
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+    print("we got here 3")
+    flashcards_data = [{'question': fc.question, 'answer': fc.answer} for fc in flashcards]
+
+    data = {
+        'title': flashcard_set.title,
+        'flashcards': flashcards_data
+    }
+
+    return JsonResponse(data)
