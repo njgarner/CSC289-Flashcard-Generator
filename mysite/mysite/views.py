@@ -3,11 +3,10 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import make_password, check_password
-from mysite.models import FlashcardSet, Category, Flashcard
-from .forms import FlashcardForm
+from django.contrib.auth.hashers import make_password
+from .models import FlashcardSet, Category, Flashcard
+from .forms import FlashcardForm, ChangePasswordForm
 from django.http import JsonResponse
-
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -15,31 +14,56 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
+from django.contrib.auth import update_session_auth_hash
+from django.shortcuts import render, redirect
+from django.core.exceptions import *
 
 # ======================== Main Pages ======================== #
 
 @login_required  # Home page
 def home(request):
-    return render(request, 'Home.html')
+    return render(request, 'home.html')
 
 @login_required  # Library page showing user's decks
 def library_view(request):
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
-    return render(request, 'Library.html', {'flashcard_sets': flashcard_sets})
+    return render(request, 'library.html', {'flashcard_sets': flashcard_sets})
 
 @login_required  # About Us page
 def about(request):
-    return render(request, 'About_Us.html')
+    return render(request, 'about_us.html')
 
 @login_required  # Terms and conditions page
 def terms(request):
-    return render(request, 'Terms.html')
+    return render(request, 'terms.html')
 
 @login_required  # User settings page
 def settings(request):
-    return render(request, 'Settings.html')
+    return render(request, 'settings.html')
+
+@login_required  # User acount deletion page
+def account_delete(request):
+    return render(request, 'account_delete.html')
 
 # ======================== User Authentication (Signup, Login, Logout) ======================== #
+
+def change_password(request):
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # To keep the user logged in
+            return redirect('password_change_done')
+        else:
+            for error in List(form.errors.values()):
+                messages.error(request, error)
+                return redirect('change-password/change_password.html')
+    else:
+        form = ChangePasswordForm(request.user)
+    return render(request, 'change-password/change_password.html', {'form': form})
+
+def password_change_done(request):
+    return render(request, 'change-password/password_change_done.html')
 
 def login_user(request):  # Login page
     return render(request, 'login.html')
@@ -124,6 +148,15 @@ def user_login(request):  # Logs in user
             return redirect('login_user')
     return render(request, 'login.html')
 
+def delete_account(request):
+    if request.method == 'POST':
+        deleteUser = User.objects.get(username=request.user)
+        deleteUser.delete()
+        messages.success(request, "Account deleted! You can now create a new account.")
+        return redirect('sign_up.html')
+    
+    return render(request, 'account_delete.html')
+
 # ======================== Flashcard Deck Management ======================== #
 
 @login_required  # Create a new deck
@@ -142,7 +175,7 @@ def create_deck(request):
             )
             return redirect('library_view')
         messages.error(request, "Please fill in all required fields.")
-    return render(request, 'Deck.html')
+    return render(request, 'deck.html')
 
 @login_required  # View flashcard deck details
 def view_flashcard_set(request, set_id):
@@ -154,6 +187,22 @@ def view_flashcard_set(request, set_id):
 def delete_deck(request, deck_id):
     get_object_or_404(FlashcardSet, set_id=deck_id).delete()
     return redirect('library_view')
+
+@login_required
+def toggle_favorite(request, deck_id):
+    deck = get_object_or_404(FlashcardSet, set_id=deck_id)
+    favorite, created = FavoriteDeck.objects.get_or_create(user=request.user, deck=deck)
+    
+    if not created:
+        favorite.delete()
+        return JsonResponse({"favorited": False})
+
+    return JsonResponse({"favorited": True})
+
+@login_required
+def favorite_decks(request):
+    favorites = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    return render(request, 'home.html', {'favorites': favorites})
 
 # ======================== Flashcard Management ======================== #
 
@@ -179,7 +228,8 @@ def delete_flashcard(request, card_id):
 def study_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-    return render(request, 'Home.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+    return render(request, 'home.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+
 @login_required
 def get_flashcard_set_details(request, set_id):
 
