@@ -177,15 +177,17 @@ body {
 .flashcard {
     width: 600px;
     height: 300px;
-    border: 2px solid #84F3DA;
-    padding: 30px;
-    margin: 20px;
+    border: 12px solid #84F3DA;
     text-align: center;
-    line-height: 150px; /* Centers the text vertically */
-    margin: 0 auto; /* Centers the element horizontally */
+    line-height: normal; /* Centers the text vertically */
     background-color: #f4f4f4;
     color: #333;
-    font-size: 18px;
+    border-radius: 20px; /* Rounds out the border edges */
+    align-content: center; /* Centers the text to be in the middle of the flashcard */
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 10px;
+    padding-right: 10px
 }
 
 .flashcard-display {
@@ -225,6 +227,25 @@ body {
     font-family: 'Patrick Hand', cursive;
     font-weight: 400;
     font-style: normal;
+}
+
+.flashcard-text { /* Style for the text for the flashcard below the name
+    text-decoration: underline; /* Underlines the flashcard text, used to simulate the lines on actual flashcards */
+    line-height: 1.6; /* Adjusts the height of the line spacing */
+    word-wrap: break-word; /* Used to make the text break when reaching the other side */
+    font-size: 35px; /* Makes the font size bigger or smaller */
+}
+
+.flashcard-display label { /* Styles the label elements in flashcard-display class elements */
+    font-size: 25px;
+}
+
+.flashcard-display select{ /* Styles the selector element in flashcard-display class elements */
+    height: 50px;
+    width: 200px;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 1px;
 }
 
 /* Style for the Library box container */
