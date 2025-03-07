@@ -64,7 +64,7 @@ document.querySelectorAll('.print-button').forEach(button => {
 
         // Add image next to the first radio button
         let img1 = document.createElement('img');
-        img1.src = ''; // Replace with your image path--SG_Answers.jpeg
+        img1.src = static_img1 // Replace with your image path--SG_Answers.jpeg
         img1.style.position = 'absolute';
         img1.style.top = '40%';
         img1.style.left = '160px';  // Adjust as necessary to position next to the radio button
@@ -93,7 +93,7 @@ document.querySelectorAll('.print-button').forEach(button => {
 
         // Add image next to the second radio button
         let img2 = document.createElement('img');
-        img2.src = '';  // Replace with your image path--SG.jpeg
+        img2.src = static_img2  // Replace with your image path--SG.jpeg
         img2.style.position = 'absolute';
         img2.style.top = '50%';
         img2.style.left = '160px';  // Adjust as necessary to position next to the radio button
