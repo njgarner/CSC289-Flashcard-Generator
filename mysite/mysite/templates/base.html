@@ -12,7 +12,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Flashcard Generator</title>
+    <title>{% block title %}Home - Flashcard Generator{% endblock title %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -20,10 +20,9 @@
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-                <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
-                <div class="login-content"></div>
-                <!-- Change to LogOut button when logged in -->
-                <!-- Proper logout form -->
+            <a href="{% url 'home' %}" style="color:black" class="flashlite-title">FlashLite</a>
+            <div class="login-content">
+                <!-- LogOut -->
                 {% if user.is_authenticated %}
                   {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
@@ -33,7 +32,7 @@
                   {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                    <button class="button" href="#" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
@@ -51,11 +50,10 @@
                 <a href="#">Test2</a>
             </div>
         </div>
-        <!-- Contact link now correctly points to About Us page -->
+        <!-- About Us Page -->
         <div class="contact">
-            <a href="{% url 'about' %}"><p>Contact us!</p></a>
+            <a href="{% url 'about' %}">Contact us!</a>
         </div>
-    </div>
     </div>
     {% block main %}
     {% endblock main %}
