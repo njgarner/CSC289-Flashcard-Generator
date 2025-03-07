@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <!-- External Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Flashlite</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <!-- Top Bar Section -->
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}" style="color:black" class="flashlite-title">FlashLite</a>
+            <div class="login-content">
+                <!-- LogOut -->
+                {% if user.is_authenticated %}
+                  {% block content %}
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" type="submit">Logout</button>
+                    </form>
+                  {% endblock %}
+                {% else %}
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Vertical Navigation Bar -->
+    <div class="nav-bar">
+        <a href="{% url 'home' %}">Study Time</a>
+        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'settings' %}">Settings</a>
+        <div class="dropdown">
+            <button class="dropbtn">Favorite Decks</button>
+            <div class="dropdown-content">
+                <a href="#">Test</a>
+                <a href="#">Test2</a>
+            </div>
+        </div>
+
+        <!-- About Us Page -->
+        <div class="contact">
+            <a href="{% url 'about' %}">Contact us!</a>
+        </div>
+    </div>
+
+    <!-- Main Content Section -->
+    <h1 class="page-title">Library</h1>
+
+    <div class="content">
+        <div class="flashcard-sets-list">
+            <button class="add-box">
+                <a href="{% url 'create_deck' %}">+</a>
+            </button>
+
+            {% for flashcard_set in flashcard_sets %}
+                <div class="flashcard-deck">
+                    <p>{{ flashcard_set.title }}</p>
+                    <p>{{ flashcard_set.description }}</p>
+                    <p>Category: {{ flashcard_set.category.name }}</p>
+
+                    <!-- Favorite Button -->
+                    <button class="favorite-btn" data-deck-id="{{ flashcard_set.set_id }}">
+                        {% if flashcard_set.set_id in favorite_decks %}
+                            ❤️  <!-- Display filled heart if already favorited -->
+                        {% else %}
+                            ♡  <!-- Display empty heart if not favorited -->
+                        {% endif %}
+                    </button>
+                    
+                    <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                    <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+
+                    <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+            {% empty %}
+                <p>No flashcard sets created yet.</p>
+            {% endfor %}
+        </div>
+        <footer class="footer">
+            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.favorite-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                let deckId = this.getAttribute('data-deck-id');
+
+                fetch(`/favorite/${deckId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.favorited) {
+                        this.innerText = "❤️";  // Update button to filled heart
+                    } else {
+                        this.innerText = "♡";  // Update button to empty heart
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+
+    <!-- Script for Print Function -->
+    <script src="{% static 'print_SG_Library.js' %}"></script>
+
+    <!-- Variables for Print Function -->
+    <script>
+    var static_img1 = "{% static "SG_Answers.jpeg" %}";
+    var static_img2 = "{% static "SG.jpeg" %}";
+    </script>
+
+</body>
+</html>
