@@ -288,3 +288,14 @@ hr {
     background-color: #00A682;
     color: white;
 }
+
+.flashlite-title {
+    font-size: 32px; /* Adjust title size */
+    margin: 0;
+}
+
+.logo {
+    width: 50px; /* Adjust as needed */
+    height: auto;
+    margin-left: 10px; /* Add spacing between text and logo */
+}
