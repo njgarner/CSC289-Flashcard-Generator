@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from .models import FlashcardSet, Category, Flashcard
+from .models import FlashcardSet, Category, Flashcard, FavoriteDeck
 from .forms import FlashcardForm, ChangePasswordForm
 from django.http import JsonResponse
 from django.core.mail import EmailMultiAlternatives
@@ -22,12 +22,27 @@ from django.core.exceptions import *
 
 @login_required  # Home page
 def home(request):
-    return render(request, 'home.html')
+    # Get favorite decks for the current user
+    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
 
-@login_required  # Library page showing user's decks
+    # Render the home page with favorite_decks in the context
+    return render(request, 'home.html', {'favorite_decks': favorite_decks})
+
+
+@login_required
 def library_view(request):
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
-    return render(request, 'library.html', {'flashcard_sets': flashcard_sets})
+    favorites = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+
+    # Get a list of favorited deck IDs for easy lookup
+    favorite_deck_ids = set(favorite.deck.set_id for favorite in favorites)
+
+    return render(request, 'library.html', {
+        'flashcard_sets': flashcard_sets,
+        'favorites': favorites,
+        'favorite_deck_ids': favorite_deck_ids  # Pass the IDs to the template
+    })
+
 
 @login_required  # About Us page
 def about(request):
@@ -37,9 +52,13 @@ def about(request):
 def terms(request):
     return render(request, 'terms.html')
 
-@login_required  # User settings page
+@login_required
 def settings(request):
-    return render(request, 'settings.html')
+    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    return render(request, 'settings.html', {
+        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+    })
+
 
 @login_required  # User acount deletion page
 def account_delete(request):
@@ -55,7 +74,7 @@ def change_password(request):
             update_session_auth_hash(request, user)  # To keep the user logged in
             return redirect('password_change_done')
         else:
-            for error in List(form.errors.values()):
+            for error in list(form.errors.values()):
                 messages.error(request, error)
                 return redirect('change-password/change_password.html')
     else:
@@ -161,6 +180,9 @@ def delete_account(request):
 
 @login_required  # Create a new deck
 def create_deck(request):
+    # Get favorite decks for the current user
+    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+
     if request.method == 'POST':
         title, category_name, description = (
             request.POST.get('title'), 
@@ -175,7 +197,11 @@ def create_deck(request):
             )
             return redirect('library_view')
         messages.error(request, "Please fill in all required fields.")
-    return render(request, 'deck.html')
+
+    return render(request, 'deck.html', {
+        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+    })
+
 
 @login_required  # View flashcard deck details
 def view_flashcard_set(request, set_id):
@@ -202,6 +228,7 @@ def toggle_favorite(request, deck_id):
 @login_required
 def favorite_decks(request):
     favorites = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    print(f"Favorite Decks: {favorite_decks}")
     return render(request, 'home.html', {'favorites': favorites})
 
 # ======================== Flashcard Management ======================== #
@@ -209,13 +236,22 @@ def favorite_decks(request):
 @login_required  # Create a flashcard
 def create_flashcard(request):
     form = FlashcardForm(request.POST or None)
+    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+
     if request.method == 'POST' and form.is_valid():
         flashcard_set = form.cleaned_data['flashcard_set']
         if flashcard_set.user == request.user:
             form.save()
             return redirect('home')
+
     form.fields['flashcard_set'].queryset = FlashcardSet.objects.filter(user=request.user)
-    return render(request, 'create_flashcard.html', {'form': form})
+
+    return render(request, 'create_flashcard.html', {
+        'form': form,
+        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+    })
+
+
 
 @login_required  # Delete a flashcard
 def delete_flashcard(request, card_id):
@@ -228,7 +264,16 @@ def delete_flashcard(request, card_id):
 def study_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-    return render(request, 'home.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+
+    # Get favorite decks for the current user
+    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+
+    return render(request, 'home.html', {
+        'flashcard_set': flashcard_set,
+        'flashcards': flashcards,
+        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+    })
+
 
 @login_required
 def get_flashcard_set_details(request, set_id):

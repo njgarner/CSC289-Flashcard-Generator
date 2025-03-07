@@ -8,6 +8,7 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}  <!-- Render the form fields -->
+        
         <button type="submit">Create Flashcard</button>
     </form>
     </div>
@@ -16,4 +17,3 @@
     </footer>
 </div>
 {% endblock main %}
-

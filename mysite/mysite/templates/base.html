@@ -24,12 +24,10 @@
             <div class="login-content">
                 <!-- LogOut -->
                 {% if user.is_authenticated %}
-                  {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
                         <button class="button" type="submit">Logout</button>
                     </form>
-                  {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
                     <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
@@ -37,25 +35,37 @@
             </div>
         </div>
     </header>
+
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
         <a href="{% url 'home' %}">Study Time</a>
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'settings' %}">Settings</a>
+        
         <div class="dropdown">
             <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
-                <a href="#">Test</a>
-                <a href="#">Test2</a>
+                {% for favorite in favorite_decks %}
+                    <a href="{% url 'study_view' favorite.deck.set_id %}">{{ favorite.deck.title }}</a>
+                {% empty %}
+                    <p>No favorite decks.</p>
+                {% endfor %}
             </div>
         </div>
+
         <!-- About Us Page -->
         <div class="contact">
             <a href="{% url 'about' %}">Contact us!</a>
         </div>
     </div>
+
+    <!-- Main content area (this will be populated by other templates) -->
     {% block main %}
     {% endblock main %}
+    
+    <!-- Link to External JS File -->
+    <script src="{% static 'favorite.js' %}"></script>
+    
 </body>
 </html>

@@ -47,8 +47,11 @@
         <div class="dropdown">
             <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
-                <a href="#">Test</a>
-                <a href="#">Test2</a>
+                {% for favorite in favorites %}
+                    <a href="{% url 'study_view' favorite.deck.set_id %}">{{ favorite.deck.title }}</a>
+                {% empty %}
+                    <p>No favorite decks.</p>
+                {% endfor %}
             </div>
         </div>
 
@@ -75,15 +78,16 @@
 
                     <!-- Favorite Button -->
                     <button class="favorite-btn" data-deck-id="{{ flashcard_set.set_id }}">
-                        {% if flashcard_set.set_id in favorite_decks %}
-                            ❤️  <!-- Display filled heart if already favorited -->
+                        {% if flashcard_set.set_id in favorite_deck_ids %}
+                            ❤️  <!-- Filled heart if favorited -->
                         {% else %}
-                            ♡  <!-- Display empty heart if not favorited -->
+                            ♡  <!-- Empty heart if not favorited -->
                         {% endif %}
                     </button>
                     
                     <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
                     <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+                    <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
 
                     <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
                         {% csrf_token %}
@@ -99,39 +103,14 @@
         </footer>
     </div>
     
-    <script>
-        document.querySelectorAll('.favorite-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                let deckId = this.getAttribute('data-deck-id');
-
-                fetch(`/favorite/${deckId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.favorited) {
-                        this.innerText = "❤️";  // Update button to filled heart
-                    } else {
-                        this.innerText = "♡";  // Update button to empty heart
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            });
-        });
-    </script>
-
-    <!-- Script for Print Function -->
+    <!-- External JavaScript Files -->
+    <script src="{% static 'favorite.js' %}"></script>
     <script src="{% static 'print_SG_Library.js' %}"></script>
 
     <!-- Variables for Print Function -->
     <script>
-    var static_img1 = "{% static "SG_Answers.jpeg" %}";
-    var static_img2 = "{% static "SG.jpeg" %}";
+        var static_img1 = "{% static 'SG_Answers.jpeg' %}";
+        var static_img2 = "{% static 'SG.jpeg' %}";
     </script>
 
 </body>
