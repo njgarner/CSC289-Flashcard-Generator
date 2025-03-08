@@ -21,6 +21,7 @@
     <header>
         <div class="top-bar">
             <a href="{% url 'home' %}" style="color:black" class="flashlite-title">FlashLite</a>
+            <img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
             <div class="login-content">
                 <!-- LogOut -->
                 {% if user.is_authenticated %}
