@@ -1,77 +1,59 @@
-{% extends 'base.html' %}
-
-{% block title %}Terms and Conditions - FlashLite{% endblock %}
-
-{% block main %}
-
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- External Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <title>Terms and Conditions - FlashLite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        :root {
+            /* Color palette */
+            --primary-color: #00A682;
+            --primary-light: #84F3DA;
+            --dark-text: #333;
+            --light-text: #555;
+            --background-color: #f9f9f9;
+            --card-background: #fff;
+            --footer-background: #333;
+            --footer-text: #fff;
+        }
+
         /* General Body Styling */
         body {
             font-family: 'Varela Round', sans-serif;
-            background-color: #f9f9f9;
+            background-color: var(--background-color);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Ensures the page takes up at least the height of the viewport */
+            min-height: 100vh;
+            color: var(--light-text);
+            line-height: 1.6;
+            font-size: 16px;
         }
 
-        /* Header Styling */
-        header {
-            background-color: #84F3DA;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .top-bar {
-            font-size: 28px;
-            color: #333;
-        }
-
-        /* Main Content Section Styling */
-        .content {
-            flex-grow: 1;  /* Ensures the content takes up the remaining space */
-            padding: 30px;
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--dark-text);
+            margin-bottom: 20px;
         }
 
         h1.page-title {
             text-align: center;
-            font-size: 36px;
+            font-size: 32px;
             margin-bottom: 20px;
-            color: #333;
+            color: var(--dark-text);
         }
 
         h2 {
-            color: #00A682;
-            font-size: 28px;
+            color: var(--primary-color);
+            font-size: 24px;
             margin-top: 20px;
         }
 
         p, ul {
-            line-height: 1.6;
-            font-size: 18px;
-            color: #555;
+            margin-bottom: 16px;
         }
 
         ul {
@@ -84,35 +66,94 @@
 
         .section-header {
             font-weight: bold;
-            color: #333;
-            margin-top: 40px;
-            font-size: 24px;
+            color: var(--dark-text);
+            margin-top: 32px;
+            font-size: 20px;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #007a60;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: var(--primary-light);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar {
+            font-size: 28px;
+            color: var(--dark-text);
+        }
+
+        .flashlite-title {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        /* Main Content Section Styling */
+        .content {
+            flex-grow: 1;
+            padding: 30px;
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         /* Footer Styling */
         .footer {
-            background-color: #333;
-            color: white;
+            background-color: var(--footer-background);
+            color: var(--footer-text);
             text-align: center;
             padding: 20px;
             margin-top: auto;
         }
 
-        a {
-            color: #00A682;
-            text-decoration: none;
-        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+                margin: 20px;
+            }
 
-        a:hover {
-            text-decoration: underline;
+            h1.page-title {
+                font-size: 28px;
+            }
+
+            .section-header {
+                font-size: 18px;
+            }
+
+            body {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
+
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
+        </div>
+    </header>
+
     <!-- Main Content Section -->
-    <h1 class="page-title"><u>Terms and Conditions for FlashLite</u></h1>
     <div class="content">
-        <p><strong>Last Updated: February 23, 2025</strong></p>
+        <h1 class="page-title">Terms and Conditions</h1>
+        <p><strong>Last Updated: March 5, 2025</strong></p>
 
         <p>Welcome to FlashLite, a free-to-use web application designed to enhance your learning experience through interactive flashcards. By using FlashLite, you agree to the following terms and conditions. Please read them carefully.</p>
 
@@ -161,8 +202,9 @@
         <div class="section-header">11. Contact Information</div>
         <p>If you have any questions or concerns about these Terms and Conditions, please contact us at:</p>
         <ul>
-            <li><strong>Email:</strong> <a href="mailto:support@flashlite.com">support@flashlite.com</a></li>
-            <li><strong>Website:</strong> <a href="http://www.flashlite.com" target="_blank">www.flashlite.com</a></li>
+            <li><strong>Email:</strong> <a href="mailto:flashliteteam@flashlite.com">flashliteteam@flashlite.com</a></li>
+            
         </ul>
     </div>
-{% endblock main %}
+</body>
+</html>
