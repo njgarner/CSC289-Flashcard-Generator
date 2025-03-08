@@ -33,7 +33,7 @@ urlpatterns = [
     path('settings/', views.settings, name="settings"),
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
     path('about/', views.about, name="about"),
-    path('terms/', views.terms, name="terms"),
+    path('terms', views.terms, name="terms"),
     path('', include("django.contrib.auth.urls")),
     path('create_flashcard/', views.create_flashcard, name='create_flashcard'),
     path("activate/<uidb64>/<token>/", views.activate_account, name="activate_account"),
