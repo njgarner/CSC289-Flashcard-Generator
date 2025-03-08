@@ -20,9 +20,12 @@ from django.core.exceptions import *
 
 # ======================== Main Pages ======================== #
 
+
 @login_required  # Home page
 def home(request):
-    return render(request, 'home.html')
+    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
+    return render(request, "home.html", {"flashcard_sets": flashcard_sets})
+
 
 @login_required  # Library page showing user's decks
 def library_view(request):
@@ -226,6 +229,7 @@ def delete_flashcard(request, card_id):
 
 @login_required  # Study flashcards in a deck
 def study_view(request, set_id):
+    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
     return render(request, 'home.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})

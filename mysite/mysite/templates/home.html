@@ -10,11 +10,14 @@
         <div class="flashcard-display">
           
             <!-- Displays the deck selector, users will use this to select the Deck of flashcard they want to study -->
-            <label for="deck-selector">Choose a deck to study</label>
-            <select id="deck-selector" name="deck-selector">
-                <option value="" selected="">-----</option>
-                <option value="Placeholder">Placeholder</option>
-            </select><br>
+             <div class="set-selector-dropdown">
+                <button id="set-selector" class="set-selector-btn">Select a Set &#8595;</button>
+                <div id="set-selector-content">
+                    {% for set in flashcard_sets %}
+                    <a href="{% url 'study_view' set.set_id %}">{{ set.title }}</a>
+                    {% endfor %}
+                </div>
+             </div>
           
             <!-- Left and Right Navigation Buttons -->
             <div class="button">
@@ -28,7 +31,7 @@
                 {% if flashcards %}
                     <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
                 {% else %}
-                    <p class="flashcard-text">No flashcards available.</p>
+                    <p class="flashcard-text">No flashcards available. Go to the Library page and make a Set to add Flashcards to.</p>
                 {% endif %}
             </div>
     
@@ -48,6 +51,26 @@
     
         <!-- Script -->
         <script>
+            let setSelector = document.getElementById("set-selector");
+            let setSelectorContent = document.getElementById("set-selector-content");
+            setSelectorContent.style.display = "none";
+
+            setSelector.addEventListener("click", dropdownFunction);
+
+            function dropdownFunction(){
+                if(setSelectorContent.style.display == "block"){
+                    setSelectorContent.style.display = "none";
+                }
+                else{
+                    setSelectorContent.style.display = "block";
+                }
+            }
+            
+
+
+        </script>
+        <script>
+
             let flashcards = [
                 {% for flashcard in flashcards %}
                     { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
