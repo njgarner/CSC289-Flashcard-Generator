@@ -265,11 +265,49 @@ body {
     align-items: right; /* Align to the right */
 }
 
+/* Contact Link */
+.contact a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.contact a p {
+    margin: 0;
+}
+
+/* Terms Button */
+.terms-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.terms-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.terms-button:hover {
+    background-color: #00A682;
+    color: white;
+}
+
 .flashlite-title {
     font-size: 28px;
     font-weight: bold;
     color: white;
     margin: 0;
+}
+
+.logo {
+    width: 150px; /* Adjust as needed */
+    height: auto;
+    margin-left: 10px; /* Add spacing between text and logo */
 }
 
 .patrick-hand-regular {
