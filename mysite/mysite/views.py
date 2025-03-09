@@ -22,11 +22,11 @@ from django.core.exceptions import *
 
 @login_required  # Home page
 def home(request):
-    # Get favorite decks for the current user
-    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    # Get favorite sets for the current user
+    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
 
-    # Render the home page with favorite_decks in the context
-    return render(request, 'home.html', {'favorite_decks': favorite_decks})
+    # Render the home page with favorite_sets in the context
+    return render(request, "home.html", {"flashcard_sets": flashcard_sets})
 
 
 @login_required
