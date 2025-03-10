@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from .models import FlashcardSet, Category, Flashcard, FavoriteDeck
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet
 from .forms import FlashcardForm, ChangePasswordForm
 from django.http import JsonResponse
 from django.core.mail import EmailMultiAlternatives
@@ -32,15 +32,15 @@ def home(request):
 @login_required
 def library_view(request):
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
-    favorites = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
-    # Get a list of favorited deck IDs for easy lookup
-    favorite_deck_ids = set(favorite.deck.set_id for favorite in favorites)
+    # Get a list of favorited set IDs for easy lookup
+    favorite_set_ids = set(favorite.set.set_id for favorite in favorites)
 
     return render(request, 'library.html', {
         'flashcard_sets': flashcard_sets,
         'favorites': favorites,
-        'favorite_deck_ids': favorite_deck_ids  # Pass the IDs to the template
+        'favorite_set_ids': favorite_set_ids  # Pass the IDs to the template
     })
 
 
@@ -54,9 +54,9 @@ def terms(request):
 
 @login_required
 def settings(request):
-    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
     return render(request, 'settings.html', {
-        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
 
@@ -176,12 +176,12 @@ def delete_account(request):
     
     return render(request, 'account_delete.html')
 
-# ======================== Flashcard Deck Management ======================== #
+# ======================== Flashcard set Management ======================== #
 
-@login_required  # Create a new deck
-def create_deck(request):
-    # Get favorite decks for the current user
-    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+@login_required  # Create a new set
+def create_set(request):
+    # Get favorite sets for the current user
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     if request.method == 'POST':
         title, category_name, description = (
@@ -198,26 +198,26 @@ def create_deck(request):
             return redirect('library_view')
         messages.error(request, "Please fill in all required fields.")
 
-    return render(request, 'deck.html', {
-        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+    return render(request, 'set.html', {
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
 
-@login_required  # View flashcard deck details
+@login_required  # View flashcard set details
 def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
     return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
 
-@login_required  # Delete a deck
-def delete_deck(request, deck_id):
-    get_object_or_404(FlashcardSet, set_id=deck_id).delete()
+@login_required  # Delete a set
+def delete_set(request, set_id):
+    get_object_or_404(FlashcardSet, set_id=set_id).delete()
     return redirect('library_view')
 
 @login_required
-def toggle_favorite(request, deck_id):
-    deck = get_object_or_404(FlashcardSet, set_id=deck_id)
-    favorite, created = FavoriteDeck.objects.get_or_create(user=request.user, deck=deck)
+def toggle_favorite(request, set_id):
+    set = get_object_or_404(FlashcardSet, set_id=set_id)
+    favorite, created = FavoriteSet.objects.get_or_create(user=request.user, set=set)
     
     if not created:
         favorite.delete()
@@ -226,9 +226,9 @@ def toggle_favorite(request, deck_id):
     return JsonResponse({"favorited": True})
 
 @login_required
-def favorite_decks(request):
-    favorites = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
-    print(f"Favorite Decks: {favorite_decks}")
+def favorite_sets(request):
+    favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    print(f"Favorite sets: {favorite_sets}")
     return render(request, 'home.html', {'favorites': favorites})
 
 # ======================== Flashcard Management ======================== #
@@ -236,7 +236,7 @@ def favorite_decks(request):
 @login_required  # Create a flashcard
 def create_flashcard(request):
     form = FlashcardForm(request.POST or None)
-    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     if request.method == 'POST' and form.is_valid():
         flashcard_set = form.cleaned_data['flashcard_set']
@@ -248,7 +248,7 @@ def create_flashcard(request):
 
     return render(request, 'create_flashcard.html', {
         'form': form,
-        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
 
@@ -260,18 +260,18 @@ def delete_flashcard(request, card_id):
 
 # ======================== Study Mode ======================== #
 
-@login_required  # Study flashcards in a deck
+@login_required  # Study flashcards in a set
 def study_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
 
-    # Get favorite decks for the current user
-    favorite_decks = FavoriteDeck.objects.filter(user=request.user).select_related('deck')
+    # Get favorite sets for the current user
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     return render(request, 'home.html', {
         'flashcard_set': flashcard_set,
         'flashcards': flashcards,
-        'favorite_decks': favorite_decks  # Pass favorite decks to the template
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
 
