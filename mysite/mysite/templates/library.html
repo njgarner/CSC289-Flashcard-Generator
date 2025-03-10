@@ -46,12 +46,12 @@
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'settings' %}">Settings</a>
         <div class="dropdown">
-            <button class="dropbtn">Favorite Decks</button>
+            <button class="dropbtn">Favorite Sets</button>
             <div class="dropdown-content">
                 {% for favorite in favorites %}
-                    <a href="{% url 'study_view' favorite.deck.set_id %}">{{ favorite.deck.title }}</a>
+                    <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
                 {% empty %}
-                    <p>No favorite decks.</p>
+                    <p>No favorite sets.</p>
                 {% endfor %}
             </div>
         </div>
@@ -68,18 +68,18 @@
     <div class="content">
         <div class="flashcard-sets-list">
             <button class="add-box">
-                <a href="{% url 'create_deck' %}">+</a>
+                <a href="{% url 'create_set' %}">+</a>
             </button>
 
             {% for flashcard_set in flashcard_sets %}
-                <div class="flashcard-deck">
+                <div class="flashcard-set">
                     <p>{{ flashcard_set.title }}</p>
                     <p>{{ flashcard_set.description }}</p>
                     <p>Category: {{ flashcard_set.category.name }}</p>
 
                     <!-- Favorite Button -->
-                    <button class="favorite-btn" data-deck-id="{{ flashcard_set.set_id }}">
-                        {% if flashcard_set.set_id in favorite_deck_ids %}
+                    <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                        {% if flashcard_set.set_id in favorite_sets %}
                             ❤️  <!-- Filled heart if favorited -->
                         {% else %}
                             ♡  <!-- Empty heart if not favorited -->
@@ -90,7 +90,7 @@
                     <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
                     <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
 
-                    <form action="{% url 'delete_deck' deck_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                    <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="delete-button">Delete</button>
                     </form>
@@ -103,9 +103,11 @@
             <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
         </footer>
     </div>
-    
-    <!-- External JavaScript Files -->
+
+    <!-- Script for Favorite Function -->
     <script src="{% static 'favorite.js' %}"></script>
+    
+    <!-- Script for Print Function -->
     <script src="{% static 'print_SG_Library.js' %}"></script>
 
     <!-- Variables for Print Function -->
