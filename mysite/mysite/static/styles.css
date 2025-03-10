@@ -642,3 +642,24 @@ hr {
     background-color: #C62828; /* Darker red on hover */
     color: white;
 }
+
+/* Style for the Tutorial button */
+.tutorial-btn {
+    padding: 10px 20px;
+    background-color: #84F3DA; /* background */
+    color: rgb(0, 0, 0);
+    font-size: 25px;
+    border-radius: 5px;
+    border: 2px solid #3b9b84;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: absolute; /* Absolute positioning relative to the nearest positioned ancestor */
+    top: 100px; /* Adjust this value to make sure it's below the top bar */
+    right: 25px; /* Adjust the value to place the button on the right side */
+}
+
+/* Hover effect for the Tutorial button */
+.tutorial-btn:hover {
+    background-color: #53af9a; /* Darker red on hover */
+    color: rgb(255, 255, 255);
+}
