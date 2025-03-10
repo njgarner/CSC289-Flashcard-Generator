@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.favorite-btn').forEach(button => {
         button.addEventListener('click', function () {
-            let deckId = this.getAttribute('data-deck-id');
+            let setId = this.getAttribute('data-set-id');
 
-            fetch(`/favorite/${deckId}/`, {
+            fetch(`/favorite/${setId}/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
