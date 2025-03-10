@@ -23,11 +23,13 @@ from django.core.exceptions import *
 @login_required  # Home page
 def home(request):
     # Get favorite sets for the current user
-    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related("set")
 
-    # Render the home page with favorite_sets in the context
+    # Get Flashcard sets for the current user
+    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
 
+    # Render the home page with favorite_sets in the context
+    return render(request, "home.html", {"flashcard_sets": flashcard_sets, "favorite_sets": favorite_sets})
 
 @login_required
 def library_view(request):
@@ -43,7 +45,6 @@ def library_view(request):
         'favorite_set_ids': favorite_set_ids  # Pass the IDs to the template
     })
 
-
 @login_required  # About Us page
 def about(request):
     return render(request, 'about_us.html')
@@ -58,7 +59,6 @@ def settings(request):
     return render(request, 'settings.html', {
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
-
 
 @login_required  # User acount deletion page
 def account_delete(request):
@@ -202,7 +202,6 @@ def create_set(request):
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
-
 @login_required  # View flashcard set details
 def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
@@ -286,7 +285,6 @@ def get_flashcard_set_details(request, set_id):
 
     return JsonResponse(data)
 
-
 # ======================== Study Mode ======================== #
 
 @login_required  # Study flashcards in a set
@@ -296,15 +294,11 @@ def study_view(request, set_id):
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
 
     # Get favorite sets for the current user
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related("set")
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
-    return render(
-        request,
-        "home.html",
-        {
-            "flashcard_set": flashcard_set,
-            "flashcards": flashcards,
-            "favorite_sets": favorite_sets,  # Pass favorite sets to the template
-            "flashcard_sets": flashcard_sets,
-        },
-    )
+    return render(request, 'home.html', {
+        "flashcard_set": flashcard_set,
+        "flashcards": flashcards,
+        "favorite_sets": favorite_sets,  # Pass favorite sets to the template
+        "flashcard_sets": flashcard_sets,
+    })
