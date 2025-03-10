@@ -77,23 +77,26 @@
                     <p>{{ flashcard_set.description }}</p>
                     <p>Category: {{ flashcard_set.category.name }}</p>
 
-                    <!-- Favorite Button -->
-                    <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
-                        {% if flashcard_set.set_id in favorite_sets %}
-                            ❤️  <!-- Filled heart if favorited -->
-                        {% else %}
-                            ♡  <!-- Empty heart if not favorited -->
-                        {% endif %}
-                    </button>
-                    
                     <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
                     <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
-                    <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+                    
+                    <div>
+                        <!-- Favorite Button -->
+                        <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                            {% if flashcard_set.set_id in favorite_sets %}
+                                ❤️  <!-- Filled heart if favorited -->
+                            {% else %}
+                                ♡  <!-- Empty heart if not favorited -->
+                            {% endif %}
+                        </button>
+                        
+                        <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
 
-                    <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-button">Delete</button>
-                    </form>
+                        <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                    </div>
                 </div>
             {% empty %}
                 <p>No flashcard sets created yet.</p>

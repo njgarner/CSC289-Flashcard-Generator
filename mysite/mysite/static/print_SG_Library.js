@@ -41,65 +41,81 @@ document.querySelectorAll('.print-button').forEach(button => {
         // Append the exit button to the hover box
         hoverBox.appendChild(exitButton);
 
-        // Radio button for selecting print options (with images)
+        // Create a container for the print options side by side
+        let optionsContainer = document.createElement('div');
+        optionsContainer.style.display = 'flex';
+        optionsContainer.style.justifyContent = 'space-between';
+        optionsContainer.style.padding = '20px';
+
+        // Create the first print option (With answers)
+        let option1 = document.createElement('div');
+        option1.style.textAlign = 'center';
+        option1.style.width = '45%';
+        option1.style.display = 'flex';
+        option1.style.flexDirection = 'column';
+        option1.style.alignItems = 'center';
+        option1.style.justifyContent = 'center';
+
+        // Add label above the image for the first option
+        let label1 = document.createElement('label');
+        label1.innerHTML = 'Print Study Guide (With answers)';
+        label1.style.marginBottom = '10px';  // Add space between label and image
+        option1.appendChild(label1);
+
+        // Add image for the first option
+        let img1 = document.createElement('img');
+        img1.src = static_img1;  // Replace with your image path
+        img1.style.width = '100px';  // Set the width of the image
+        img1.style.height = '150px';  // Set the height of the image
+        img1.style.marginBottom = '10px';  // Space between image and radio button
+        option1.appendChild(img1);
+
+        // Add radio button below the image for the first option
         let radio1 = document.createElement('input');
         radio1.type = 'radio';
         radio1.name = 'print_option';
         radio1.value = 'print_answer_key';
         radio1.checked = true;
-        radio1.style.margin = '10px';
-        radio1.style.width = '20px';
-        radio1.style.height = '20px';
-        radio1.style.position = 'absolute';  
-        radio1.style.top = '40%';
-        radio1.style.left = '20px'; 
-        hoverBox.appendChild(radio1);
+        option1.appendChild(radio1);
 
-        let label1 = document.createElement('label');
-        label1.innerHTML = 'Print Study Guide (With answers)';
-        label1.style.position = 'absolute';
-        label1.style.top = '40%';
-        label1.style.left = '55px'; 
-        hoverBox.appendChild(label1);
+        // Append the first option to the options container
+        optionsContainer.appendChild(option1);
 
-        // Add image next to the first radio button
-        let img1 = document.createElement('img');
-        img1.src = static_img1 // Replace with your image path--SG_Answers.jpeg
-        img1.style.position = 'absolute';
-        img1.style.top = '40%';
-        img1.style.left = '160px';  // Adjust as necessary to position next to the radio button
-        img1.style.width = '50px';  // Set the size of the image
-        img1.style.height = '50px';  // Adjust the height of the image
-        hoverBox.appendChild(img1);
+        // Create the second print option (Without answers)
+        let option2 = document.createElement('div');
+        option2.style.textAlign = 'center';
+        option2.style.width = '45%';
+        option2.style.display = 'flex';
+        option2.style.flexDirection = 'column';
+        option2.style.alignItems = 'center';
+        option2.style.justifyContent = 'center';
 
+        // Add label above the image for the second option
+        let label2 = document.createElement('label');
+        label2.innerHTML = 'Print Study Guide (No answers)';
+        label2.style.marginBottom = '10px';  // Add space between label and image
+        option2.appendChild(label2);
+
+        // Add image for the second option
+        let img2 = document.createElement('img');
+        img2.src = static_img2;  // Replace with your image path
+        img2.style.width = '100px';  // Set the width of the image
+        img2.style.height = '150px';  // Set the height of the image
+        img2.style.marginBottom = '10px';  // Space between image and radio button
+        option2.appendChild(img2);
+
+        // Add radio button below the image for the second option
         let radio2 = document.createElement('input');
         radio2.type = 'radio';
         radio2.name = 'print_option';
         radio2.value = 'print_blank';
-        radio2.style.margin = '10px';
-        radio2.style.width = '20px';
-        radio2.style.height = '20px';
-        radio2.style.position = 'absolute';
-        radio2.style.top = '50%';
-        radio2.style.left = '20px'; 
-        hoverBox.appendChild(radio2);
+        option2.appendChild(radio2);
 
-        let label2 = document.createElement('label');
-        label2.innerHTML = 'Print Study Guide (No answers)';
-        label2.style.position = 'absolute';
-        label2.style.top = '50%';
-        label2.style.left = '55px'; 
-        hoverBox.appendChild(label2);
+        // Append the second option to the options container
+        optionsContainer.appendChild(option2);
 
-        // Add image next to the second radio button
-        let img2 = document.createElement('img');
-        img2.src = static_img2  // Replace with your image path--SG.jpeg
-        img2.style.position = 'absolute';
-        img2.style.top = '50%';
-        img2.style.left = '160px';  // Adjust as necessary to position next to the radio button
-        img2.style.width = '50px';  // Set the size of the image
-        img2.style.height = '50px';  // Adjust the height of the image
-        hoverBox.appendChild(img2);
+        // Append the options container to the hover box
+        hoverBox.appendChild(optionsContainer);
 
         // Add a button for printing the page
         let printButton = document.createElement('button');
@@ -109,11 +125,11 @@ document.querySelectorAll('.print-button').forEach(button => {
         printButton.style.width = '100px';
         printButton.style.height = '30px';
         printButton.style.position = 'absolute';  
-        printButton.style.bottom = '10px';
+        printButton.style.bottom = '10px';  // Adjust this to move the button upwards
         printButton.style.left = '50%';  
-        printButton.style.transform = 'translateX(-50%)';  
-        printButton.style.zIndex = '10000'; 
-        
+        printButton.style.transform = 'translateX(-50%)';  // Centers the button horizontally
+        printButton.style.zIndex = '10000';  // Ensure the button is on top
+
         // Attach the event listener for printing
         printButton.addEventListener('click', function() {
             // Get the selected print option (with or without answers)
