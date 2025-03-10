@@ -251,29 +251,16 @@ def create_flashcard(request):
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
-
+@login_required  # View flashcard deck details
+def view_flashcard_set(request, set_id):
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
 
 @login_required  # Delete a flashcard
 def delete_flashcard(request, card_id):
     get_object_or_404(Flashcard, card_id=card_id).delete()
     return redirect('library_view')
-
-# ======================== Study Mode ======================== #
-
-@login_required  # Study flashcards in a set
-def study_view(request, set_id):
-    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
-    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-
-    # Get favorite sets for the current user
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
-
-    return render(request, 'home.html', {
-        'flashcard_set': flashcard_set,
-        'flashcards': flashcards,
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
-    })
-
 
 @login_required
 def get_flashcard_set_details(request, set_id):
@@ -298,3 +285,22 @@ def get_flashcard_set_details(request, set_id):
     }
 
     return JsonResponse(data)
+
+
+# ======================== Study Mode ======================== #
+
+@login_required  # Study flashcards in a set
+def study_view(request, set_id):
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+
+    # Get favorite sets for the current user
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+
+    return render(request, 'home.html', {
+        'flashcard_set': flashcard_set,
+        'flashcards': flashcards,
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    })
+
+

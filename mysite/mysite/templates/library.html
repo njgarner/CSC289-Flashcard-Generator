@@ -79,11 +79,11 @@
 
                     <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
                     <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
-                    
+
                     <div>
                         <!-- Favorite Button -->
                         <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
-                            {% if flashcard_set.set_id in favorite_sets %}
+                            {% if flashcard_set.set_id in favorite_set_ids %}
                                 ❤️  <!-- Filled heart if favorited -->
                             {% else %}
                                 ♡  <!-- Empty heart if not favorited -->
