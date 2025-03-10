@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Deletion{% endblock %}
+
+{% block main %}
+<h2 class="page-title">Delete your Account?</h2>
+<div class="content">
+  <p>Clicking confirm will delete all data associated with your account. Are you sure?</p>
+  <!-- Account Deletion Form -->
+      <form method="post" action="{% url 'delete_account' %}">
+        {% csrf_token %}
+      <!-- Confirm Button -->
+        <div class="setting-item">
+          <input class="delete-button" type="submit" value="Confirm"/>
+        </div>
+      </form>
+<!-- Cancel Button -->
+  <div class="setting-item">
+    <button class="button" onclick="window.location.href='{% url 'settings' %}'">Cancel</button>
+  </div>
+</div>
+{% endblock main %}

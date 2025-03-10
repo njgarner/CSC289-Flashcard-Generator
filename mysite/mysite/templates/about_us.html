@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - Flashlite{% endblock %}
+
+{% block main %}
+
+    <!-- Main Content Section -->
+    <h1 class="page-title"><u>About Us</u></h1>
+    <div class="content">
+        <div class="about-container">
+            <p class="about-text">Welcome to FlashLite, your ultimate tool for effective studying! Our mission is to make learning more engaging and accessible for students, professionals, and lifelong learners. We believe in the power of interactive flashcards to enhance memory retention and simplify complex topics.</p>
+            
+            <h2 class="about-subtitle">Our Team</h2>
+            <p class="about-text">We are a passionate group of students dedicated to improving the way people learn. Our goal is to provide an intuitive and user-friendly platform that helps you create, organize, and master your study materials.</p>
+            
+            <h2 class="about-subtitle">Why Choose Us?</h2>
+            <ul class="about-list">
+                <li>✅Easy-to-use interface for quick flashcard creation</li>
+                <li>🎨Customizable study decks to fit your learning style</li>
+                <li>☁️Cloud-based storage to access your flashcards anywhere</li>
+                <li>✨Interactive learning experience with a sleek design</li>
+                <li>🤝Enhanced collaboration features for group study</li>
+                <li>🚀And much more to come!</li>
+            </ul>
+        </div>
+        
+        <!-- Embedded YouTube Video -->
+        <div class="video-container">
+            <h2 class="about-subtitle">Learn More About Us</h2>
+            <iframe width="560" height="315" 
+             src="https://www.youtube.com/embed/2348E_u-RZ4" 
+             frameborder="0" 
+             allowfullscreen>
+            </iframe>
+        </div>
+        
+        <!-- Terms and Conditions Button -->
+        <footer class="footer">
+            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+    </div>
+
+{% endblock main %}

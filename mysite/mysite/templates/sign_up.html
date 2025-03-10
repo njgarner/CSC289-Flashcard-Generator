@@ -29,34 +29,35 @@
 <body>
 <header>
     <div class="navigation-div"></div>
-    <h1>Flash Card Generator</h1>
+    <h1>Flashlite</h1>
 </header>
 <div class="auth-div"><br><br>
     <h2 id="auth-heading">Sign Up</h2><br>
 
-    <!-- Display Messages -->
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="alert">
-                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;
-            </span>
-                {{ message }}
+        <!-- Display Messages -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;
+                </span>
+                    {{ message }}
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+        {% endif %}
 
     <form method="POST" action="{% url 'signup_user' %}">
         {% csrf_token %}
-        <input type="text" id="username-input" name="username" required placeholder="Enter username"><br><br>
+        <input type="text" id="username-input" name="username" minlength="6" maxlength="30" required placeholder="Enter username"><br><br>
         <input type="email" id="email-input" name="email" required placeholder="Enter email"><br><br>
-        <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
+        <input type="password" id="password-input" name="password" minlength="8" required placeholder="Enter password"><br><br>
         <button type="submit">Sign Up</button>
     </form>
 
-    <br><br><br>
+    <br><br>
     <a href="{% url 'login_user' %}">Already have an account? Login here!</a>
+
 </div>
 </body>
 </html>

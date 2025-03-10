@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - Flashlite{% endblock %}
+
+{% block main %}
+
+    <!-- Main Content Section -->
+    <h1 class="page-title"><u>Settings</u></h1>
+    <div class="content">
+        
+        <!-- UserName -->
+        <div class="setting-item">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="{{ user|safe }}" readonly>
+        </div>
+
+        <!-- Email -->
+        <div class="setting-item">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
+        </div>
+
+        <hr>
+        
+        <!-- Change Password -->
+        <div class="setting-item">
+            <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
+        </div>
+        
+        <!-- Reset Password -->
+        <div class="setting-item">
+            <button class="button" onclick="window.location.href='{% url 'password_reset' %}'">Reset Password</button>
+        </div>
+
+        <!-- Delete Account -->
+        <div class="setting-item">
+            <button class="delete-button" onclick="window.location.href='{% url 'account_delete' %}'">Delete Account</button>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <br><br><br><br>
+        <footer class="footer">
+            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+    </div>
+{% endblock main %}
