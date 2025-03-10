@@ -24,9 +24,9 @@ from django.core.exceptions import *
 def home(request):
     # Get favorite sets for the current user
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related("set")
 
     # Render the home page with favorite_sets in the context
-    return render(request, "home.html", {"flashcard_sets": flashcard_sets})
 
 
 @login_required
@@ -291,16 +291,20 @@ def get_flashcard_set_details(request, set_id):
 
 @login_required  # Study flashcards in a set
 def study_view(request, set_id):
+    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
 
     # Get favorite sets for the current user
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related("set")
 
-    return render(request, 'home.html', {
-        'flashcard_set': flashcard_set,
-        'flashcards': flashcards,
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
-    })
-
-
+    return render(
+        request,
+        "home.html",
+        {
+            "flashcard_set": flashcard_set,
+            "flashcards": flashcards,
+            "favorite_sets": favorite_sets,  # Pass favorite sets to the template
+            "flashcard_sets": flashcard_sets,
+        },
+    )
