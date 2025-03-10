@@ -45,12 +45,12 @@
         <a href="{% url 'settings' %}">Settings</a>
         
         <div class="dropdown">
-            <button class="dropbtn">Favorite Decks</button>
+            <button class="dropbtn">Favorite Sets</button>
             <div class="dropdown-content">
-                {% for favorite in favorite_decks %}
-                    <a href="{% url 'study_view' favorite.deck.set_id %}">{{ favorite.deck.title }}</a>
+                {% for favorite in favorite_sets %}
+                    <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
                 {% empty %}
-                    <p>No favorite decks.</p>
+                    <p>No favorite sets.</p>
                 {% endfor %}
             </div>
         </div>
