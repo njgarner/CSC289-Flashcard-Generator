@@ -198,7 +198,7 @@ def create_set(request):
             return redirect('library_view')
         messages.error(request, "Please fill in all required fields.")
 
-    return render(request, 'set.html', {
+    return render(request, 'create_set.html', {
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
