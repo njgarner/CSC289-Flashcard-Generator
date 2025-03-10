@@ -25,10 +25,10 @@ urlpatterns = [
     path('login_user', views.login_user, name="login_user"),
     path('signup_user', views.signup_user, name="signup_user"),
     path("user_login/", views.user_login, name="user_login"),
-    path('create_deck/', views.create_deck, name='create_deck'),
+    path('create_set/', views.create_set, name='create_set'),
     path('account_delete', views.account_delete, name="account_delete"),
     path('delete_account', views.delete_account, name="delete_account"),
-    path('delete_deck/<int:deck_id>/', views.delete_deck, name='delete_deck'),  # Ensure consistency here
+    path('delete_set/<int:set_id>/', views.delete_set, name='delete_set'),  # Ensure consistency here
     path('library/', views.library_view, name="library_view"),
     path('settings/', views.settings, name="settings"),
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
@@ -37,8 +37,8 @@ urlpatterns = [
     path('', include("django.contrib.auth.urls")),
     path('create_flashcard/', views.create_flashcard, name='create_flashcard'),
     path("activate/<uidb64>/<token>/", views.activate_account, name="activate_account"),
-    path('favorite/<int:deck_id>/', views.toggle_favorite, name='toggle_favorite'),
-    path('favorites/', views.favorite_decks, name='favorite_decks'),
+    path('favorite/<int:set_id>/', views.toggle_favorite, name='toggle_favorite'),
+    path('favorites/', views.favorite_sets, name='favorite_sets'),
     path('', views.home, name='home'),
     path('delete_flashcard/<int:card_id>/', views.delete_flashcard, name='delete_flashcard'),
     path('logout/', LogoutView.as_view(next_page='login_user'), name="logout_user"),
