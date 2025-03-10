@@ -12,7 +12,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Home - Flashcard Generator{% endblock title %}</title>
+    <title>Library - Flashlite</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -25,10 +25,12 @@
             <div class="login-content">
                 <!-- LogOut -->
                 {% if user.is_authenticated %}
+                  {% block content %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
                         <button class="button" type="submit">Logout</button>
                     </form>
+                  {% endblock %}
                 {% else %}
                     <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
                     <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
@@ -43,11 +45,10 @@
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'settings' %}">Settings</a>
-        
         <div class="dropdown">
             <button class="dropbtn">Favorite Sets</button>
             <div class="dropdown-content">
-                {% for favorite in favorite_sets %}
+                {% for favorite in favorites %}
                     <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
                 {% empty %}
                     <p>No favorite sets.</p>
@@ -61,12 +62,62 @@
         </div>
     </div>
 
-    <!-- Main content area (this will be populated by other templates) -->
-    {% block main %}
-    {% endblock main %}
-    
-    <!-- Link to External JS File -->
+    <!-- Main Content Section -->
+    <h1 class="page-title">Library</h1>
+
+    <div class="content">
+        <div class="flashcard-sets-list">
+            <button class="add-box">
+                <a href="{% url 'create_set' %}">+</a>
+            </button>
+
+            {% for flashcard_set in flashcard_sets %}
+                <div class="flashcard-set">
+                    <p>{{ flashcard_set.title }}</p>
+                    <p>{{ flashcard_set.description }}</p>
+                    <p>Category: {{ flashcard_set.category.name }}</p>
+
+                    <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                    <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+
+                    <div>
+                        <!-- Favorite Button -->
+                        <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                            {% if flashcard_set.set_id in favorite_set_ids %}
+                                ❤️  <!-- Filled heart if favorited -->
+                            {% else %}
+                                ♡  <!-- Empty heart if not favorited -->
+                            {% endif %}
+                        </button>
+                        
+                        <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+
+                        <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No flashcard sets created yet.</p>
+            {% endfor %}
+        </div>
+        <footer class="footer">
+            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+    </div>
+
+    <!-- Script for Favorite Function -->
     <script src="{% static 'favorite.js' %}"></script>
     
+    <!-- Script for Print Function -->
+    <script src="{% static 'print_SG_Library.js' %}"></script>
+
+    <!-- Variables for Print Function -->
+    <script>
+        var static_img1 = "{% static 'SG_Answers.jpeg' %}";
+        var static_img2 = "{% static 'SG.jpeg' %}";
+    </script>
+
 </body>
 </html>
