@@ -4,9 +4,14 @@
 
 {% block main %}
 
+{% load static %}
+
   <!-- Main Content Section -->
   <h1 class="page-title">Study Time!</h1>
-  <button class="tutorial-btn">?</button>
+
+  <!-- Tutorial Button -->
+  <button class="tutorial-btn" data-set-id="home-tutorial">?</button>
+
   <div class="content">
        <div class="flashcard-display">
 
@@ -138,4 +143,10 @@
             updateCardContent();  // Initialize first card
         </script>
 
+        
+    <!-- Script for Tutorial Function -->
+    <script src="{% static 'tutorial.js' %}"></script>
+
     {% endblock main %}
+
+
