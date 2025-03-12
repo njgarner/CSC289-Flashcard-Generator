@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Flashcard{% endblock title %}
+{% block main %}
+{% load static %}
+<h2 class="page-title">World Decks</h2>
+
+<!-- Tutorial Button -->
+<button class="tutorial-btn" data-set-id="world-tutorial">?</button>
+
+<div class="content">
+    <form method="get" action="{% url 'search_results' %}">
+        <input type="text" name="query" placeholder="Search..." aria-label="Search">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+
+{% endblock main %}
+

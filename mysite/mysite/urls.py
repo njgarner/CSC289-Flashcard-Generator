@@ -26,6 +26,7 @@ urlpatterns = [
     path('signup_user', views.signup_user, name="signup_user"),
     path("user_login/", views.user_login, name="user_login"),
     path('create_set/', views.create_set, name='create_set'),
+    path('world_decks/', views.world_decks, name='world_decks'),
     path('account_delete', views.account_delete, name="account_delete"),
     path('delete_account', views.delete_account, name="delete_account"),
     path('delete_set/<int:set_id>/', views.delete_set, name='delete_set'),  # Ensure consistency here
@@ -62,4 +63,6 @@ urlpatterns = [
     path('password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
+    path('search/', views.search_results, name='search_results'),
+
 ]

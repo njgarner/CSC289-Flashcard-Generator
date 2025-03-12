@@ -44,6 +44,9 @@ def library_view(request):
         'favorites': favorites,
         'favorite_set_ids': favorite_set_ids  # Pass the IDs to the template
     })
+@login_required
+def world_decks(request):
+    return render(request, 'world_decks.html')
 
 @login_required  # About Us page
 def about(request):
@@ -302,3 +305,10 @@ def study_view(request, set_id):
         "favorite_sets": favorite_sets,  # Pass favorite sets to the template
         "flashcard_sets": flashcard_sets,
     })
+
+# ======================== Search ======================== #
+@login_required # Search results page
+def search_results(request):
+    query = request.GET.get('query', '')
+    flashcards = Flashcard.objects.filter(title__icontains=query)
+    return render(request, 'search_results.html', {'flashcards': flashcards, 'query': query})
