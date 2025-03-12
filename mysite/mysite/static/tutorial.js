@@ -126,7 +126,6 @@ function showTutorialPopup(tutorials) {
     showNextPopup(popupContainer, tutorials);
 }
 
-// Function to show the next popup in the sequence
 function showNextPopup(popupContainer, tutorials) {
     if (currentPopup < tutorials.length) {
         const popup = document.createElement('div');
@@ -135,7 +134,7 @@ function showNextPopup(popupContainer, tutorials) {
             <div class="popup-message">
                 <p>${tutorials[currentPopup].message}</p>
             </div>
-            <button class="next-btn">Next</button>
+            <button class="next-btn">${currentPopup === tutorials.length - 1 ? 'Close' : 'Next'}</button>
         `;
         popupContainer.appendChild(popup);
 
@@ -175,7 +174,7 @@ function showNextPopup(popupContainer, tutorials) {
         popup.style.top = top;
         popup.style.left = left;
 
-        // Set inline styles for the 'Next' button
+        // Set inline styles for the 'Next' or 'Close' button
         const nextButton = popup.querySelector('.next-btn');
         nextButton.style.backgroundColor = '#84F3DA';
         nextButton.style.color = 'black';
@@ -195,7 +194,7 @@ function showNextPopup(popupContainer, tutorials) {
             nextButton.style.backgroundColor = '#84F3DA';
         });
 
-        // Next button click event
+        // Next/Close button click event
         nextButton.addEventListener('click', function() {
             // Remove both the popup and triangle
             popup.remove();
