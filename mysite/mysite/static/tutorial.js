@@ -55,23 +55,59 @@ const createTutorials = [
 const libraryTutorials = [
     { 
         message: "This is the Library page. Here you can view and manage your flashcard sets.", 
-        position: { top: '100px', left: '50%' } // Position for this step
+        position: { top: '80px', left: '150%' } // Position for this step
     },
     { 
-        message: "Click on any flashcard set to view details or start studying.", 
-        position: { top: '200px', left: '50%' } // Position for this step
+        message: "Clicking the '+' button will create a new flashcard set.", 
+        position: { top: '200px', left: '150%' } // Position for this step
+    },
+    { 
+        message: "Flashcard sets will be displayed here. You can click on 'view details' to view their contents.", 
+        position: { top: '200px', left: '200%' } // Position for this step
+    },
+    { 
+        message: "You can display the set on the study time page by clicking 'Study'.❤️♡", 
+        position: { top: '200px', left: '200%' } // Position for this step
+    },
+    { 
+        message: "The ♡ button allows you to favorite sets ❤️ and they will appear on the navigation bar.", 
+        position: { top: '200px', left: '200%' } // Position for this step
+    },
+    { 
+        message: "The sets can be printed and deleted using the respective buttons.", 
+        position: { top: '200px', left: '200%' } // Position for this step
     }
 ];
 
 // Home tutorial steps
 const homeTutorials = [
     { 
-        message: "This is the Home page. From here, you can navigate to your library, create new flashcards, and manage your account.", 
-        position: { top: '100px', left: '50%' } // Position for this step
+        message: "This is the Study Time page. This is where you can study and practice your flashcards.", 
+        position: { top: '50px', left: '200%' } // Position for this step
     },
     { 
-        message: "Click on the settings icon to manage your account and preferences.", 
-        position: { top: '200px', left: '50%' } // Position for this step
+        message: "This is where your card will be displayed.", 
+        position: { top: '300px', left: '500%' } // Position for this step
+    },
+    { 
+        message: "Select which set you would like to study with this dropdown!", 
+        position: { top: '120px', left: '420%' } // Position for this step
+    },
+    { 
+        message: "This 'previous' button will take you to the previous card in the set.", 
+        position: { top: '198px', left: '378%' } // Position for this step
+    },
+    { 
+        message: "This 'Random' button will take you to a random card in the set.", 
+        position: { top: '200px', left: '415%' } // Position for this step
+    },
+    { 
+        message: "This 'next' button will take you to the next card in the set.", 
+        position: { top: '200px', left: '442%' } // Position for this step
+    },
+    { 
+        message: "This 'flip' button will flip the card to show the question or answer.", 
+        position: { top: '600px', left: '405%' } // Position for this step
     }
 ];
 
