@@ -17,6 +17,7 @@ from django.utils.html import strip_tags
 from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
+import json
 
 # ======================== Main Pages ======================== #
 
@@ -28,8 +29,40 @@ def home(request):
     # Get Flashcard sets for the current user
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
 
-    # Render the home page with favorite_sets in the context
-    return render(request, "home.html", {"flashcard_sets": flashcard_sets, "favorite_sets": favorite_sets})
+    # Retrieve the last viewed set from session
+    last_viewed_set_id = request.session.get('last_viewed_set_id', None)
+    last_viewed_set = None
+    flashcards = []
+
+    if last_viewed_set_id:
+        # Get the last viewed set for the current user
+        last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first()
+        if last_viewed_set:
+            # Get the flashcards for the last viewed set
+            flashcards = last_viewed_set.flashcard_set.all()
+
+    # Render the home page with all necessary context
+    return render(
+        request,
+        "home.html",
+        {
+            "flashcard_sets": flashcard_sets,
+            "favorite_sets": favorite_sets,
+            "last_viewed_set": last_viewed_set,
+            "flashcards": flashcards  # Pass the flashcards of the last viewed set
+        }
+    )
+
+@login_required
+def update_last_viewed_set(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        set_id = data.get('set_id')
+
+        # Save the selected set's ID in the session
+        request.session['last_viewed_set_id'] = set_id
+
+        return JsonResponse({"status": "success"})
 
 @login_required
 def library_view(request):
@@ -218,11 +251,24 @@ def toggle_favorite(request, set_id):
     set = get_object_or_404(FlashcardSet, set_id=set_id)
     favorite, created = FavoriteSet.objects.get_or_create(user=request.user, set=set)
     
+    # If the favorite already exists, remove it
     if not created:
         favorite.delete()
-        return JsonResponse({"favorited": False})
+        favorited = False
+    else:
+        favorited = True
 
-    return JsonResponse({"favorited": True})
+    # Get the last viewed set from the session to return to the frontend
+    last_viewed_set_id = request.session.get('last_viewed_set_id', None)
+    last_viewed_set = None
+    if last_viewed_set_id:
+        last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first()
+
+    return JsonResponse({
+        "favorited": favorited,
+        "last_viewed_set": last_viewed_set.title if last_viewed_set else None  # Send the last viewed set title to update the dropdown
+    })
+
 
 @login_required
 def favorite_sets(request):
@@ -296,9 +342,20 @@ def study_view(request, set_id):
     # Get favorite sets for the current user
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
+    # Set the last viewed set in the session when entering the study page
+    request.session['last_viewed_set_id'] = set_id
+
+    # Retrieve the last viewed set from session
+    last_viewed_set_id = request.session.get('last_viewed_set_id', None)
+    last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first() if last_viewed_set_id else None
+
+    # Render the study page (home.html in this case) with the correct context
     return render(request, 'home.html', {
         "flashcard_set": flashcard_set,
         "flashcards": flashcards,
-        "favorite_sets": favorite_sets,  # Pass favorite sets to the template
+        "favorite_sets": favorite_sets,
         "flashcard_sets": flashcard_sets,
+        "last_viewed_set": last_viewed_set,  # Pass last viewed set to the template
     })
+
+
