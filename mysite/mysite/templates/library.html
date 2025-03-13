@@ -45,6 +45,7 @@
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'settings' %}">Settings</a>
+        <a href="{% url 'schedule' %}">Schedule</a>
         <div class="dropdown">
             <button class="dropbtn">Favorite Sets</button>
             <div class="dropdown-content">
@@ -79,7 +80,7 @@
 
                     <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
                     <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
-
+                    
                     <div>
                         <!-- Favorite Button -->
                         <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
