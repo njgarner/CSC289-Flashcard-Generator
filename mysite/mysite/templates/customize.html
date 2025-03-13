@@ -125,33 +125,44 @@
     
 <!-- JavaScript Section -->
 <script>
+// Set Color Event Listener
 let setcolor = document.querySelectorAll(".set-color");
-console.log(setcolor);
-setcolor.forEach(.set-color => {
-    .set-color.addEventListener("click", function() {
-    document.documentElement.style.setProperty("--setcolor", this.dataset.color);
-    })
+setcolor.forEach(function(element) {
+    element.addEventListener("click", function() {
+        console.log('set button clicked');
+        console.log(this.dataset.color);
+        document.documentElement.style.setProperty("--setcolor", this.dataset.color);
+    });
 });
+
+// Card Color Event Listener
 let cardcolor = document.querySelectorAll(".card-color");
-console.log(cardcolor);
-cardcolor.forEach(.card-color => {
-    .card-color.addEventListener("click", function() {
-    document.documentElement.style.setProperty("--cardcolor", this.dataset.color);
-    })
+cardcolor.forEach(function(element) {
+    element.addEventListener("click", function() {
+        console.log('card color button clicked');
+        console.log(this.dataset.color);
+        document.documentElement.style.setProperty("--cardcolor", this.dataset.color);
+    });
 });
+
+// Border Color Event Listener
 let bordercolor = document.querySelectorAll(".border-color");
-console.log(bordercolor);
-bordercolor.forEach(.border-color => {
-    .border-color.addEventListener("click", function() {
-    document.documentElement.style.setProperty("--bordercolor", this.dataset.color);
-    })
+bordercolor.forEach(function(element) {
+    element.addEventListener("click", function() {
+        console.log('border button clicked');
+        console.log(this.dataset.color);
+        document.documentElement.style.setProperty("--bordercolor", this.dataset.color);
+    });
 });
+
+// Text Color Event Listener
 let textcolor = document.querySelectorAll(".text-color");
-console.log(textcolor);
-textcolor.forEach(.text-color => {
-    .text-color.addEventListener("click", function() {
-    document.documentElement.style.setProperty("--textcolor", this.dataset.color);
-    })
+textcolor.forEach(function(element) {
+    element.addEventListener("click", function() {
+        console.log('text button clicked');
+        console.log(this.dataset.color);
+        document.documentElement.style.setProperty("--textcolor", this.dataset.color);
+    });
 });
 </script>
 {% endblock main %}
