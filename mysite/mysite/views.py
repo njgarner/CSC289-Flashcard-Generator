@@ -60,14 +60,6 @@ def settings(request):
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
-@login_required  # Schedule study time page
-def schedule(request):
-    return render(request, 'study_schedule.html')
-
-@login_required  # Customization page
-def customize(request):
-    return render(request, 'customize.html')
-
 @login_required  # User acount deletion page
 def account_delete(request):
     return render(request, 'account_delete.html')
