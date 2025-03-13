@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Customize - Flashlite{% endblock %}
+
+{% block main %}
+
+    <!-- Internal CSS -->
+    <style media="screen">
+      :root{
+        --setcolor: #84F3DA;
+        --textcolor: #333333;
+        --cardcolor: #f4f4f4;
+        --bordercolor: #84F3DA;
+      }
+
+      span {
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+        display: inline-block;
+        cursor: pointer;
+        border-style: solid;
+        border-color: #000000;
+      }
+
+      .add-box{
+        background-color: var(--setcolor); /* background color */
+        color: var(--textcolor); /* text color */
+      }
+
+      .flashcard-text{
+        color: var(--textcolor);
+      }
+
+      .flashcard {
+        width: 600px;
+        height: 300px;
+        border-color: var(--bordercolor);
+        background-color: var(--cardcolor);
+        color: var(--textcolor);
+        border-radius: 20px; /* Rounds out the border edges */
+        align-content: center; /* Centers the text to be in the middle of the flashcard */
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 10px;
+        padding-right: 10px
+    }
+
+      .container{
+        max-width: 500px;
+        margin: atuo;
+        background-color: #fff;
+        padding: 1px 20px 20px 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+    <!-- Main Content Section -->
+	<div class="container">
+
+      <br><br><br>
+
+      <h2>Change Set Color</h2>
+      <!-- Main Content Section -->
+      <span class="set-color" data-color="#C63027" style="background-color: #C63027;"></span>
+      <span class="set-color" data-color="#FFE140" style="background-color: #FFE140;"></span>
+      <span class="set-color" data-color="#92FF40" style="background-color: #92FF40;"></span>
+      <span class="set-color" data-color="#E251E5" style="background-color: #E251E5;"></span>
+      <span class="set-color" data-color="#55A6FF" style="background-color: #55A6FF;"></span>
+      <span class="set-color" data-color="#84F3DA" style="background-color: #84F3DA;"></span>
+
+      <h2>Change Card Color</h2>
+      <!-- Main Content Section -->
+      <span class="card-color" data-color="#C63027" style="background-color: #C63027;"></span>
+      <span class="card-color" data-color="#FFE140" style="background-color: #FFE140;"></span>
+      <span class="card-color" data-color="#92FF40" style="background-color: #92FF40;"></span>
+      <span class="card-color" data-color="#E251E5" style="background-color: #E251E5;"></span>
+      <span class="card-color" data-color="#55A6FF" style="background-color: #55A6FF;"></span>
+      <span class="card-color" data-color="#84F3DA" style="background-color: #84F3DA;"></span>
+
+      <h2>Change Border Color</h2>
+      <!-- Main Content Section -->
+      <span class="border-color" data-color="#C63027" style="background-color: #C63027;"></span>
+      <span class="border-color" data-color="#FFE140" style="background-color: #FFE140;"></span>
+      <span class="border-color" data-color="#92FF40" style="background-color: #92FF40;"></span>
+      <span class="border-color" data-color="#E251E5" style="background-color: #E251E5;"></span>
+      <span class="border-color" data-color="#55A6FF" style="background-color: #55A6FF;"></span>
+      <span class="border-color" data-color="#84F3DA" style="background-color: #84F3DA;"></span>
+
+
+      <h3>Change Text Color</h3>
+      <!-- Main Content Section -->
+      <span class="text-color" data-color="#333333" style="background-color: #333333;"></span>
+      <span class="text-color" data-color="#FFFFFF" style="background-color: #FFFFFF;"></span>
+      
+      <h3>Live Preview</h3>
+
+      <!-- Live Preview Set -->
+      <div class="flashcard-sets-list">
+        <button class="add-box">
+          <a href="">+</a>
+        </button>
+    
+      <br><br><br>
+
+      <!-- Live Preview Flashcard -->
+      <div class="flashcard patrick-hand-regular" id="flashcard">
+        {% if flashcards %}
+            <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
+        {% else %}
+            <p class="flashcard-text">Live Preview.</p>
+        {% endif %}
+      </div>
+      
+    </div>
+
+    <!-- Save Changes -->
+    <div class="setting-item">
+        <button class="button" onclick="alert('Saves user changes.')">Save</button>
+
+        <!-- Cancel Changes -->
+
+        <button class="delete-button" onclick="window.location.href='{% url 'home' %}'">Cancel</button>
+    </div>
+    
+<!-- JavaScript Section -->
+<script>
+let setcolor = document.querySelectorAll(".set-color");
+console.log(setcolor);
+setcolor.forEach(.set-color => {
+    .set-color.addEventListener("click", function() {
+    document.documentElement.style.setProperty("--setcolor", this.dataset.color);
+    })
+});
+let cardcolor = document.querySelectorAll(".card-color");
+console.log(cardcolor);
+cardcolor.forEach(.card-color => {
+    .card-color.addEventListener("click", function() {
+    document.documentElement.style.setProperty("--cardcolor", this.dataset.color);
+    })
+});
+let bordercolor = document.querySelectorAll(".border-color");
+console.log(bordercolor);
+bordercolor.forEach(.border-color => {
+    .border-color.addEventListener("click", function() {
+    document.documentElement.style.setProperty("--bordercolor", this.dataset.color);
+    })
+});
+let textcolor = document.querySelectorAll(".text-color");
+console.log(textcolor);
+textcolor.forEach(.text-color => {
+    .text-color.addEventListener("click", function() {
+    document.documentElement.style.setProperty("--textcolor", this.dataset.color);
+    })
+});
+</script>
+{% endblock main %}
