@@ -526,6 +526,127 @@ hr {
     border-color: #008B5C; /* Darker border on hover */
 }
 
+/* Add this CSS to ensure the hearts are centered inside the button */
+.favorite-btn {
+    font-size: 24px; /* Adjust the size of the heart */
+    display: inline-flex; /* Allows centering with flex */
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    padding: 10px 20px; /* Adjust padding to suit your design */
+    border: 2px solid #ccc; /* Border styling */
+    border-radius: 5px; /* Optional: rounds the corners of the button */
+    background-color: #fff; /* Button background color */
+    cursor: pointer; /* Makes the button clickable */
+    height: 35px;
+    width: 30px;
+}
+
+.favorite-btn:hover {
+    background-color: #f0f0f0; /* Adds a hover effect */
+}
+/* Style for the Print button */
+.print-btn {
+    padding: 10px 20px;
+    background-color: #42A5F5; /* Blue background */
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 2px solid #1976D2;
+    cursor: pointer;
+    position: relative; /* To position the "print" text */
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for the Print button */
+.print-btn:hover {
+    background-color: #1E88E5; /* Darker blue on hover */
+    color: white;
+}
+
+/* Style for the Delete button */
+.delete-btn {
+    padding: 10px 20px;
+    background-color: #F44336; /* Red background */
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 2px solid #D32F2F;
+    cursor: pointer;
+    position: relative; /* To position the "delete" text */
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for the Delete button */
+.delete-btn:hover {
+    background-color: #C62828; /* Darker red on hover */
+    color: white;
+}
+.flashcard_set_title {
+    background-color: #84F3DA;
+    background-image: url('https://www.pngkey.com/png/full/271-2716327_overlay-pattern-png.png'); /* Path to your image */
+    border: 2px solid #00ffc3;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    top: 0; /* Ensure it's at the very top */
+    left: 0;
+    width: 90%;
+    font-size: 30px;
+    font-family: 'Varela Round', sans-serif;
+    padding: 10px; /* Optional: Adjust padding for spacing */
+}
+
+.set_content {
+    font-family: 'Varela round', sans-serif;
+    font-size: 20px;
+    padding: 10px; /* Optional padding */
+}
+
+.flashcards_set_details {
+    background-color: transparent;
+    border: 3px solid #00ffc3;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    font-size: 25px;
+    font-family: 'Varela Round', sans-serif;
+    padding: 10px; /* Optional: Adjust padding for spacing */
+}
+.flashcards_list {
+    font-size: 20px;
+    font-family: 'Varela Round', sans-serif;
+}
+/* Style for the Delete button */
+.delete-btn-cards {
+    padding: 5px 10px; /* Reduce padding to make the button smaller */
+    background-color: #F44336; /* Red background */
+    color: black;
+    font-size: 20px; /* Keep the font size the same */
+    border-radius: 5px;
+    border: 2px solid #D32F2F;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 30px; /* Smaller height */
+    width: 80px; /* Smaller width */
+    display: flex; /* Use flexbox to center content */
+    align-items: center; /* Vertically center the text */
+    justify-content: center; /* Horizontally center the text */
+}
+
+/* Hover effect for the Delete button */
+.delete-btn-cards:hover {
+    background-color: #C62828; /* Darker red on hover */
+    color: white;
+}
+
 /* form-content class style */
 .form-content { /* Centers elements to be in the middle of the page */
     margin-left: auto;
@@ -585,60 +706,4 @@ hr {
     background-color: #5e8dcc; /* Darker background on hover */
     color: white; /* Text color changes to white */
     border-color: #31478f; /* Darker border on hover */
-}
-
-/* Add this CSS to ensure the hearts are centered inside the button */
-.favorite-btn {
-    font-size: 24px; /* Adjust the size of the heart */
-    display: inline-flex; /* Allows centering with flex */
-    justify-content: center; /* Centers horizontally */
-    align-items: center; /* Centers vertically */
-    padding: 10px 20px; /* Adjust padding to suit your design */
-    border: 2px solid #ccc; /* Border styling */
-    border-radius: 5px; /* Optional: rounds the corners of the button */
-    background-color: #fff; /* Button background color */
-    cursor: pointer; /* Makes the button clickable */
-    height: 35px;
-    width: 30px;
-}
-
-.favorite-btn:hover {
-    background-color: #f0f0f0; /* Adds a hover effect */
-}
-/* Style for the Print button */
-.print-btn {
-    padding: 10px 20px;
-    background-color: #42A5F5; /* Blue background */
-    color: black;
-    font-size: 18px;
-    border-radius: 5px;
-    border: 2px solid #1976D2;
-    cursor: pointer;
-    position: relative; /* To position the "print" text */
-    transition: all 0.3s ease;
-}
-
-/* Hover effect for the Print button */
-.print-btn:hover {
-    background-color: #1E88E5; /* Darker blue on hover */
-    color: white;
-}
-
-/* Style for the Delete button */
-.delete-btn {
-    padding: 10px 20px;
-    background-color: #F44336; /* Red background */
-    color: black;
-    font-size: 18px;
-    border-radius: 5px;
-    border: 2px solid #D32F2F;
-    cursor: pointer;
-    position: relative; /* To position the "delete" text */
-    transition: all 0.3s ease;
-}
-
-/* Hover effect for the Delete button */
-.delete-btn:hover {
-    background-color: #C62828; /* Darker red on hover */
-    color: white;
 }
