@@ -93,7 +93,7 @@
         (Notification.permission === "granted") {
 
             const notification = new Notification("Permission has been granted.", {
-				icon: "{% static 'flashliteLogo.png' %}",
+				icon: "{% static 'Flash.png' %}",
 			});
         } else if
         (Notification.permission !== "denied") {
@@ -125,7 +125,7 @@
             const notification = new Notification(title, {
               body: description,
               requireInteraction: true,
-			  icon: "{% static 'flashliteLogo.png' %}",
+			  icon: "{% static 'Flash.png' %}",
             });
           }, timeDifference);
 
