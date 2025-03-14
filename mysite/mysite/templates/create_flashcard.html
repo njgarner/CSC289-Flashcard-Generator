@@ -8,12 +8,12 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}  <!-- Render the form fields -->
+        
         <button type="submit">Create Flashcard</button>
     </form>
     </div>
     <footer class="footer">
-        <p>&copy; 2025 FlashLite. All Rights Reserved.</p>
+        <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
     </footer>
 </div>
 {% endblock main %}
-

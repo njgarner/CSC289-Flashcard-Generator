@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Flashlite{% endblock %}
+
+{% block main %}
+
+  <!-- Main Content Section -->
+  <h1 class="page-title">Study Time!</h1>
+  <div class="content">
+       <div class="flashcard-display">
+
+          <!-- Displays the set selector, users will use this to select the set of flashcard they want to study -->
+           <div class="set-selector-dropdown">
+              <button id="set-selector" class="set-selector-btn">Select a Set &#8595;</button>
+              <div id="set-selector-content">
+                  {% for set in flashcard_sets %}
+                  <a href="{% url 'study_view' set.set_id %}">{{ set.title }}</a>
+                  {% endfor %}
+              </div>
+           </div>
+          
+            <!-- Left and Right Navigation Buttons -->
+            <div class="button">
+                <button id="previous">Previous</button>
+                <button id="rand-button">Random</button>
+                <button id="next">Next</button>
+            </div>
+        
+            <!-- Flashcard Display Area -->
+            <div class="flashcard patrick-hand-regular" id="flashcard">
+                {% if flashcards %}
+                    <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
+                {% else %}
+                    <p class="flashcard-text">No flashcards available. Go to the Library page and make a Set to add Flashcards to.</p>
+                {% endif %}
+            </div>
+    
+            <!-- Flip card button -->
+            <div class="button">
+                <button id="flip-button">Flip</button>
+            </div>
+            
+        </div>
+
+        <!-- Terms and Conditions -->
+        <footer class="footer">
+            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+        
+    </div>
+    
+        <!-- Script -->
+         <script>
+            let setSelector = document.getElementById("set-selector");
+            let setSelectorContent = document.getElementById("set-selector-content");
+            setSelectorContent.style.display = "none";
+
+            setSelector.addEventListener("click", dropdownFunction);
+
+            function dropdownFunction(){
+                if(setSelectorContent.style.display == "block"){
+                    setSelectorContent.style.display = "none";
+                }
+                else{
+                    setSelectorContent.style.display = "block";
+                }
+            }
+            
+
+
+        </script>
+
+        <script>
+            let flashcards = [
+                {% for flashcard in flashcards %}
+                    { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
+                {% endfor %}
+            ];
+            
+            let currentIndex = 0;
+            let showingQuestion = true;
+        
+            function updateCardContent() {
+                if (flashcards.length > 0) {
+                    let cardContent = document.getElementById("card-content");
+                    let cardAnswer = document.getElementById("card-answer");
+        
+                    // Ensure that we start with the question when switching cards
+                    showingQuestion = true;
+        
+                    cardContent.innerText = flashcards[currentIndex].question;
+                    cardAnswer.style.display = "none";
+                }
+            }
+        
+            document.getElementById("flip-button").addEventListener("click", function () {
+                if (flashcards.length > 0) {
+                    let cardContent = document.getElementById("card-content");
+                    let cardAnswer = document.getElementById("card-answer");
+        
+                    showingQuestion = !showingQuestion;
+                    if (showingQuestion) {
+                        cardContent.innerText = flashcards[currentIndex].question;
+                        cardAnswer.style.display = "none";
+                    } else {
+                        cardContent.innerText = flashcards[currentIndex].answer;
+                        cardAnswer.style.display = "block";
+                    }
+                }
+            });
+        
+            document.getElementById("next").addEventListener("click", function () {
+                if (flashcards.length > 0) {
+                    currentIndex = (currentIndex + 1) % flashcards.length;
+                    updateCardContent();
+                }
+            });
+        
+            document.getElementById("previous").addEventListener("click", function () {
+                if (flashcards.length > 0) {
+                    currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                    updateCardContent();
+                }
+            });
+        
+            document.getElementById("rand-button").addEventListener("click", function () {
+                if (flashcards.length > 1) { // Prevent random picking the same card if there's only 1 card
+                    let newIndex;
+                    do {
+                        newIndex = Math.floor(Math.random() * flashcards.length);
+                    } while (newIndex === currentIndex);  // Ensures a different card is selected
+                    currentIndex = newIndex;
+                    updateCardContent();
+                }
+            });
+        
+            updateCardContent();  // Initialize first card
+        </script>
+
+    {% endblock main %}

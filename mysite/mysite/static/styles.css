@@ -173,19 +173,70 @@ body {
     background-color: #555; /* Hover effect */
 }
 
-/* Flashcard styles */
+/*--------------------------------------------------------- Styling for the Set Selector Features ---------------------------------------------------------*/
+.set-selector-dropdown {
+}
+/* Set Selector Dropdown Style */
+.set-selector-btn {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for Set Selector buttons */
+.set-selector-btn:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+#set-selector-content {
+    display: none;
+    background-color: #f4f4f4; /* Background color */
+    min-width: 200px;
+    position: absolute;
+    border: #00A682;
+    border-style: solid;
+    z-index: 1;
+    text-align: center;
+}
+
+#set-selector-content a {
+    color: rgb(0, 0, 0); /* Text color */
+    text-decoration: none; /* Remove underline */
+    display: block; /* Make links take full width */
+    padding: 12px 16px;
+    border-bottom-color: #00A682;
+    border-bottom-style: solid;
+}
+
+#set-selector-content a:hover {
+    color: rgb(255, 253, 253); /* Text color */
+    background-color: #555;
+}
+
+
+/*--------------------------------------------------------- Flashcard styles ---------------------------------------------------------*/
 .flashcard {
     width: 600px;
     height: 300px;
-    border: 2px solid #84F3DA;
-    padding: 30px;
-    margin: 20px;
+    border: 12px solid #84F3DA;
     text-align: center;
-    line-height: 150px; /* Centers the text vertically */
-    margin: 0 auto; /* Centers the element horizontally */
+    line-height: normal; /* Centers the text vertically */
     background-color: #f4f4f4;
     color: #333;
-    font-size: 18px;
+    border-radius: 20px; /* Rounds out the border edges */
+    align-content: center; /* Centers the text to be in the middle of the flashcard */
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 10px;
+    padding-right: 10px
 }
 
 .flashcard-display {
@@ -214,10 +265,136 @@ body {
     align-items: right; /* Align to the right */
 }
 
+/* Contact Link */
+.contact a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.contact a p {
+    margin: 0;
+}
+
+/* Terms Button */
+.terms-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.terms-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.terms-button:hover {
+    background-color: #00A682;
+    color: white;
+}
+
+.flashlite-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    margin: 0;
+}
+
+.logo {
+    width: 150px; /* Adjust as needed */
+    height: auto;
+    margin-left: 10px; /* Add spacing between text and logo */
+}
+
 .patrick-hand-regular {
     font-family: 'Patrick Hand', cursive;
     font-weight: 400;
     font-style: normal;
+}
+
+.flashcard-text { /* Style for the text for the flashcard below the name
+    text-decoration: underline; /* Underlines the flashcard text, used to simulate the lines on actual flashcards */
+    line-height: 1.6; /* Adjusts the height of the line spacing */
+    word-wrap: break-word; /* Used to make the text break when reaching the other side */
+    font-size: 35px; /* Makes the font size bigger or smaller */
+}
+
+.flashcard-display label { /* Styles the label elements in flashcard-display class elements */
+    font-size: 25px;
+}
+
+.flashcard-display select{ /* Styles the selector element in flashcard-display class elements */
+    height: 50px;
+    width: 200px;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+
+/*--------------------------------------------------------- form-content class style ---------------------------------------------------------*/
+.form-content { /* Centers elements to be in the middle of the page */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.form-content label { /* Styles the labels for the forms */
+    font-family: varela round;
+    font-size: 20px; 
+    display: block; /* Allows the labels to be located above the inputs */
+}
+
+.form-content input, .form-content textarea { /* Styles the input and textarea objects */
+    border-radius: 5px;
+    border-color:#00A682;
+    border-style: solid;
+}
+
+.form-content button { /* Styles the buttons for the form-content class */
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for form buttons */
+.form-content button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Style for back buttons */
+#back-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #9ebfe9; /* Background color */
+    border: 2px solid #354c99; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+    text-decoration: none;
+}
+
+/* Hover effect for back buttons */
+#back-button:hover {
+    background-color: #5e8dcc; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #31478f; /* Darker border on hover */
 }
 
 /* Style for the Library box container */
@@ -320,7 +497,7 @@ hr {
 }
 
 /* Style for each flashcard set (buttons) */
-.flashcard-deck {
+.flashcard-set {
     width: 200px;
     height: 200px;
     background-color: #84F3DA; /* Green background */
@@ -334,13 +511,134 @@ hr {
     border: none; /* No border */
     flex-direction: column; /* Stacks the content vertically */
     text-align: center; /* Centers the text */
+    line-height: 1.2; /* Reduce line height to bring lines closer together */
     padding: 10px;
     box-sizing: border-box;
+    overflow: hidden;           /* Hide the content that exceeds the box */
+    text-overflow: ellipsis;    /* Truncate text with an ellipsis if needed */
+    word-wrap: break-word;      /* Break long words or URLs */
 }
 
 /* Hover effect */
-.flashcard-deck:hover {
+.flashcard-set:hover {
     background-color: #00A682; /* Darker green on hover */
     color: white; /* Text turns white */
     border-color: #008B5C; /* Darker border on hover */
+}
+
+/* form-content class style */
+.form-content { /* Centers elements to be in the middle of the page */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.form-content label { /* Styles the labels for the forms */
+    font-family: varela round;
+    font-size: 20px; 
+    display: block; /* Allows the labels to be located above the inputs */
+}
+
+.form-content input, .form-content textarea { /* Styles the input and textarea objects */
+    border-radius: 5px;
+    border-color:#00A682;
+    border-style: solid;
+}
+
+.form-content button { /* Styles the buttons for the form-content class */
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for form buttons */
+.form-content button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Style for back buttons */
+#back-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #9ebfe9; /* Background color */
+    border: 2px solid #354c99; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+    text-decoration: none;
+}
+
+/* Hover effect for back buttons */
+#back-button:hover {
+    background-color: #5e8dcc; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #31478f; /* Darker border on hover */
+}
+
+/* Add this CSS to ensure the hearts are centered inside the button */
+.favorite-btn {
+    font-size: 24px; /* Adjust the size of the heart */
+    display: inline-flex; /* Allows centering with flex */
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    padding: 10px 20px; /* Adjust padding to suit your design */
+    border: 2px solid #ccc; /* Border styling */
+    border-radius: 5px; /* Optional: rounds the corners of the button */
+    background-color: #fff; /* Button background color */
+    cursor: pointer; /* Makes the button clickable */
+    height: 35px;
+    width: 30px;
+}
+
+.favorite-btn:hover {
+    background-color: #f0f0f0; /* Adds a hover effect */
+}
+/* Style for the Print button */
+.print-btn {
+    padding: 10px 20px;
+    background-color: #42A5F5; /* Blue background */
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 2px solid #1976D2;
+    cursor: pointer;
+    position: relative; /* To position the "print" text */
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for the Print button */
+.print-btn:hover {
+    background-color: #1E88E5; /* Darker blue on hover */
+    color: white;
+}
+
+/* Style for the Delete button */
+.delete-btn {
+    padding: 10px 20px;
+    background-color: #F44336; /* Red background */
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 2px solid #D32F2F;
+    cursor: pointer;
+    position: relative; /* To position the "delete" text */
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for the Delete button */
+.delete-btn:hover {
+    background-color: #C62828; /* Darker red on hover */
+    color: white;
 }

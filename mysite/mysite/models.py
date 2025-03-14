@@ -13,7 +13,6 @@ class FlashcardSet(models.Model):
     def __str__(self):
         return self.title  # Display the title of the deck
 
-
 class Flashcard(models.Model):
     card_id = models.AutoField(primary_key=True)
     flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
@@ -33,3 +32,12 @@ class ProgressTracking(models.Model):
     correctly_answered = models.IntegerField(default=0)
     last_reviewed = models.DateTimeField(auto_now=True)
 
+class FavoriteSet(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'set')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.set.title}"
