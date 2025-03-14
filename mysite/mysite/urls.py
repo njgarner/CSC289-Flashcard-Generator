@@ -47,6 +47,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='login_user'), name="logout_user"),
     path('study/<int:set_id>/', views.study_view, name='study_view'),
     path('flashcards/<int:set_id>/details/', views.get_flashcard_set_details, name='flashcard_set_details'),
+    path('edit_flashcard/<int:card_id>/', views.edit_flashcard, name='edit_flashcard'),
     path('change_password/', views.change_password, name='change_password'),
     path('password_change_done/', views.password_change_done, name='password_change_done'),
     path('password_reset/', auth_views.PasswordResetView.as_view(
