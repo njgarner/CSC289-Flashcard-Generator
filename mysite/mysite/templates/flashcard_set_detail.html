@@ -37,15 +37,15 @@
                     {% csrf_token %}
                     <button type="submit" class="delete-btn-cards">Delete</button>
                 </form>
-
+    
                 <!-- Hide/Show Edit flashcard form -->
-                <button id="showFormButton" type="submit" class="button">Edit</button>
-
+                <button class="showFormButton" type="button">Edit</button>
+    
                 <!-- Confirm Edit flashcard form -->
-                <form id="editForm" action="{% url 'edit_flashcard' flashcard.card_id %}" method="post">
+                <form class="editForm" action="{% url 'edit_flashcard' flashcard.card_id %}" method="post" style="display: none;">
                     {% csrf_token %}
-                    <input type="text" id="new-question" name="username" required placeholder="Enter New Question"><br><br>
-                    <input type="text" id="new-answer" name="email" required placeholder="Enter New Answer"><br><br>
+                    <input type="text" name="question" required placeholder="Enter New Question" value="{{ flashcard.question }}"><br><br>
+                    <input type="text" name="answer" required placeholder="Enter New Answer" value="{{ flashcard.answer }}"><br><br>
                     <button type="submit" class="button">Confirm</button>
                 </form>
                 <br>
@@ -54,19 +54,22 @@
             <p>No flashcards available in this set.</p>
         {% endfor %}
     </ul>
+    
+    <!-- JavaScript for Hide/Show -->
+    <script>
+        document.querySelectorAll('.showFormButton').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var editForm = this.nextElementSibling;
+                if (editForm.style.display === 'none' || editForm.style.display === '') {
+                    editForm.style.display = 'block';
+                    this.textContent = 'Hide Edit Form';
+                } else {
+                    editForm.style.display = 'none';
+                    this.textContent = 'Edit';
+                }
+            });
+        });
+    </script>
 
-<!-- JavaScript for Hide/Show -->
-<script>
-    document.getElementById('showFormButton').addEventListener('click', function() {
-        var editForm = document.getElementById('editForm');
-        if (editForm.style.display === 'none' || editForm.style.display === '') {
-            editForm.style.display = 'block';
-            this.textContent = 'Hide Edit Form';
-        } else {
-            editForm.style.display = 'none';
-            this.textContent = 'Show Edit Form';
-        }
-    });
-</script>
 </body>
 </html>
