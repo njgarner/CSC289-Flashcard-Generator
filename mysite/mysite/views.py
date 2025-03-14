@@ -47,7 +47,10 @@ def library_view(request):
 
 @login_required  # About Us page
 def about(request):
-    return render(request, 'about_us.html')
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    return render(request, 'about_us.html', {
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    })
 
 @login_required  # Terms and conditions page
 def terms(request):
@@ -62,11 +65,17 @@ def settings(request):
 
 @login_required  # Schedule study time page
 def schedule(request):
-    return render(request, 'study_schedule.html')
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    return render(request, 'study_schedule.html', {
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    })
 
 @login_required  # Customization page
 def customize(request):
-    return render(request, 'customize.html')
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    return render(request, 'customize.html', {
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    })
 
 @login_required  # User acount deletion page
 def account_delete(request):
@@ -263,6 +272,22 @@ def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
     return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+
+@login_required  # Edit a flashcard
+def edit_flashcard(request, card_id):
+    flashcard = get_object_or_404(Flashcard, card_id=card_id)
+
+    if request.method == 'POST':
+        question = request.POST.get('question')
+        answer = request.POST.get('answer')
+
+        if question and answer:
+            flashcard.question = question
+            flashcard.answer = answer
+            flashcard.save()
+            return redirect('view_flashcard_set', set_id=flashcard.flashcard_set.set_id)
+
+    return render(request, 'flashcard_set_details.html', {'flashcard': flashcard})
 
 @login_required  # Delete a flashcard
 def delete_flashcard(request, card_id):
