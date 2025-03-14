@@ -37,8 +37,16 @@
     
             <!-- Flip card button -->
             <div class="button">
-                <button id="flip-button">Flip</button>
+                <button id="flip-button" style="margin-bottom: 5px;">Flip</button>
             </div>
+
+            <!-- Hint Display -->
+             <div id="hint-display" class="hint-display">
+                <button id="hint-btn" class="hint-btn-off">&#9742 Show Hint &#9742</button>
+                <div id="hint-content" class="hint-content-off">
+                    <p id="hint-text">This is a hint</p>
+                </div>
+             </div>
             
         </div>
 
@@ -48,9 +56,27 @@
         </footer>
         
     </div>
-    
-        <!-- Script -->
-         <script>
+
+        <!-- Hint Script -->
+        <script>
+            let hintBtn = document.getElementById("hint-btn");
+            let hintContent = document.getElementById("hint-content")
+            hintBtn.addEventListener("click", hintSwitchFunction);
+
+            function hintSwitchFunction(){
+                if(hintBtn.className == "hint-btn-on"){
+                    hintBtn.className = "hint-btn-off";
+                    hintContent.className = "hint-content-off";
+                }
+                else{
+                    hintBtn.className = "hint-btn-on";
+                    hintContent.className = "hint-content-on";
+                }
+            }
+
+        </script>
+        <!-- Set Selector Script -->
+        <script>
             let setSelector = document.getElementById("set-selector");
             let setSelectorContent = document.getElementById("set-selector-content");
             setSelectorContent.style.display = "none";
@@ -69,7 +95,7 @@
 
 
         </script>
-
+        <!-- Flashcard Scripts-->
         <script>
             let flashcards = [
                 {% for flashcard in flashcards %}

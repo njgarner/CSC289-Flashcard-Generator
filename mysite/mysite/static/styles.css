@@ -375,7 +375,8 @@ body {
     border-color: #008B5C; /* Darker border on hover */
 }
 
-/* Style for back buttons */
+
+/*--------------------------------------------------------- Back Buttoon Styles ---------------------------------------------------------*/
 #back-button {
     padding: 10px;
     font-family: 'Varela Round', sans-serif; /* Font family */
@@ -434,6 +435,60 @@ body {
     margin-top: 20px;
     font-size: 60px;
 }
+
+/*--------------------------------------------------------- Flashcard Hints Styles ---------------------------------------------------------*/
+.hint-display {
+    display: block;
+    width: 600px;
+    justify-content: center;
+    text-align: center;
+}
+
+.hint-btn-off {
+    padding: 5px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #ecf384; /* Background color */
+    border: 2px solid #ccb13a; /* Border color */
+    border-radius: 20px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+.hint-btn-on {
+    padding: 5px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: white;            /* Text color */
+    background-color: #d3c82c;; /* Background color */
+    border: 2px solid #ccb13a; /* Border color */
+    border-radius: 20px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+.hint-btn-off:hover{
+    background-color: #d3c82c; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #ccb13a; /* Darker border on hover */
+}
+
+#hint-content {
+    font-size: 17px;
+    margin-top: 20px;
+    word-wrap: break-word;
+}
+
+.hint-content-off {
+    display: none;
+}
+
+.hint-content-on{
+    display: block;
+}
+
+
 
 .setting-item {
     margin-bottom: 20px; /* Adds space below each setting item */
