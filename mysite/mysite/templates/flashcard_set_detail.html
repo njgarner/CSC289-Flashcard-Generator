@@ -6,6 +6,13 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <title>{{ flashcard_set.title }} - Details</title>
+    <!-- Internal CSS -->
+	<style>
+        #editForm{
+          display: none;
+          margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <a id="back-button" href="{% url 'library_view' %}" style="margin-left: 10px;">Back to Library</a>
@@ -30,6 +37,17 @@
                     {% csrf_token %}
                     <button type="submit" class="delete-btn-cards">Delete</button>
                 </form>
+
+                <!-- Hide/Show Edit flashcard form -->
+                <button id="showFormButton" type="submit" class="button">Edit</button>
+
+                <!-- Confirm Edit flashcard form -->
+                <form id="editForm" action="{% url 'edit_flashcard' flashcard.card_id %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" id="new-question" name="username" required placeholder="Enter New Question"><br><br>
+                    <input type="text" id="new-answer" name="email" required placeholder="Enter New Answer"><br><br>
+                    <button type="submit" class="button">Confirm</button>
+                </form>
                 <br>
             </li>
         {% empty %}
@@ -37,5 +55,18 @@
         {% endfor %}
     </ul>
 
+<!-- JavaScript for Hide/Show -->
+<script>
+    document.getElementById('showFormButton').addEventListener('click', function() {
+        var editForm = document.getElementById('editForm');
+        if (editForm.style.display === 'none' || editForm.style.display === '') {
+            editForm.style.display = 'block';
+            this.textContent = 'Hide Edit Form';
+        } else {
+            editForm.style.display = 'none';
+            this.textContent = 'Show Edit Form';
+        }
+    });
+</script>
 </body>
 </html>
