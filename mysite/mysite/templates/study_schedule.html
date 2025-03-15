@@ -67,99 +67,171 @@
 	  <label for="">Time :</label>
 	  <input type="time" id="time" />
 
-	  <button style="width: 100%" onclick="scheduleReminder();">
-		Schedule Study Time
-	  </button>
+	   <!-- Disclaimer for denied notifications -->
+  <p id="notificationDisclaimer" style="color: red; display: none;">
+    ⚠️ You have denied notifications. You will not receive a desktop reminder!
+  </p>
 
-	  <table border="1">
-		<thead>
-			<tr>
-				<th>Title</th>
-				<th>Description</th>
-				<th>Date & Time</th>
-				<th>Action</th>
-			</tr>
-		</thead>
-		<tbody id="reminderTableBody"></tbody>
-	  </table>
-	</div>
-	<audio src="{% static 'mixkit.mp3' %}" id="notificationSound"></audio>
+  <button style="width: 100%" onclick="scheduleReminder();">
+    Schedule Study Time
+  </button>
 
-	<script>
-      // User confirm allow notification access
-      if (!("Notification" in window)) {
-            alert("This browser does not support desktop notification.");
-        } else if
-        (Notification.permission === "granted") {
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Date & Time</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="reminderTableBody"></tbody>
+  </table>
+</div>
 
-            const notification = new Notification("Permission has been granted.", {
-				icon: "{% static 'Flash.png' %}",
-			});
-        } else if
-        (Notification.permission !== "denied") {
-        Notification.requestPermission().then((permission) => {
-            if (permission !== "granted") {
-              alert("You must allow notification access to use this feature.")
-            }
+<audio src="{% static 'mixkit.mp3' %}" id="notificationSound"></audio>
+
+<script>
+  // Load saved reminders and reschedule notifications on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    checkNotificationPermission();
+  });
+
+  function checkNotificationPermission() {
+    let disclaimer = document.getElementById("notificationDisclaimer");
+
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notifications.");
+    } else if (Notification.permission === "granted") {
+      new Notification("Permission has been granted.", {
+        icon: "{% static 'Flash.png' %}",
+      });
+      disclaimer.style.display = "none"; // Hide disclaimer
+    } else if (Notification.permission === "denied") {
+      disclaimer.style.display = "block"; // Show disclaimer
+    } else {
+      Notification.requestPermission().then((permission) => {
+        disclaimer.style.display = permission === "denied" ? "block" : "none";
+      });
+    }
+  }
+  var timeoutIds = [];
+
+  // Load saved reminders and reschedule notifications on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    loadReminders();
+  });
+
+  function scheduleReminder() {
+    var title = document.getElementById("title").value;
+    var description = document.getElementById("description").value;
+    var date = document.getElementById("date").value;
+    var time = document.getElementById("time").value;
+
+    if (!title || !description || !date || !time) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    var dateTimeString = date + " " + time;
+    var scheduledTime = new Date(dateTimeString);
+    var currentTime = new Date();
+    var timeDifference = scheduledTime - currentTime;
+
+    if (timeDifference > 0) {
+      addReminder(title, description, dateTimeString, true); // Save to localStorage
+      scheduleNotification(title, description, timeDifference);
+    } else {
+      alert("The scheduled time has already passed.");
+    }
+  }
+
+  function addReminder(title, description, dateTimeString, saveToStorage) {
+    var tableBody = document.getElementById("reminderTableBody");
+
+    var row = tableBody.insertRow();
+    var titleCell = row.insertCell(0);
+    var descriptionCell = row.insertCell(1);
+    var dateTimeCell = row.insertCell(2);
+    var actionCell = row.insertCell(3);
+
+    titleCell.innerHTML = title;
+    descriptionCell.innerHTML = description;
+    dateTimeCell.innerHTML = dateTimeString;
+    actionCell.innerHTML = `<button onclick="deleteReminder(this, '${title}');">Delete</button>`;
+
+    if (saveToStorage) {
+      saveReminderToStorage(title, description, dateTimeString);
+    }
+  }
+
+  function deleteReminder(button, title) {
+    var row = button.closest("tr");
+    var index = row.rowIndex;
+
+    clearTimeout(timeoutIds[index - 1]);
+    timeoutIds.splice(index - 1, 1);
+    row.remove();
+
+    removeReminderFromStorage(title);
+  }
+
+  function saveReminderToStorage(title, description, dateTimeString) {
+    var reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+    reminders.push({ title, description, dateTimeString });
+    localStorage.setItem("reminders", JSON.stringify(reminders));
+  }
+
+  function removeReminderFromStorage(title) {
+    var reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+    reminders = reminders.filter(reminder => reminder.title !== title);
+    localStorage.setItem("reminders", JSON.stringify(reminders));
+  }
+
+  function loadReminders() {
+    var reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+    reminders.forEach(reminder => {
+      addReminder(reminder.title, reminder.description, reminder.dateTimeString, false);
+      rescheduleNotification(reminder.title, reminder.description, reminder.dateTimeString);
+    });
+  }
+
+  function scheduleNotification(title, description, timeDifference) {
+    var timeoutId = setTimeout(function () {
+      showNotification(title, description);
+    }, timeDifference);
+
+    timeoutIds.push(timeoutId);
+  }
+
+  function rescheduleNotification(title, description, dateTimeString) {
+    var scheduledTime = new Date(dateTimeString);
+    var currentTime = new Date();
+    var timeDifference = scheduledTime - currentTime;
+
+    if (timeDifference > 0) {
+      scheduleNotification(title, description, timeDifference);
+    }
+  }
+
+  function showNotification(title, description) {
+    if (Notification.permission === "granted") {
+      new Notification(title, {
+        body: description,
+        requireInteraction: true,
+        icon: "{% static 'Flash.png' %}",
+      });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification(title, {
+            body: description,
+            requireInteraction: true,
+            icon: "{% static 'Flash.png' %}",
           });
         }
-
-      var timeoutIds = [];
-
-      function scheduleReminder() {
-        var title = document.getElementById("title").value;
-        var description = document.getElementById("description").value;
-        var date = document.getElementById("date").value;
-        var time = document.getElementById("time").value;
-
-        var dateTimeString = date + " " + time;
-        var scheduledTime = new Date(dateTimeString);
-        var currentTime = new Date();
-        var timeDifference = scheduledTime - currentTime;
-
-        if(timeDifference > 0) {
-          addReminder(title, description, dateTimeString);
-
-          var timeoutId = setTimeout(function () {
-
-            const notification = new Notification(title, {
-              body: description,
-              requireInteraction: true,
-			  icon: "{% static 'Flash.png' %}",
-            });
-          }, timeDifference);
-
-          timeoutIds.push(timeoutId);
-        } else {
-          alert("The scheduled time has already passed.");
-        }
-      }
-
-      function addReminder(title, description, dateTimeString) {
-        var tableBody = document.getElementById("reminderTableBody");
-
-        var row = tableBody.insertRow();
-
-        var titleCell = row.insertCell(0);
-        var descriptionCell = row.insertCell(1);
-        var dateTimeCell = row.insertCell(2);
-        var actionCell = row.insertCell(3);
-
-        titleCell.innerHTML = title;
-        descriptionCell.innerHTML = description;
-        dateTimeCell.innerHTML = dateTimeString;
-        actionCell.innerHTML = 
-          '<button onclick = "deleteReminder(this);">Delete</button>';
-      }
-
-      function deleteReminder(button){
-        var row = button.closest("tr");
-        var index = row.rowIndex;
-
-        clearTimeout(timeoutIds[index - 1]);
-        timeoutIds.splice(index -1, 1);
-
-        row.remove();
-      }
-    </script>
+      });
+    }
+  }
+</script>
 {% endblock main %}
