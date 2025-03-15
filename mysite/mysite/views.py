@@ -21,6 +21,9 @@ import json
 
 # ======================== Main Pages ======================== #
 
+from django.shortcuts import render
+from .models import Flashcard, FlashcardSet
+
 @login_required  # Home page
 def home(request):
     # Get favorite sets for the current user
@@ -33,6 +36,7 @@ def home(request):
     last_viewed_set_id = request.session.get('last_viewed_set_id', None)
     last_viewed_set = None
     flashcards = []
+    remaining_cards = 0  # Initialize the number of remaining cards
 
     if last_viewed_set_id:
         # Get the last viewed set for the current user
@@ -40,6 +44,9 @@ def home(request):
         if last_viewed_set:
             # Get the flashcards for the last viewed set
             flashcards = last_viewed_set.flashcard_set.all()
+
+            # Calculate the number of unlearned cards
+            remaining_cards = flashcards.filter(is_learned=False).count()
 
     # Render the home page with all necessary context
     return render(
@@ -49,7 +56,8 @@ def home(request):
             "flashcard_sets": flashcard_sets,
             "favorite_sets": favorite_sets,
             "last_viewed_set": last_viewed_set,
-            "flashcards": flashcards  # Pass the flashcards of the last viewed set
+            "flashcards": flashcards,  # Pass the flashcards of the last viewed set
+            "remaining_cards": remaining_cards,  # Pass the count of unlearned flashcards
         }
     )
 
@@ -358,4 +366,38 @@ def study_view(request, set_id):
         "last_viewed_set": last_viewed_set,  # Pass last viewed set to the template
     })
 
+def learn_view(request):
+    set_id = request.GET.get('set_id')
 
+    try:
+        flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+    except FlashcardSet.DoesNotExist:
+        return render(request, 'learn.html', {
+            'error': 'Flashcard set not found'
+        })
+
+    # Filter flashcards by flashcard_set and is_learned = False
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set, is_learned=False)
+
+    return render(request, 'learn.html', {
+        'flashcard_set': flashcard_set,
+        'flashcards': flashcards,
+    })
+
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt  # You may need to add this to bypass CSRF for AJAX requests (if not using CSRF token)
+def update_learned_flashcards(request):
+    if request.method == "POST":
+        data = json.loads(request.body)  # Get the data sent with the request
+        flashcard_ids = data.get('flashcard_ids', [])
+        
+        # Update the flashcards with the provided IDs
+        flashcards = Flashcard.objects.filter(card_id__in=flashcard_ids)
+        
+        # Set is_learned to True for each flashcard
+        flashcards.update(is_learned=True)
+        
+        # Return success response
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"success": False}, status=400)

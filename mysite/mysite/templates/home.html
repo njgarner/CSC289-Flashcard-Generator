@@ -21,12 +21,25 @@
               </div>
           </div>
 
-          <div class="button">
-              <button id="previous">Previous</button>
-              <button id="rand-button">Random</button>
-              <button id="next">Next</button>
-          </div>
-  
+        <div class="button">
+            <button id="previous">Previous</button>
+            <button id="rand-button">Random</button>
+            <button id="next">Next</button>
+        
+            <form action="{% url 'learn_view' %}" method="get" style="display: inline;">
+                <input type="hidden" name="set_id" value="{{ last_viewed_set.set_id }}">
+                <button type="submit">Learn
+                    {% if remaining_cards > 0 %}
+                        <span class="card-count">({{ remaining_cards }} left)</span>
+                    {% else %}
+                        <span class="card-count">(No unlearned cards)</span>
+                    {% endif %}
+                </button>
+            </form>
+            <button id="study">Study</button>
+        </div>
+        
+
           <div class="flashcard patrick-hand-regular" id="flashcard">
               {% if flashcards %}
                   <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
@@ -34,16 +47,18 @@
                   <p class="flashcard-text">No flashcards available. Go to the Library page and make a Set to add Flashcards to.</p>
               {% endif %}
           </div>
-  
+
           <div class="button">
               <button id="flip-button">Flip</button>
           </div>
+
       </div>
 
       <footer class="footer">
           <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
       </footer>
   </div>
+
 
   <!-- JavaScript to handle set selection, flashcard flipping, and navigation -->
   <script>
@@ -93,7 +108,7 @@
                 { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
             {% endfor %}
         ];
-        
+
         let currentIndex = 0;
         let showingQuestion = true;
 

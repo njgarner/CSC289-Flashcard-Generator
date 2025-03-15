@@ -49,4 +49,6 @@ urlpatterns = [
 
     # Add the new path for updating the last viewed set in session
     path('update_last_viewed_set/', views.update_last_viewed_set, name='update_last_viewed_set'),
+    path('learn/', views.learn_view, name='learn_view'),
+    path('update_learned_flashcards/', views.update_learned_flashcards, name='update_learned_flashcards'),
 ]

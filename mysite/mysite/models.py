@@ -20,6 +20,7 @@ class Flashcard(models.Model):
     answer = models.TextField(null=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_learned = models.BooleanField(default=False)
 
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
