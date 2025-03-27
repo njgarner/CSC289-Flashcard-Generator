@@ -6,7 +6,6 @@ pymysql.install_as_MySQLdb()
 
 class Database:
 
-
     database_cred = {
 
         "host": "localhost",
