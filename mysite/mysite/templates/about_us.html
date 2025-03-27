@@ -4,6 +4,65 @@
 
 {% block main %}
 
+  <style>
+    /* Social media link container */
+    .social-media-links {
+        display: flex;              /* Use Flexbox to arrange the icons horizontally */
+        justify-content: center;    /* Center the icons */
+        gap: 20px;                  /* Space between icons */
+        padding: 20px 0;            /* Padding for top and bottom */
+        position: fixed;            /* Fixed position at the bottom */
+        left: 0;                    /* Align to the left */
+        bottom: 0;                  /* Align to the bottom */
+        width: 100%;                /* Full width */
+        background-color: #fff;     /* Background color to make sure it’s not transparent */
+        box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+        z-index: 1000;              /* Ensure it stays above other content */
+    }
+     
+    /* Individual social media link styles */
+    .social-media-links a {
+        font-size: 30px;            /* Size of the icons */
+        color: #333;                /* Default color for icons */
+        text-decoration: none;      /* Remove underlines from links */
+        transition: color 0.3s ease, transform 0.3s ease; /* Smooth transitions for color and scaling */
+    }
+     
+    /* Hover effects for social media links */
+    .social-media-links a:hover {
+        color: #00A682;             /* Change color on hover */
+        transform: scale(1.1);      /* Slightly enlarge the icon when hovered */
+    }
+     
+    /* border around the icons for visual effect */
+    .social-media-links a {
+        border: 2px solid transparent; /* Transparent border */
+        border-radius: 50%;            /* Round border to create circular effect */
+        padding: 10px;                 /* Add padding around the icons */
+        transition: border-color 0.3s ease; /* Smooth border transition */
+    }
+     
+    /* Hover effect for border */
+    .social-media-links a:hover {
+        border-color: #00A682;      /* Show border color on hover */
+    }
+     
+    /* Optional: Add a slight shadow to the icons */
+    .social-media-links a {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Small shadow for depth */
+    }
+     
+    /* Responsive Design - Adjust social media icon sizes on smaller screens */
+    @media (max-width: 768px) {
+        .social-media-links {
+            gap: 15px; /* Reduce the gap between icons on smaller screens */
+        }
+        .social-media-links a {
+            font-size: 25px; /* Reduce the size of icons on smaller screens */
+        }
+    }
+  </style>
+
     <!-- Main Content Section -->
     <h1 class="page-title"><u>About Us</u></h1>
     <div class="content">
@@ -33,6 +92,19 @@
              allowfullscreen>
             </iframe>
         </div>
+
+        <!-- Social Media -->
+        <div class="social-media-links">
+            <a href="https://www.facebook.com" target="_blank" title="Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://www.instagram.com/flashliteteam/" target="_blank" title="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.linkedin.com" target="_blank" title="LinkedIn">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </div>    
         
         <!-- Terms and Conditions Button -->
         <footer class="footer">
