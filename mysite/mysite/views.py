@@ -1,13 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from .models import FlashcardSet, Category, Flashcard, FavoriteSet
-from .forms import FlashcardForm, ChangePasswordForm
 from django.http import JsonResponse
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.tokens import default_token_generator
@@ -17,6 +15,13 @@ from django.utils.html import strip_tags
 from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+# ======================= Python files ======================= #
+
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet
+from .forms import FlashcardForm, ChangePasswordForm
 
 # ======================== Main Pages ======================== #
 
@@ -28,8 +33,42 @@ def home(request):
     # Get Flashcard sets for the current user
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
 
-    # Render the home page with favorite_sets in the context
-    return render(request, "home.html", {"flashcard_sets": flashcard_sets, "favorite_sets": favorite_sets})
+    # Retrieve the last viewed set from session
+    last_viewed_set_id = request.session.get('last_viewed_set_id', None)
+    last_viewed_set = None
+    flashcards = []
+ 
+    if last_viewed_set_id:
+         # Get the last viewed set for the current user
+         last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first()
+         if last_viewed_set:
+             # Get the flashcards for the last viewed set
+             flashcards = last_viewed_set.flashcard_set.all()
+ 
+             # Calculate the number of unlearned cards
+ 
+    # Render the home page with all necessary context
+    return render(
+         request,
+         "home.html",
+        {
+             "flashcard_sets": flashcard_sets,
+             "favorite_sets": favorite_sets,
+             "last_viewed_set": last_viewed_set,
+             "flashcards": flashcards  # Pass the flashcards of the last viewed set
+        }
+     )
+
+@login_required
+def update_last_viewed_set(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        set_id = data.get('set_id')
+
+        # Save the selected set's ID in the session
+        request.session['last_viewed_set_id'] = set_id
+
+        return JsonResponse({"status": "success"})
 
 @login_required
 def library_view(request):
@@ -79,7 +118,35 @@ def customize(request):
 
 @login_required  # User acount deletion page
 def account_delete(request):
-    return render(request, 'account_delete.html')
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    return render(request, 'account_delete.html', {
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    })
+
+def send_reminder_email(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            title = data.get("title")
+            description = data.get("description")
+            recipient_email = data.get("email")
+
+            if not recipient_email:
+                return JsonResponse({"error": "No email provided"}, status=400)
+
+            subject = f"Study Reminder: {title}"
+            message = f"Hey there!\n\nThis is a reminder for your scheduled study time.\n\nTitle: {title}\nDescription: {description}\n\nDon't forget to study! 📚"
+            from_email = "noreply@yourdomain.com"
+            recipient_list = [recipient_email]
+
+            send_mail(subject, message, from_email, recipient_list)
+
+            return JsonResponse({"message": "Reminder email sent successfully!"})
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 # ======================== User Authentication (Signup, Login, Logout) ======================== #
 
@@ -102,6 +169,8 @@ def password_change_done(request):
     return render(request, 'change-password/password_change_done.html')
 
 def login_user(request):  # Login page
+    if request.user.is_authenticated:
+        return redirect('home')
     return render(request, 'login.html')
 
 def custom_logout(request):  # Logs out the user
@@ -109,19 +178,34 @@ def custom_logout(request):  # Logs out the user
     return redirect('login_user')
 
 def signup_user(request):  # Signup page with email verification
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
         password = request.POST["password"]
+        role = request.POST["role"]
 
+        # Check if username already exists
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken")
-            return redirect("signup_user")
+            return render(request, "sign_up.html", {
+                "username": "",
+                "email": email,
+                "role": role
+            })
 
+        # Check if email already exists
         if User.objects.filter(email=email).exists():
             messages.error(request, "Email already in use")
-            return redirect("signup_user")
+            return render(request, "sign_up.html", {
+                "username": username,
+                "email": "",
+                "role": role
+            })
 
+        # Create user but keep inactive until email is verified
         user = User.objects.create(
             username=username,
             email=email,
@@ -129,16 +213,16 @@ def signup_user(request):  # Signup page with email verification
             is_active=False
         )
 
-        # Email verification setup
+        # Send verification email
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         verification_link = f"http://{get_current_site(request).domain}/activate/{uid}/{token}/"
-        
+
         html_message = render_to_string("email_verification.html", {
             "username": username,
             "verification_link": verification_link
         })
-        
+
         email_message = EmailMultiAlternatives(
             subject="Verify Your Email - Flashcard App",
             body=strip_tags(html_message),
@@ -171,17 +255,19 @@ def activate_account(request, uidb64, token):  # Activates user account via emai
 
 def user_login(request):  # Logs in user
     if request.method == 'POST':
-        user = authenticate(
-            request, 
-            username=request.POST.get('username'), 
-            password=request.POST.get('password')
-        )
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
         if user:
             login(request, user)
+            messages.success(request, "Login successful!")
             return redirect('home')
         else:
             messages.error(request, "Invalid username or password.")
-            return redirect('login_user')
+            return render(request, 'login.html', {"username": username})  # Preserve input
+
     return render(request, 'login.html')
 
 def delete_account(request):
@@ -197,26 +283,26 @@ def delete_account(request):
 
 @login_required  # Create a new set
 def create_set(request):
-    # Get favorite sets for the current user
+ # Get favorite sets for the current user
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     if request.method == 'POST':
-        title, category_name, description = (
-            request.POST.get('title'), 
-            request.POST.get('category'), 
-            request.POST.get('description')
-        )
-        
+        title = request.POST.get('title')
+        category_name = request.POST.get('category')
+        description = request.POST.get('description')
+
         if title and category_name:
             category, _ = Category.objects.get_or_create(name=category_name)
             FlashcardSet.objects.create(
                 title=title, category=category, description=description, user=request.user
             )
-            return redirect('library_view')
-        messages.error(request, "Please fill in all required fields.")
+            messages.success(request, "Flashcard set created successfully!")
+            return redirect('library_view')  # Redirect to Library Page with success message
+        else:
+            messages.error(request, "Please fill in all required fields.")
 
     return render(request, 'create_set.html', {
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+        'favorite_sets': favorite_sets
     })
 
 @login_required  # View flashcard set details
@@ -227,7 +313,15 @@ def view_flashcard_set(request, set_id):
 
 @login_required  # Delete a set
 def delete_set(request, set_id):
-    get_object_or_404(FlashcardSet, set_id=set_id).delete()
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+
+    if request.method == "POST":
+        try:
+            flashcard_set.delete()
+            messages.success(request, "Flashcard set deleted successfully.")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+
     return redirect('library_view')
 
 @login_required
@@ -254,17 +348,25 @@ def create_flashcard(request):
     form = FlashcardForm(request.POST or None)
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
-    if request.method == 'POST' and form.is_valid():
-        flashcard_set = form.cleaned_data['flashcard_set']
-        if flashcard_set.user == request.user:
-            form.save()
-            return redirect('home')
+    if request.method == 'POST':
+        if form.is_valid():
+            flashcard_set = form.cleaned_data['flashcard_set']
+            
+            # Ensure the flashcard set belongs to the logged-in user
+            if flashcard_set.user == request.user:
+                form.save()
+                messages.success(request, "Flashcard created successfully!")
+                return redirect('create_flashcard')
+            else:
+                messages.error(request, "You do not have permission to add flashcards to this set.")
+        else:
+            messages.error(request, "Failed to create flashcard. Please check your input.")
 
     form.fields['flashcard_set'].queryset = FlashcardSet.objects.filter(user=request.user)
 
     return render(request, 'create_flashcard.html', {
         'form': form,
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+        'favorite_sets': favorite_sets # Pass favorite sets to the template
     })
 
 @login_required  # View flashcard deck details
@@ -273,26 +375,38 @@ def view_flashcard_set(request, set_id):
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
     return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
 
+@login_required  # Delete a flashcard
+def delete_flashcard(request, card_id):
+    flashcard = get_object_or_404(Flashcard, card_id=card_id)
+    try:
+        flashcard.delete()
+        messages.success(request, "Flashcard deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+    return redirect('view_flashcard_set', set_id=flashcard.flashcard_set.set_id)
+
 @login_required  # Edit a flashcard
 def edit_flashcard(request, card_id):
     flashcard = get_object_or_404(Flashcard, card_id=card_id)
 
     if request.method == 'POST':
-        question = request.POST.get('question')
-        answer = request.POST.get('answer')
+        question = request.POST.get('question', '').strip()
+        answer = request.POST.get('answer', '').strip()
 
         if question and answer:
-            flashcard.question = question
-            flashcard.answer = answer
-            flashcard.save()
-            return redirect('view_flashcard_set', set_id=flashcard.flashcard_set.set_id)
+            try:
+                flashcard.question = question
+                flashcard.answer = answer
+                flashcard.save()
+                messages.success(request, "Flashcard updated successfully.")
+            except Exception as e:
+                messages.error(request, f"An error occurred: {str(e)}")
+        else:
+            messages.error(request, "Both question and answer fields are required.")
+
+        return redirect('view_flashcard_set', set_id=flashcard.flashcard_set.set_id)
 
     return render(request, 'flashcard_set_details.html', {'flashcard': flashcard})
-
-@login_required  # Delete a flashcard
-def delete_flashcard(request, card_id):
-    get_object_or_404(Flashcard, card_id=card_id).delete()
-    return redirect('library_view')
 
 @login_required
 def get_flashcard_set_details(request, set_id):
@@ -329,9 +443,52 @@ def study_view(request, set_id):
     # Get favorite sets for the current user
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
+    # Set the last viewed set in the session when entering the study page
+    request.session['last_viewed_set_id'] = set_id
+
+    # Retrieve the last viewed set from session
+    last_viewed_set_id = request.session.get('last_viewed_set_id', None)
+    last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first() if last_viewed_set_id else None
+
+    # Render the study page (home.html in this case) with the correct context
     return render(request, 'home.html', {
         "flashcard_set": flashcard_set,
         "flashcards": flashcards,
-        "favorite_sets": favorite_sets,  # Pass favorite sets to the template
+        "favorite_sets": favorite_sets,
         "flashcard_sets": flashcard_sets,
+        "last_viewed_set": last_viewed_set,  # Pass last viewed set to the template
     })
+def learn_view(request):
+    set_id = request.GET.get('set_id')
+
+    try:
+        flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+    except FlashcardSet.DoesNotExist:
+        return render(request, 'learn.html', {
+            'error': 'Flashcard set not found'
+        })
+
+    # Filter flashcards by flashcard_set and is_learned = False
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set, is_learned=False)
+
+    return render(request, 'learn.html', {
+        'flashcard_set': flashcard_set,
+        'flashcards': flashcards,
+    })
+
+@csrf_exempt  # You may need to add this to bypass CSRF for AJAX requests (if not using CSRF token)
+def update_learned_flashcards(request):
+    if request.method == "POST":
+        data = json.loads(request.body)  # Get the data sent with the request
+        flashcard_ids = data.get('flashcard_ids', [])
+        
+        # Update the flashcards with the provided IDs
+        flashcards = Flashcard.objects.filter(card_id__in=flashcard_ids)
+        
+        # Set is_learned to True for each flashcard
+        flashcards.update(is_learned=True)
+        
+        # Return success response
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"success": False}, status=400)
