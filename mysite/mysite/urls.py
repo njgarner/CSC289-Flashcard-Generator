@@ -33,6 +33,7 @@ urlpatterns = [
     path('library/', views.library_view, name="library_view"),
     path('settings/', views.settings, name="settings"),
     path('schedule/', views.schedule, name="schedule"),
+    path("send-reminder-email/", views.send_reminder_email, name="send_reminder_email"),
     path('customize/', views.customize, name="customize"),
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
     path('about/', views.about, name="about"),
@@ -44,10 +45,13 @@ urlpatterns = [
     path('favorites/', views.favorite_sets, name='favorite_sets'),
     path('', views.home, name='home'),
     path('delete_flashcard/<int:card_id>/', views.delete_flashcard, name='delete_flashcard'),
+    path('edit_flashcard/<int:card_id>/', views.edit_flashcard, name='edit_flashcard'),
     path('logout/', LogoutView.as_view(next_page='login_user'), name="logout_user"),
     path('study/<int:set_id>/', views.study_view, name='study_view'),
+    path('update_last_viewed_set/', views.update_last_viewed_set, name='update_last_viewed_set'),
+    path('learn/', views.learn_view, name='learn_view'),
+    path('update_learned_flashcards/', views.update_learned_flashcards, name='update_learned_flashcards'),
     path('flashcards/<int:set_id>/details/', views.get_flashcard_set_details, name='flashcard_set_details'),
-    path('edit_flashcard/<int:card_id>/', views.edit_flashcard, name='edit_flashcard'),
     path('change_password/', views.change_password, name='change_password'),
     path('password_change_done/', views.password_change_done, name='password_change_done'),
     path('password_reset/', auth_views.PasswordResetView.as_view(
