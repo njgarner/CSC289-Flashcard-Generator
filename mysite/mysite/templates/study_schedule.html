@@ -8,6 +8,23 @@
      
     <!-- Internal CSS -->
 	<style>
+	  .alert {
+		padding: 10px;
+		margin: 10px 0;
+		border-radius: 5px;
+		text-align: center;
+		font-weight: bold;
+	  }
+	  .success {
+		background-color: #d4edda;
+		color: #155724;
+		border: 1px solid #c3e6cb;
+	  }
+	  .error {
+		background-color: #f8d7da;
+		color: #721c24;
+		border: 1px solid #f5c6cb;
+	  }
 	  body{
 	    font-family: "Arial", sans-serif;
 		background-color: #eaeaea;
@@ -56,6 +73,7 @@
 	<div class="container">
       <br><br><br>
 	  <h2 style="text-align: center;">Study Time Reminder</h2>
+	  <div id="message-container" style="display: none;"></div>
       <hr>
 
 	  <label for="">Title :</label>
@@ -66,6 +84,12 @@
 	  <input type="date" id="date" />
 	  <label for="">Time :</label>
 	  <input type="time" id="time" />
+	  <label for="">Email Address (optional) :</label>
+	  <input type="email" id="email" placeholder="Enter your email" />
+	
+	  <label>
+		<input type="checkbox" id="emailReminder"> Send Reminder to Email
+	  </label>
 
 	   <!-- Disclaimer for denied notifications -->
   <p id="notificationDisclaimer" style="color: red; display: none;">
@@ -82,6 +106,7 @@
         <th>Title</th>
         <th>Description</th>
         <th>Date & Time</th>
+        <th>Email Reminder</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -117,6 +142,18 @@
   }
   var timeoutIds = [];
 
+  // Show success or error messages
+  function showMessage(message, type = "success") {
+    let messageContainer = document.getElementById("message-container");
+    messageContainer.innerHTML = `<div class="alert ${type}">${message}</div>`;
+    messageContainer.style.display = "block";
+
+    // Auto-hide message after 3 seconds
+    setTimeout(() => {
+      messageContainer.style.display = "none";
+    }, 3000);
+  }
+
   // Load saved reminders and reschedule notifications on page load
   document.addEventListener("DOMContentLoaded", function () {
     loadReminders();
@@ -127,10 +164,12 @@
     var description = document.getElementById("description").value;
     var date = document.getElementById("date").value;
     var time = document.getElementById("time").value;
+	var email = document.getElementById("email").value;
+    var emailReminder = document.getElementById("emailReminder").checked;
 
     if (!title || !description || !date || !time) {
-      alert("Please fill in all fields.");
-      return;
+	  showMessage("⚠️ Please fill in all fields.", "error");
+	  return;
     }
 
     var dateTimeString = date + " " + time;
@@ -138,30 +177,28 @@
     var currentTime = new Date();
     var timeDifference = scheduledTime - currentTime;
 
+
     if (timeDifference > 0) {
-      addReminder(title, description, dateTimeString, true); // Save to localStorage
-      scheduleNotification(title, description, timeDifference);
-    } else {
-      alert("The scheduled time has already passed.");
-    }
+	  addReminder(title, description, dateTimeString, emailReminder, email, true);
+	  scheduleNotification(title, description, timeDifference, emailReminder, email);
+	  showMessage("✅ Reminder scheduled successfully!", "success");
+	} else {
+	  showMessage("⚠️ The scheduled time has already passed.", "error");
+	}
   }
 
-  function addReminder(title, description, dateTimeString, saveToStorage) {
+  function addReminder(title, description, dateTimeString, emailReminder, email, saveToStorage) {
     var tableBody = document.getElementById("reminderTableBody");
 
     var row = tableBody.insertRow();
-    var titleCell = row.insertCell(0);
-    var descriptionCell = row.insertCell(1);
-    var dateTimeCell = row.insertCell(2);
-    var actionCell = row.insertCell(3);
-
-    titleCell.innerHTML = title;
-    descriptionCell.innerHTML = description;
-    dateTimeCell.innerHTML = dateTimeString;
-    actionCell.innerHTML = `<button onclick="deleteReminder(this, '${title}');">Delete</button>`;
+    row.insertCell(0).innerHTML = title;
+    row.insertCell(1).innerHTML = description;
+    row.insertCell(2).innerHTML = dateTimeString;
+    row.insertCell(3).innerHTML = emailReminder ? `✅ (${email})` : "❌";
+    row.insertCell(4).innerHTML = `<button onclick="deleteReminder(this, '${title}');">Delete</button>`;
 
     if (saveToStorage) {
-      saveReminderToStorage(title, description, dateTimeString);
+      saveReminderToStorage(title, description, dateTimeString, emailReminder, email);
     }
   }
 
@@ -174,11 +211,12 @@
     row.remove();
 
     removeReminderFromStorage(title);
+    showMessage("🗑️ Reminder deleted successfully!", "success");
   }
 
-  function saveReminderToStorage(title, description, dateTimeString) {
+  function saveReminderToStorage(title, description, dateTimeString, emailReminder, email) {
     var reminders = JSON.parse(localStorage.getItem("reminders")) || [];
-    reminders.push({ title, description, dateTimeString });
+    reminders.push({ title, description, dateTimeString, emailReminder, email });
     localStorage.setItem("reminders", JSON.stringify(reminders));
   }
 
@@ -191,26 +229,29 @@
   function loadReminders() {
     var reminders = JSON.parse(localStorage.getItem("reminders")) || [];
     reminders.forEach(reminder => {
-      addReminder(reminder.title, reminder.description, reminder.dateTimeString, false);
-      rescheduleNotification(reminder.title, reminder.description, reminder.dateTimeString);
+      addReminder(reminder.title, reminder.description, reminder.dateTimeString, reminder.emailReminder, reminder.email, false);
+      rescheduleNotification(reminder.title, reminder.description, reminder.dateTimeString, reminder.emailReminder, reminder.email);
     });
   }
 
-  function scheduleNotification(title, description, timeDifference) {
+  function scheduleNotification(title, description, timeDifference, emailReminder, email) {
     var timeoutId = setTimeout(function () {
       showNotification(title, description);
+      if (emailReminder) {
+        sendEmailReminder(title, description, email);
+      }
     }, timeDifference);
 
     timeoutIds.push(timeoutId);
   }
 
-  function rescheduleNotification(title, description, dateTimeString) {
+  function rescheduleNotification(title, description, dateTimeString, emailReminder, email) {
     var scheduledTime = new Date(dateTimeString);
     var currentTime = new Date();
     var timeDifference = scheduledTime - currentTime;
 
     if (timeDifference > 0) {
-      scheduleNotification(title, description, timeDifference);
+      scheduleNotification(title, description, timeDifference, emailReminder, email);
     }
   }
 
@@ -232,6 +273,25 @@
         }
       });
     }
+  }
+
+  function sendEmailReminder(title, description, email) {
+	console.log(`Sending email to: ${email}`);
+	fetch("/send-reminder-email/", {
+		method: "POST",
+		headers: { 
+		  "Content-Type": "application/json",
+		  "X-CSRFToken": getCSRFToken()  // Add CSRF Token
+		},
+		body: JSON.stringify({ title, description, email })
+	  });
+	  
+	  // Helper function to get CSRF Token
+	  function getCSRFToken() {
+		return document.cookie.split('; ')
+		  .find(row => row.startsWith('csrftoken'))
+		  ?.split('=')[1];
+	  }
   }
 </script>
 {% endblock main %}
