@@ -15,8 +15,8 @@
     </style>
 </head>
 <body>
-    <a id="back-button" href="{% url 'library_view' %}" style="margin-left: 10px;">Back to Library</a>
     <h1 class="flashcard_set_title">{{ flashcard_set.title }}</h1>
+    <a id="back-button" href="{% url 'library_view' %}" style="margin-left: 10px;">Back to Library</a>
     <div class="set_content">
         <p>{{ flashcard_set.description }}</p>
         <p>Category: {{ flashcard_set.category.name }}</p>
@@ -24,7 +24,7 @@
         <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
     </div>
     
-    <h2 class="flashcards_set_details">Flashcards in this Set:</h2>
+    <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/30</h2>
     
     <!-- Flashcard list -->
 <ul class="flashcards_list">

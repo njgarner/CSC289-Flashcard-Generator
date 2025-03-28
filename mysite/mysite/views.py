@@ -75,13 +75,16 @@ def library_view(request):
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
     favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
+    set_count = FlashcardSet.objects.filter(user=request.user).count()
+
     # Get a list of favorited set IDs for easy lookup
     favorite_set_ids = set(favorite.set.set_id for favorite in favorites)
 
     return render(request, 'library.html', {
         'flashcard_sets': flashcard_sets,
         'favorites': favorites,
-        'favorite_set_ids': favorite_set_ids  # Pass the IDs to the template
+        'favorite_set_ids': favorite_set_ids,  # Pass the IDs to the template
+        'set_count': set_count, # Counts the amount of sets that a user currently has
     })
 
 @login_required  # About Us page
@@ -285,6 +288,11 @@ def delete_account(request):
 def create_set(request):
  # Get favorite sets for the current user
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    set_count = FlashcardSet.objects.filter(user=request.user).count()
+
+    if set_count >= 30:
+        messages.error(request, "Already reached max number of sets.")
+        return redirect('library_view')
 
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -309,6 +317,7 @@ def create_set(request):
 def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+
     return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
 
 @login_required  # Delete a set
@@ -349,7 +358,15 @@ def create_flashcard(request):
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     if request.method == 'POST':
-        if form.is_valid():
+        selected_set_id = request.POST.get('flashcard_set') # The id of the currently selected set in the Set Select Field
+        selected_set = get_object_or_404(FlashcardSet, set_id=selected_set_id) # The Selected Set from the Set Select Field
+        card_count = Flashcard.objects.filter(flashcard_set=selected_set).count() # Counts the number of cards in selected set before submitting form
+        print(f'Set ID= {selected_set_id} Card Count: {card_count}') # For testing
+
+        
+        if card_count >= 30: # Prevents the creation of a flashcard if the selected set already has 30 or more cards
+            messages.error(request, "You have already reached the max amount of cards for this set. Please choose another set to add this card to.")
+        elif form.is_valid():
             flashcard_set = form.cleaned_data['flashcard_set']
             
             # Ensure the flashcard set belongs to the logged-in user
@@ -369,11 +386,13 @@ def create_flashcard(request):
         'favorite_sets': favorite_sets # Pass favorite sets to the template
     })
 
-@login_required  # View flashcard deck details
+@login_required  # View flashcard Set details
 def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+
+    card_count = flashcards.count()
+    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards, 'card_count': card_count})
 
 @login_required  # Delete a flashcard
 def delete_flashcard(request, card_id):
