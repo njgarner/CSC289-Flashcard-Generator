@@ -36,9 +36,23 @@
                     {% endif %}
                 </button>
             </form>
-            <button id="study">Study</button>
+
+            <!-- Review Button: Disable or Show Only If `last_viewed_set` Exists -->
+            <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get" style="display: inline;">
+                {% if last_viewed_set %}
+                    <button type="submit">Review
+                        {% if reviewable_cards_count > 0 %}
+                            <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
+                        {% else %}
+                            <span class="card-count">(No reviews available)</span>
+                        {% endif %}
+                    </button>
+                {% else %}
+                    <button type="button" disabled>Review</button>
+                {% endif %}
+            </form>
+            
         </div>
-        
 
           <div class="flashcard patrick-hand-regular" id="flashcard">
               {% if flashcards %}
@@ -58,7 +72,6 @@
           <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
       </footer>
   </div>
-
 
   <!-- JavaScript to handle set selection, flashcard flipping, and navigation -->
   <script>

@@ -24,31 +24,29 @@ import json
 from django.shortcuts import render
 from .models import Flashcard, FlashcardSet
 
-@login_required  # Home page
-def home(request):
-    # Get favorite sets for the current user
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related("set")
+from django.utils import timezone
 
-    # Get Flashcard sets for the current user
+@login_required
+def home(request):
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     # Retrieve the last viewed set from session
     last_viewed_set_id = request.session.get('last_viewed_set_id', None)
     last_viewed_set = None
-    flashcards = []
-    remaining_cards = 0  # Initialize the number of remaining cards
+    flashcards = Flashcard.objects.none()  # Start with an empty queryset, not a list
 
     if last_viewed_set_id:
-        # Get the last viewed set for the current user
         last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first()
         if last_viewed_set:
-            # Get the flashcards for the last viewed set
-            flashcards = last_viewed_set.flashcard_set.all()
+            flashcards = last_viewed_set.flashcard_set.all()  # This is a queryset
 
-            # Calculate the number of unlearned cards
-            remaining_cards = flashcards.filter(is_learned=False).count()
+    # Count the flashcards that are ready for review (next_review_date is <= now)
+    reviewable_cards = flashcards.filter(next_review_date__lte=timezone.now())  # Adjusted to filter properly
 
-    # Render the home page with all necessary context
+    # Count the number of flashcards with is_learned=False
+    remaining_cards = flashcards.filter(is_learned=False).count()
+
     return render(
         request,
         "home.html",
@@ -56,10 +54,12 @@ def home(request):
             "flashcard_sets": flashcard_sets,
             "favorite_sets": favorite_sets,
             "last_viewed_set": last_viewed_set,
-            "flashcards": flashcards,  # Pass the flashcards of the last viewed set
-            "remaining_cards": remaining_cards,  # Pass the count of unlearned flashcards
+            "flashcards": flashcards,
+            "remaining_cards": remaining_cards,
+            "reviewable_cards_count": reviewable_cards.count(),  # Update count
         }
     )
+
 
 @login_required
 def update_last_viewed_set(request):
@@ -225,29 +225,50 @@ def create_set(request):
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     if request.method == 'POST':
-        title, category_name, description = (
-            request.POST.get('title'), 
-            request.POST.get('category'), 
-            request.POST.get('description')
-        )
-        
-        if title and category_name:
-            category, _ = Category.objects.get_or_create(name=category_name)
-            FlashcardSet.objects.create(
-                title=title, category=category, description=description, user=request.user
-            )
-            return redirect('library_view')
-        messages.error(request, "Please fill in all required fields.")
+        title = request.POST.get('title')
+        category_name = request.POST.get('category')
+        description = request.POST.get('description')
 
+        # Validate if title and category are provided
+        if title and category_name:
+            # Create or get the Category object
+            category, created = Category.objects.get_or_create(name=category_name)
+
+            # Create a new FlashcardSet
+            FlashcardSet.objects.create(
+                title=title, 
+                category=category, 
+                description=description, 
+                user=request.user
+            )
+
+            # Redirect to library view after creating the set
+            return redirect('library_view')
+        
+        # Add error message if title or category is missing
+        messages.error(request, "Please fill in all required fields.")
+    
     return render(request, 'create_set.html', {
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
+
 
 @login_required  # View flashcard set details
 def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+
+    # Calculate time until next review for each flashcard
+    for flashcard in flashcards:
+        if flashcard.next_review_date:
+            time_remaining = flashcard.next_review_date - date.today()  # Time difference
+            flashcard.time_until_next_review = time_remaining
+
+    return render(
+        request,
+        'flashcard_set_detail.html',
+        {'flashcard_set': flashcard_set, 'flashcards': flashcards}
+    )
 
 @login_required  # Delete a set
 def delete_set(request, set_id):
@@ -350,6 +371,9 @@ def study_view(request, set_id):
     # Get favorite sets for the current user
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
+    # Count the number of unlearned flashcards in the set
+    remaining_cards = flashcards.filter(is_learned=False).count()
+
     # Set the last viewed set in the session when entering the study page
     request.session['last_viewed_set_id'] = set_id
 
@@ -364,7 +388,9 @@ def study_view(request, set_id):
         "favorite_sets": favorite_sets,
         "flashcard_sets": flashcard_sets,
         "last_viewed_set": last_viewed_set,  # Pass last viewed set to the template
+        "remaining_cards": remaining_cards,  # Add unlearned flashcards count
     })
+
 
 def learn_view(request):
     set_id = request.GET.get('set_id')
@@ -385,6 +411,10 @@ def learn_view(request):
     })
 
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+from datetime import timedelta
+import json
+
 @csrf_exempt  # You may need to add this to bypass CSRF for AJAX requests (if not using CSRF token)
 def update_learned_flashcards(request):
     if request.method == "POST":
@@ -394,10 +424,103 @@ def update_learned_flashcards(request):
         # Update the flashcards with the provided IDs
         flashcards = Flashcard.objects.filter(card_id__in=flashcard_ids)
         
-        # Set is_learned to True for each flashcard
-        flashcards.update(is_learned=True)
+        # Set is_learned to True for each flashcard and set next_review_date to 2 minutes from now
+        flashcards.update(
+            is_learned=True,
+            next_review_date=timezone.now() + timedelta(minutes=2)  # Set review time to 2 minutes later
+        )
         
         # Return success response
         return JsonResponse({"success": True})
 
     return JsonResponse({"success": False}, status=400)
+
+
+import random
+from datetime import date
+from django.utils import timezone
+from django.utils import timezone
+
+@login_required
+def review_view(request, set_id):
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
+
+    # Debugging: Print the flashcard_set details
+    print(f"Flashcard Set: {flashcard_set.title}, ID: {flashcard_set.set_id}")
+
+    # Fetch all flashcards for the set that are learned
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set, is_learned=True)
+
+    # Debugging: Log each learned flashcard and its next_review_date
+    for flashcard in flashcards:
+        print(f"Flashcard ID: {flashcard.card_id}, Next Review Date: {flashcard.next_review_date}")
+
+    # Filter flashcards that are due for review (next_review_date <= now)
+    reviewable_cards = flashcards.filter(next_review_date__lte=timezone.now())
+
+    # Debugging: Log the filtered reviewable flashcards
+    print(f"Reviewable cards: {reviewable_cards}")  # This will show the cards that are ready for review
+
+    return render(request, "review.html", {"flashcards": reviewable_cards})
+
+
+
+
+from datetime import timedelta
+@login_required
+def update_flashcard_level(request, card_id, action):
+    if request.method == 'POST':
+        flashcard = get_object_or_404(Flashcard, card_id=card_id, flashcard_set__user=request.user)
+
+        # Get the new level from the request body (the action indicates whether it's a promotion or demotion)
+        data = json.loads(request.body)
+        new_level = data.get('level')
+
+        # Define the review times for each level (in minutes)
+        review_times = {
+            1: timedelta(minutes=5),    # Level 1: 5 minutes
+            2: timedelta(minutes=10),   # Level 2: 10 minutes
+            3: timedelta(minutes=30),   # Level 3: 30 minutes
+            4: timedelta(hours=1),      # Level 4: 1 hour
+            5: timedelta(days=1)        # Level 5: 1 day
+        }
+
+        # Calculate the next review date based on the new level
+        if new_level in review_times:
+            next_review_date = timezone.now() + review_times[new_level]
+            flashcard.level = new_level
+            flashcard.next_review_date = next_review_date
+            flashcard.save()
+
+            return JsonResponse({"status": "success", "new_level": new_level, "next_review_date": next_review_date})
+
+        else:
+            return JsonResponse({"status": "error", "message": "Invalid level"}, status=400)
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+@login_required
+def mark_flashcard_as_learned(request, card_id):
+    if request.method == 'POST':
+        flashcard = get_object_or_404(Flashcard, card_id=card_id, flashcard_set__user=request.user)
+        
+        # Mark the flashcard as learned
+        flashcard.is_learned = True
+        flashcard.level = 0  # Set level to 0 when learned
+        flashcard.next_review_date = timezone.now() + timedelta(minutes=1)  # Set review time to 1 minute later
+        flashcard.save()
+        
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "error"}, status=400)
+
+@csrf_exempt
+def update_flashcard_review(request, card_id):
+    if request.method == "POST":
+        flashcard = Flashcard.objects.filter(card_id=card_id).first()
+        if flashcard:
+            # Increment the level or change review time depending on if the card was correct or not
+            flashcard.next_review_date = timezone.now() + timedelta(minutes=5)  # Example: Add 5 mins for the next review
+            flashcard.save()
+
+            return JsonResponse({"status": "success", "next_review_date": flashcard.next_review_date})
+        return JsonResponse({"status": "error", "message": "Flashcard not found."}, status=404)
+
