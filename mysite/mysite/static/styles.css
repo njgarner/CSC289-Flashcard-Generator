@@ -350,9 +350,12 @@ body {
 }
 
 .form-content input, .form-content textarea { /* Styles the input and textarea objects */
+    font-size: 20px !important;
     border-radius: 5px;
     border-color:#00A682;
     border-style: solid;
+    height: 100px;
+    width: 600px;
 }
 
 .form-content button { /* Styles the buttons for the form-content class */
