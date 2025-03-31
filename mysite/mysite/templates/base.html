@@ -15,6 +15,17 @@
     <title>{% block title %}Home - Flashcard Generator{% endblock title %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,es,fr,de,it,pt,zh-CN,ja,ko,ru', // Add languages you want to support
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
     <!-- Top Bar Section -->
@@ -22,6 +33,7 @@
         <div class="top-bar">
             <a href="{% url 'home' %}" style="color:black" class="flashlite-title">FlashLite</a>
             <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
+            <div id="google_translate_element" style="display: inline-block; margin-left: 20px;"></div>
             <div class="login-content">
                 <!-- LogOut -->
                 {% if user.is_authenticated %}
