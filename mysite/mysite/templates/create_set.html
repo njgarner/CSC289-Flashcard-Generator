@@ -1,29 +1,34 @@
 {% extends 'base.html' %}
- 
-   {% block title %}Create a Set{% endblock title %}
- 
- 
- {% block main %}
- <h2 class="page-title">Create a Set</h2>
- <div class="content"><!--Provides styling for the content, makes the content go in the middle of space-->
-     <div class="form-content"> <!--Provides styling for the form-->
-     <!-- Display the form -->
-     <form method="POST">
-         {% csrf_token %}
-         
-         <label for="title">Set Name</label>
-         <input type="text" name="title" id="title" required><br><br>
-         
-         <label for="category">Category</label>
-         <input type="text" name="category" id="category" required><br><br>
-         
-         <label for="description">Description</label>
-         <textarea name="description" id="description"></textarea><br><br>
- 
-         <button class="button" type="submit">Save Set</button>
-     </form>
-     <a href="{% url 'library_view' %}"  id="back-button">&#8592; Go Back</a>
-     </div>
- </div>
- {% endblock main %}
- 
+
+{% block title %}Create a Set{% endblock title %}
+
+{% block main %}
+<h2 class="page-title">Create a Set</h2>
+<div class="content">
+    <div class="form-content">
+        <!-- Display the form -->
+        <form method="POST">
+            {% csrf_token %}
+            
+            <label for="title">Set Name</label>
+            <input type="text" name="title" id="title" required><br><br>
+            
+            <label for="category">Category</label>
+            <input type="text" name="category" id="category" required><br><br>
+            
+            <label for="description">Description</label>
+            <textarea name="description" id="description"></textarea><br><br>
+
+            <!-- Public/Private selection -->
+            <label for="is_shared">Visibility</label><br>
+            <input type="radio" id="public" name="is_shared" value="on" checked>
+            <label for="public">Public</label><br>
+            <input type="radio" id="private" name="is_shared" value="off">
+            <label for="private">Private</label><br><br>
+
+            <button class="button" type="submit">Save Set</button>
+        </form>
+        <a href="{% url 'library_view' %}" id="back-button">&#8592; Go Back</a>
+    </div>
+</div>
+{% endblock main %}

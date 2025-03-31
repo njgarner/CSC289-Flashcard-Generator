@@ -350,12 +350,9 @@ body {
 }
 
 .form-content input, .form-content textarea { /* Styles the input and textarea objects */
-    font-size: 20px !important;
     border-radius: 5px;
     border-color:#00A682;
     border-style: solid;
-    height: 100px;
-    width: 600px;
 }
 
 .form-content button { /* Styles the buttons for the form-content class */
@@ -529,67 +526,6 @@ hr {
     border-color: #008B5C; /* Darker border on hover */
 }
 
-/* form-content class style */
-.form-content { /* Centers elements to be in the middle of the page */
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-}
-
-.form-content label { /* Styles the labels for the forms */
-    font-family: varela round;
-    font-size: 20px; 
-    display: block; /* Allows the labels to be located above the inputs */
-}
-
-.form-content input, .form-content textarea { /* Styles the input and textarea objects */
-    border-radius: 5px;
-    border-color:#00A682;
-    border-style: solid;
-}
-
-.form-content button { /* Styles the buttons for the form-content class */
-    padding: 10px;
-    font-family: 'Varela Round', sans-serif; /* Font family */
-    font-size: 20px;           /* Font size */
-    color: black;              /* Text color */
-    background-color: #84F3DA; /* Background color */
-    border: 2px solid #00A682; /* Border color */
-    margin-bottom: 20px;       /* Space between buttons */
-    border-radius: 5px;        /* Rounded corners */
-    cursor: pointer;          /* Change cursor to pointer */
-    transition: background-color 0.3s ease; /* Smooth background transition */
-}
-
-/* Hover effect for form buttons */
-.form-content button:hover {
-    background-color: #00A682; /* Darker background on hover */
-    color: white; /* Text color changes to white */
-    border-color: #008B5C; /* Darker border on hover */
-}
-
-/* Style for back buttons */
-#back-button {
-    padding: 10px;
-    font-family: 'Varela Round', sans-serif; /* Font family */
-    font-size: 20px;           /* Font size */
-    color: black;              /* Text color */
-    background-color: #9ebfe9; /* Background color */
-    border: 2px solid #354c99; /* Border color */
-    margin-bottom: 20px;       /* Space between buttons */
-    border-radius: 5px;        /* Rounded corners */
-    cursor: pointer;          /* Change cursor to pointer */
-    transition: background-color 0.3s ease; /* Smooth background transition */
-    text-decoration: none;
-}
-
-/* Hover effect for back buttons */
-#back-button:hover {
-    background-color: #5e8dcc; /* Darker background on hover */
-    color: white; /* Text color changes to white */
-    border-color: #31478f; /* Darker border on hover */
-}
-
 /* Add this CSS to ensure the hearts are centered inside the button */
 .favorite-btn {
     font-size: 24px; /* Adjust the size of the heart */
@@ -644,6 +580,135 @@ hr {
 .delete-btn:hover {
     background-color: #C62828; /* Darker red on hover */
     color: white;
+}
+.flashcard_set_title {
+    background-color: #84F3DA;
+    background-image: url('https://www.pngkey.com/png/full/271-2716327_overlay-pattern-png.png'); /* Path to your image */
+    border: 2px solid #00ffc3;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    top: 0; /* Ensure it's at the very top */
+    left: 0;
+    width: 90%;
+    font-size: 30px;
+    font-family: 'Varela Round', sans-serif;
+    padding: 10px; /* Optional: Adjust padding for spacing */
+}
+
+.set_content {
+    font-family: 'Varela round', sans-serif;
+    font-size: 20px;
+    padding: 10px; /* Optional padding */
+}
+
+.flashcards_set_details {
+    background-color: transparent;
+    border: 3px solid #00ffc3;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    font-size: 25px;
+    font-family: 'Varela Round', sans-serif;
+    padding: 10px; /* Optional: Adjust padding for spacing */
+}
+.flashcards_list {
+    font-size: 20px;
+    font-family: 'Varela Round', sans-serif;
+}
+/* Style for the Delete button */
+.delete-btn-cards {
+    padding: 5px 10px; /* Reduce padding to make the button smaller */
+    background-color: #F44336; /* Red background */
+    color: black;
+    font-size: 20px; /* Keep the font size the same */
+    border-radius: 5px;
+    border: 2px solid #D32F2F;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 30px; /* Smaller height */
+    width: 80px; /* Smaller width */
+    display: flex; /* Use flexbox to center content */
+    align-items: center; /* Vertically center the text */
+    justify-content: center; /* Horizontally center the text */
+}
+
+/* Hover effect for the Delete button */
+.delete-btn-cards:hover {
+    background-color: #C62828; /* Darker red on hover */
+    color: white;
+}
+
+/* form-content class style */
+.form-content { /* Centers elements to be in the middle of the page */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.form-content label { /* Styles the labels for the forms */
+    font-family: varela round;
+    font-size: 20px; 
+    display: block; /* Allows the labels to be located above the inputs */
+}
+
+.form-content input, .form-content textarea { /* Styles the input and textarea objects */
+    font-size: 20px;
+    border-radius: 5px;
+    border-color:#00A682;
+    border-style: solid;
+    height: 100px;
+    width: 600px;
+}
+
+.form-content button { /* Styles the buttons for the form-content class */
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for form buttons */
+.form-content button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Style for back buttons */
+#back-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #9ebfe9; /* Background color */
+    border: 2px solid #354c99; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+    text-decoration: none;
+}
+
+/* Hover effect for back buttons */
+#back-button:hover {
+    background-color: #5e8dcc; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #31478f; /* Darker border on hover */
 }
 
 /* Style for the Tutorial button */

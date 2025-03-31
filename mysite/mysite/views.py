@@ -181,29 +181,39 @@ def delete_account(request):
 
 # ======================== Flashcard set Management ======================== #
 
-@login_required  # Create a new set
+@login_required
 def create_set(request):
     # Get favorite sets for the current user
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     if request.method == 'POST':
-        title, category_name, description = (
-            request.POST.get('title'), 
-            request.POST.get('category'), 
-            request.POST.get('description')
-        )
+        title = request.POST.get('title')
+        category_name = request.POST.get('category')
+        description = request.POST.get('description')
         
+        # Determine whether the set should be public or private
+        is_shared = request.POST.get('is_shared', 'off') == 'on'  # If 'on', set as shared (public)
+
         if title and category_name:
             category, _ = Category.objects.get_or_create(name=category_name)
+            
+            # Create a new FlashcardSet
             FlashcardSet.objects.create(
-                title=title, category=category, description=description, user=request.user
+                title=title,
+                category=category,
+                description=description,
+                user=request.user,
+                is_shared=is_shared  # Save the visibility status (public or private)
             )
-            return redirect('library_view')
-        messages.error(request, "Please fill in all required fields.")
 
+            return redirect('library_view')  # Redirect after saving the set
+        
+        messages.error(request, "Please fill in all required fields.")
+    
     return render(request, 'create_set.html', {
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
+
 
 @login_required  # View flashcard set details
 def view_flashcard_set(request, set_id):
@@ -307,8 +317,23 @@ def study_view(request, set_id):
     })
 
 # ======================== Search ======================== #
-@login_required # Search results page
 def search_results(request):
     query = request.GET.get('query', '')
-    flashcards = Flashcard.objects.filter(title__icontains=query)
-    return render(request, 'search_results.html', {'flashcards': flashcards, 'query': query})
+    
+    if query:
+        flashcard_sets = FlashcardSet.objects.filter(title__icontains=query)
+    else:
+        flashcard_sets = FlashcardSet.objects.none()
+    
+    return render(request, 'search_results.html', {
+        'flashcard_sets': flashcard_sets,
+        'query': query
+    })
+
+def world_decks(request):
+    # Fetch public flashcard sets
+    public_sets = FlashcardSet.objects.filter(is_shared=True)
+
+    return render(request, 'world_decks.html', {
+        'flashcard_sets': public_sets
+    })
