@@ -642,3 +642,9 @@ hr {
     background-color: #C62828; /* Darker red on hover */
     color: white;
 }
+
+
+#google_translate_element {
+    display: inline-block;
+    margin-left: 20px;
+}
