@@ -38,28 +38,41 @@
     </header>
 
     <!-- Vertical Navigation Bar -->
-    <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a>
-        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
-        <a href="{% url 'library_view' %}">Library</a>
-        <a href="{% url 'settings' %}">Settings</a>
-        
-        <div class="dropdown">
-            <button class="dropbtn">Favorite Sets</button>
-            <div class="dropdown-content">
-                {% for favorite in favorite_sets %}
-                    <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
-                {% empty %}
-                    <p>No favorite sets.</p>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- About Us Page -->
-        <div class="contact">
-            <a href="{% url 'about' %}">Contact us!</a>
+    <!-- Vertical Navigation Bar -->
+<div class="nav-bar">
+    <a href="{% url 'home' %}">
+        <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon"> Study Time
+    </a>
+    <a href="{% url 'create_flashcard' %}">
+        <img src="{% static 'anvil.png' %}" alt="Anvil Icon"> Create Flashcards
+    </a>
+    <a href="{% url 'library_view' %}">
+        <img src="{% static 'stackofbooks.png' %}" alt="Stack of Books Icon"> Library
+    </a>
+    <a href="{% url 'settings' %}">
+        <img src="{% static 'gear.png' %}" alt="Gear Icon"> Settings
+    </a>
+    
+    <div class="dropdown">
+        <button class="dropbtn">
+            <img src="{% static 'star.png' %}" alt="Star Icon"> Favorite Sets
+        </button>
+        <div class="dropdown-content">
+            {% for favorite in favorite_sets %}
+                <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
+            {% empty %}
+                <p>No favorite sets.</p>
+            {% endfor %}
         </div>
     </div>
+
+    <!-- About Us Page -->
+    <div class="contact">
+        <a href="{% url 'about' %}">
+            <img src="{% static 'mail.png' %}" alt="Mail Icon"> Contact us!
+        </a>
+    </div>
+</div>
 
     <!-- Main content area (this will be populated by other templates) -->
     {% block main %}
