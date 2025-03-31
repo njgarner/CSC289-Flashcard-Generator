@@ -84,6 +84,54 @@ def change_password(request):
 def password_change_done(request):
     return render(request, 'change-password/password_change_done.html')
 
+def add_sample_decks_and_cards(user):
+    sample_decks = [
+        {
+            "title": "Country Capitals",
+            "category": "Geography",
+            "description": "A random assortment of countries and their capitals.",
+            "cards": [
+                {"question": "What is the capital of France?", "answer": "Paris"},
+                {"question": "What is the capital of Sweden?", "answer": "Stockholm"},
+                {"question": "What is the capital of Saudi Arabia?", "answer": "Riyadh"},
+                {"question": "What is the capital of Japan?", "answer": "Tokyo"},
+                {"question": "What is the capital of Mexico?", "answer": "Mexico City"},
+                {"question": "What is the capital of Canada?", "answer": "Ottawa"},
+                {"question": "What is the capital of China?", "answer": "Beijing"},
+                {"question": "What is the capital of Egypt?", "answer": "Cairo"}
+            ]
+        },
+        {
+            "title": "Great Battles",
+            "category": "History",
+            "description": "A random assortment of battles and the wars they are from.",
+            "cards": [
+                {"question": "During which war was the battle of Iwo Jima fought?", "answer": "World War II"},
+                {"question": "During which war was the battle of Gettysburg fought?", "answer": "The American Civil War"},
+                {"question": "During which war was the battle of Trenton fought?", "answer": "The American Revolutionary War"},
+                {"question": "During which war was the battle of Verdun fought?", "answer": "World War I"},
+                {"question": "During which war was the battle of Thermopylae fought?", "answer": "The Greco-Persian Wars"},
+                {"question": "During which war was the battle of San Juan Hill fought?", "answer": "The Spanish-American War"}
+            ]
+        },
+    ]
+
+    for deck in sample_decks:
+        category, _ = Category.objects.get_or_create(name=deck["category"])
+        flashcard_set = FlashcardSet.objects.create(
+            title=deck["title"], 
+            category=category, 
+            description=deck["description"], 
+            user=user
+        )
+        for card in deck["cards"]:
+            Flashcard.objects.create(
+                flashcard_set=flashcard_set,
+                question=card["question"],
+                answer=card["answer"],
+                user=user
+            )
+
 def login_user(request):  # Login page
     return render(request, 'login.html')
 
@@ -111,6 +159,9 @@ def signup_user(request):  # Signup page with email verification
             password=make_password(password),
             is_active=False
         )
+
+        # Add sample decks for the new user
+        add_sample_decks(user)
 
         # Email verification setup
         token = default_token_generator.make_token(user)
