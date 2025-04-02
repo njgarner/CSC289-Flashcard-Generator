@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User  # Import the built-in User model
+from datetime import timedelta, date, datetime
 
 class FlashcardSet(models.Model):
     set_id = models.AutoField(primary_key=True)
@@ -20,6 +21,25 @@ class Flashcard(models.Model):
     answer = models.TextField(null=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_learned = models.BooleanField(default=False)
+    level = models.IntegerField(default=1)  # Flashcard's current review level
+    next_review_date = models.DateTimeField(default=datetime.now)
+
+    def promote(self):
+        """Move the flashcard to the next level and update review date."""
+        if self.level < 5:
+            self.level += 1
+
+        # Define review intervals based on levels
+        review_intervals = [1, 2, 4, 7, 14]  # Days until next review
+        self.next_review_date = date.today() + timedelta(days=review_intervals[self.level - 1])
+        self.save()
+
+    def demote(self):
+        """Reset the flashcard to level 1 if answered incorrectly."""
+        self.level = 1
+        self.next_review_date = date.today() + timedelta(days=1)
+        self.save()
 
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
