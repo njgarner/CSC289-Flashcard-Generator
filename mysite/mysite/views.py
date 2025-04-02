@@ -45,8 +45,8 @@ def library_view(request):
         'favorite_set_ids': favorite_set_ids  # Pass the IDs to the template
     })
 @login_required
-def world_decks(request):
-    return render(request, 'world_decks.html')
+def world_sets(request):
+    return render(request, 'world_sets.html')
 
 @login_required  # About Us page
 def about(request):
@@ -343,10 +343,10 @@ def search_results(request):
         'query': query
     })
 
-def world_decks(request):
+def world_sets(request):
     # Fetch public flashcard sets
     public_sets = FlashcardSet.objects.filter(is_shared=True)
 
-    return render(request, 'world_decks.html', {
+    return render(request, 'world_sets.html', {
         'flashcard_sets': public_sets
     })
