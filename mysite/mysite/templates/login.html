@@ -7,7 +7,7 @@
 <body>
 <header>
     <div class="navigation-div"></div>
-    <h1>Flashlite</h1>
+    <img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
 </header>
 <div class="auth-div"><br><br>
     <h2 id="auth-heading">Login</h2><br>
@@ -31,6 +31,12 @@
             placeholder="Enter username" value="{{ username|default:'' }}"><br><br>
         <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
         <button type="submit" class="btn btn-success">Login</button><br><br><br>
+    </form>
+
+    <!-- Guest Login Button -->
+    <form method="POST" action="{% url 'guest_login' %}" class="form-group">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary">Continue as Guest</button>
     </form>
 
     <!-- Links -->
