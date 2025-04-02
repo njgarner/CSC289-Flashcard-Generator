@@ -15,6 +15,16 @@
     <title>{% block title %}Home - Flashcard Generator{% endblock title %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,es,fr,de,it,pt,zh-CN,ja,ko,ru', // Add languages you want to support
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
     <!-- Top Bar Section -->
@@ -22,6 +32,7 @@
         <div class="top-bar">
             <a href="{% url 'settings' %}" style="color:black" class="flashlite-title">{{ user|safe }}</a>
             <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
+            <div id="google_translate_element" style="display: inline-block; margin-left: 20px;"></div>
             <div class="login-content">
                 <!-- LogOut -->
                 {% if user.is_authenticated %}
@@ -39,14 +50,26 @@
 
     <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a>
-        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
-        <a href="{% url 'library_view' %}">Library</a>
-        <a href="{% url 'settings' %}">Settings</a>
-        <a href="{% url 'schedule' %}">Schedule</a>
+        <a href="{% url 'home' %}">
+            <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon" class="icon"> Study Time
+        </a>
+        <a href="{% url 'create_flashcard' %}">
+            <img src="{% static 'anvil.png' %}" alt="Anvil Icon" class="icon"> Create Flashcards
+        </a>
+        <a href="{% url 'library_view' %}">
+            <img src="{% static 'stackofbooks.png' %}" alt="Stack of Books Icon" class="icon"> Library
+        </a>
+        <a href="{% url 'settings' %}">
+            <img src="{% static 'gears.png' %}" alt="Gear Icon" class="icon"> Settings
+        </a>
+        <a href="{% url 'schedule' %}">
+            <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Schedule
+        </a>
         
         <div class="dropdown">
-            <button class="dropbtn">Favorite Sets</button>
+            <button class="dropbtn">
+                <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Favorite Sets
+            </button>
             <div class="dropdown-content">
                 {% for favorite in favorite_sets %}
                     <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
@@ -58,7 +81,9 @@
 
         <!-- About Us Page -->
         <div class="contact">
-            <a href="{% url 'about' %}">Contact us!</a>
+            <a href="{% url 'about' %}">
+                <img src="{% static 'mail.png' %}" alt="Mail Icon" class="icon"> Contact us!
+            </a>
         </div>
     </div>
 
@@ -71,6 +96,12 @@
     <script>
         let inactivityTimeout;
         let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
     
         function resetTimer() {
             clearTimeout(inactivityTimeout);
