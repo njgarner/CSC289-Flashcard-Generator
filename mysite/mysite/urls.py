@@ -23,6 +23,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("guest-login/", views.guest_login, name="guest_login"),
     path('login_user', views.login_user, name="login_user"),
     path('signup_user', views.signup_user, name="signup_user"),
     path("user_login/", views.user_login, name="user_login"),
@@ -46,20 +47,20 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('delete_flashcard/<int:card_id>/', views.delete_flashcard, name='delete_flashcard'),
     path('edit_flashcard/<int:card_id>/', views.edit_flashcard, name='edit_flashcard'),
+    path('edit-set/<int:set_id>/', views.edit_set, name='edit_set'),
     path('logout/', LogoutView.as_view(next_page='login_user'), name="logout_user"),
     path('study/<int:set_id>/', views.study_view, name='study_view'),
     path('update_last_viewed_set/', views.update_last_viewed_set, name='update_last_viewed_set'),
+    path('update_last_viewed_set/', views.update_last_viewed_set, name='update_last_viewed_set'),
     path('learn/', views.learn_view, name='learn_view'),
     path('update_learned_flashcards/', views.update_learned_flashcards, name='update_learned_flashcards'),
-    path('flashcards/<int:set_id>/details/', views.get_flashcard_set_details, name='flashcard_set_details'),
+    path('review/<int:set_id>/', views.review_view, name='review_view'),
+    path('update_flashcard_level/<int:card_id>/<str:action>/', views.update_flashcard_level, name='update_flashcard_level'),
+    path('mark_flashcard_as_learned/<int:card_id>/', views.mark_flashcard_as_learned, name='mark_flashcard_as_learned'),
+    path('update_flashcard_review/<int:card_id>/', views.update_flashcard_review, name='update_flashcard_review'),
     path('change_password/', views.change_password, name='change_password'),
     path('password_change_done/', views.password_change_done, name='password_change_done'),
-    path('password_reset/', auth_views.PasswordResetView.as_view(
-        template_name='mysite/templates/registration/password_reset_form.html',
-        email_template_name='password_reset_email.html',
-        subject_template_name='registration/password_reset_subject.txt',
-        success_url='/password_reset_done/'
-    ), name='password_reset'),
+    path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'), 
     path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(
         template_name='registration/password_reset_done.html'
     ), name='password_reset_done'),
