@@ -27,25 +27,28 @@
         <!-- Signup Form -->
         <form method="POST" action="{% url 'signup_user' %}">
             {% csrf_token %}
-            
+        
             <label for="username-input">Username:</label>
             <input type="text" id="username-input" name="username" minlength="6" maxlength="30" required 
                 placeholder="Enter username" value="{{ username|default:'' }}"><br><br>
-            
+        
             <label for="email-input">Email:</label>
             <input type="email" id="email-input" name="email" required 
                 placeholder="Enter email" value="{{ email|default:'' }}"><br><br>
-            
+        
             <label for="password-input">Password:</label>
-            <input type="password" id="password-input" name="password" minlength="8" required placeholder="Enter password"><br><br>
-            
-            <label for="role">Choose your role:</label><br>
-            <select id="role" name="role" required>
-                <option value="student" {% if role == "student" %}selected{% endif %}>Student</option>
-                <option value="instructor" {% if role == "instructor" %}selected{% endif %}>Instructor</option>
+            <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
+        
+            <label for="password-confirm-input">Confirm Password:</label>
+            <input type="password" id="password-confirm-input" name="password_confirm" required 
+                placeholder="Confirm password"><br><br>
+
+            <label for="role-input">Role:</label>
+            <select id="role-input" name="role" required>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
             </select><br><br>
-            
-            <!-- Submit Button -->
+        
             <button type="submit">Sign Up</button>
         </form>
         
