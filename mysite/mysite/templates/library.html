@@ -13,6 +13,18 @@
     <button class="tutorial-btn" data-set-id="library-tutorial">?</button>
 
     <div class="content">
+        <!-- Success/Failure Message Display -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <p>Sets: {{ set_count }}/100</p>
+        <p>Favorite Sets: {{ favorite_count }}/100</p>
         <div class="flashcard-sets-list">
             <button class="add-box">
                 <a href="{% url 'create_set' %}">+</a>
@@ -42,7 +54,9 @@
                         <!-- Delete Flashcard Set Form -->
                         <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
                             {% csrf_token %}
-                            <button type="submit" class="delete-button">Delete</button>
+                            <button type="submit" class="delete-button">
+                                <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -50,17 +64,6 @@
                 <p>No flashcard sets created yet.</p>
             {% endfor %}
         </div>
-        
-        <!-- Success/Failure Message Display -->
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}
 
         <footer class="footer">
             <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
@@ -85,13 +88,6 @@
                 form.addEventListener("submit", confirmDeleteSet);
             });
         });
-    
-        // Automatically hide messages after 3 seconds
-        setTimeout(() => {
-            document.querySelectorAll(".messages .alert").forEach(alert => {
-                alert.style.display = "none";
-            });
-        }, 3000);
 
         var static_img1 = "{% static 'study_guide_answers.jpeg' %}";
         var static_img2 = "{% static 'study_guide.jpeg' %}";
