@@ -3,17 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
     <title>{{ flashcard_set.title }} - Details</title>
 </head>
 <body>
-    <h1>{{ flashcard_set.title }}</h1>
-    <p>{{ flashcard_set.description }}</p>
-    <p>Category: {{ flashcard_set.category.name }}</p>
-    <p>Created on: {{ flashcard_set.created_at }}</p>
-    <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
-
-    <h2>Flashcards in this Set:</h2>
-    <ul>
+    <a id="back-button" href="{% url 'library_view' %}" style="margin-left: 10px;">Back to Library</a>
+    <h1 class="flashcard_set_title">{{ flashcard_set.title }}</h1>
+    <div class="set_content">
+        <p>{{ flashcard_set.description }}</p>
+        <p>Category: {{ flashcard_set.category.name }}</p>
+        <p>Created on: {{ flashcard_set.created_at }}</p>
+        <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
+        <!-- Edit Visibility Form -->
+        <form method="POST">
+            {% csrf_token %}
+            <div class="radio-group" style="display: flex; align-items: center; justify-content: center; gap: 5px; padding-bottom: 15px;">
+                <input type="radio" id="public" style="height:40px; width:40px;" name="is_shared" value="on" {% if flashcard_set.is_shared %}checked{% endif %}>
+                <label for="public">Public</label><br>
+                <input type="radio" id="private" style="height:40px; width:40px;" name="is_shared" value="off" {% if not flashcard_set.is_shared %}checked{% endif %}>
+                <label for="private">Private</label><br><br>
+                <button class="button" type="submit" style="background-color: rgb(37, 197, 189);">Save Set</button>
+            </div>
+        </form>
+    </div>
+    
+    <h2 class="flashcards_set_details">Flashcards in this Set:</h2>
+    
+    <ul class="flashcards_list">
         {% for flashcard in flashcards %}
             <li>
                 <strong>Question:</strong> {{ flashcard.question }}<br>
@@ -22,7 +39,7 @@
                 <!-- Delete flashcard form -->
                 <form action="{% url 'delete_flashcard' flashcard.card_id %}" method="post">
                     {% csrf_token %}
-                    <button type="submit">Delete</button>
+                    <button type="submit" class="delete-btn-cards">Delete</button>
                 </form>
                 <br>
             </li>
@@ -31,6 +48,5 @@
         {% endfor %}
     </ul>
 
-    <a href="{% url 'library_view' %}">Back to Library</a>
 </body>
 </html>

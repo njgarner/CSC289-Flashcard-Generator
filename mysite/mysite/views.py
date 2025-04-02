@@ -263,11 +263,24 @@ def create_flashcard(request):
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
-@login_required  # View flashcard deck details
+@login_required  # View flashcard deck details and update visibility
 def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards})
+
+    if request.method == 'POST':
+        # Handle the visibility update (shared / not shared)
+        is_shared = request.POST.get('is_shared') == 'on'
+        flashcard_set.is_shared = is_shared
+        flashcard_set.save()
+
+        # After saving, redirect back to the same page to reflect the changes
+        return redirect('view_flashcard_set', set_id=set_id)
+
+    return render(request, 'flashcard_set_detail.html', {
+        'flashcard_set': flashcard_set,
+        'flashcards': flashcards
+    })
 
 @login_required  # Delete a flashcard
 def delete_flashcard(request, card_id):

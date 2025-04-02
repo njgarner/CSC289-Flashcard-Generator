@@ -4,7 +4,7 @@
 
 {% block main %}
 <h2 class="page-title">Create a Set</h2>
-<div class="content">
+<div class="content" style="padding-top: 10px;">
     <div class="form-content">
         <!-- Display the form -->
         <form method="POST">
@@ -18,14 +18,16 @@
             
             <label for="description">Description</label>
             <textarea name="description" id="description"></textarea><br><br>
-
-            <!-- Public/Private selection -->
-            <label for="is_shared">Visibility</label><br>
-            <input type="radio" id="public" name="is_shared" value="on" checked>
-            <label for="public">Public</label><br>
-            <input type="radio" id="private" name="is_shared" value="off">
-            <label for="private">Private</label><br><br>
-
+            <div class="shared-btn">
+                <!-- Public/Private selection -->
+                <label for="is_shared">Visibility</label>
+                <div class="radio-group" style="display: flex; align-items: center; justify-content: center; gap: 5px; padding-bottom: 15px;">
+                    <input type="radio" id="public" style="height:40px; width:40px;" name="is_shared" value="on" checked>
+                    <label for="public">Public</label><br>
+                    <input type="radio" id="private" style="height:40px; width:40px;" name="is_shared" value="off">
+                    <label for="private">Private</label><br><br>
+                </div>
+            </div>
             <button class="button" type="submit">Save Set</button>
         </form>
         <a href="{% url 'library_view' %}" id="back-button">&#8592; Go Back</a>
