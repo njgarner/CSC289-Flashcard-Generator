@@ -4,6 +4,8 @@
 
 {% block main %}
 
+    {% load static %}
+
     <!-- Main Content Section -->
     <h1 class="page-title"><u>Settings</u></h1>
     <div class="content">
@@ -18,6 +20,12 @@
         <div class="setting-item">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
+        </div>
+
+         <!-- Role -->
+        <div class="setting-item">
+            <label for="role">Role</label>
+            <input type="text" id="role" name="role" value="{{ user.role|safe }}" readonly>
         </div>
 
         <hr>
@@ -39,7 +47,9 @@
 
         <!-- Delete Account -->
         <div class="setting-item">
-            <button class="delete-button" onclick="window.location.href='{% url 'account_delete' %}'">Delete Account</button>
+            <button class="delete-button" onclick="window.location.href='{% url 'account_delete' %}'">
+                <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon"> Delete Account
+            </button>
         </div>
 
         <!-- Terms and Conditions -->
@@ -49,3 +59,4 @@
         </footer>
     </div>
 {% endblock main %}
+
