@@ -13,6 +13,15 @@
   <button class="tutorial-btn" data-set-id="home-tutorial">?</button>
 
   <div class="content">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
        <div class="flashcard-display">
           <!-- Displays the set selector, users will use this to select the set of flashcard they want to study -->
           <div class="set-selector-dropdown">
@@ -46,7 +55,22 @@
                     {% endif %}
                 </button>
             </form>
-            <button id="study">Study</button>
+            
+             <!-- Review Button: Disable or Show Only If `last_viewed_set` Exists -->
+             <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get" style="display: inline;">
+                {% if last_viewed_set %}
+                    <button type="submit">Review
+                        {% if reviewable_cards_count > 0 %}
+                            <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
+                        {% else %}
+                            <span class="card-count">(No reviews available)</span>
+                        {% endif %}
+                    </button>
+                {% else %}
+                    <button type="button" disabled>Review</button>
+                {% endif %}
+            </form>
+
         </div>
         
             <!-- Flashcard Display Area -->
@@ -78,27 +102,27 @@
                 let setSelector = document.getElementById("set-selector");
                 let setSelectorContent = document.getElementById("set-selector-content");
                 setSelectorContent.style.display = "none";
-
+        
                 // If there is a last viewed set, auto-select it and update the button text
                 {% if last_viewed_set %}
                     setSelector.innerText = "{{ last_viewed_set.title }}" + " ▼"; // Update button text
                 {% endif %}
-
+        
                 setSelector.addEventListener("click", function () {
                     setSelectorContent.style.display = setSelectorContent.style.display === "block" ? "none" : "block";
                 });
-
+        
                 document.querySelectorAll("#set-selector-content a").forEach(link => {
                     link.addEventListener("click", function (event) {
                         event.preventDefault(); // Prevent immediate navigation
-
+        
                         let selectedSetTitle = this.innerText;
                         let selectedSetId = this.getAttribute("data-set-id");
                         let selectedSetUrl = this.getAttribute("href");
-
+        
                         // Update the set selector button text immediately before redirect
                         setSelector.innerText = selectedSetTitle + " ▼";
-
+        
                         // Send an AJAX request to update the last viewed set in the session
                         fetch("{% url 'update_last_viewed_set' %}", {
                             method: 'POST',
@@ -113,17 +137,17 @@
                         });
                     });
                 });
-
+        
                 // Flashcard navigation logic
                 let flashcards = [
                     {% for flashcard in flashcards %}
                         { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
                     {% endfor %}
                 ];
-
+        
                 let currentIndex = 0;
                 let showingQuestion = true;
-
+        
                 function updateCardContent() {
                     if (flashcards.length > 0) {
                         let cardContent = document.getElementById("card-content");
@@ -131,30 +155,30 @@
                         showingQuestion = true; // Reset to question
                     }
                 }
-
+        
                 document.getElementById("flip-button").addEventListener("click", function () {
                     if (flashcards.length > 0) {
                         let cardContent = document.getElementById("card-content");
-
+        
                         showingQuestion = !showingQuestion;
                         cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
                     }
                 });
-
+        
                 document.getElementById("next").addEventListener("click", function () {
                     if (flashcards.length > 0) {
                         currentIndex = (currentIndex + 1) % flashcards.length;
                         updateCardContent();
                     }
                 });
-
+        
                 document.getElementById("previous").addEventListener("click", function () {
                     if (flashcards.length > 0) {
                         currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
                         updateCardContent();
                     }
                 });
-
+        
                 document.getElementById("rand-button").addEventListener("click", function () {
                     if (flashcards.length > 1) {
                         let newIndex;
@@ -165,7 +189,7 @@
                         updateCardContent();
                     }
                 });
-
+        
                 updateCardContent();  // Initialize the card content
             });
         </script>
