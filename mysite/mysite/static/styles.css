@@ -9,7 +9,7 @@
     display: flex;             /* Flexbox to arrange items */
     justify-content: space-between; /* Title on the left, buttons on the right */
     align-items: center;       /* Vertically center the items */
-    padding: 10px 20px;        /* Padding for spacing */
+    padding: 15px 20px;        /* Padding for spacing */
     position: fixed;           /* Fixed at the top */
     width: 100%;               /* Full width of the page */
     top: 0;                    /* Align to the top */
@@ -96,7 +96,7 @@ body {
     width: 200px; /* Width of the nav bar */
     background-color: #333; /* Dark background */
     color: white; /* Text color */
-    padding: 20px 0; /* Padding around the nav items */
+    padding-top: 20px;
     font-family: 'Varela Round', sans-serif; /* Font family */
     height: calc(100vh - 80px); /* Full height minus top bar */
     display: flex;
@@ -173,9 +173,8 @@ body {
     background-color: #555; /* Hover effect */
 }
 
-/*--------------------------------------------------------- Styling for the Set Selector Features ---------------------------------------------------------*/
-.set-selector-dropdown {
-}
+/*--------------------------------------------------------- Set Selector ---------------------------------------------------------*/
+
 /* Set Selector Dropdown Style */
 .set-selector-btn {
     padding: 10px;
@@ -221,8 +220,8 @@ body {
     background-color: #555;
 }
 
-
 /*--------------------------------------------------------- Flashcard styles ---------------------------------------------------------*/
+
 .flashcard {
     width: 600px;
     height: 300px;
@@ -310,6 +309,12 @@ body {
     margin-left: 10px; /* Add spacing between text and logo */
 }
 
+.icon {
+    width: 20px; /* Adjust as needed */
+    height: auto;
+    margin-left: 5px; /* Add spacing between text and icon */
+}
+
 .patrick-hand-regular {
     font-family: 'Patrick Hand', cursive;
     font-weight: 400;
@@ -335,8 +340,8 @@ body {
     letter-spacing: 1px;
 }
 
+/*--------------------------------------------------------- Form styles ---------------------------------------------------------*/
 
-/*--------------------------------------------------------- form-content class style ---------------------------------------------------------*/
 .form-content { /* Centers elements to be in the middle of the page */
     margin-left: auto;
     margin-right: auto;
@@ -706,4 +711,187 @@ hr {
     background-color: #5e8dcc; /* Darker background on hover */
     color: white; /* Text color changes to white */
     border-color: #31478f; /* Darker border on hover */
+}
+
+/* Social media link container */
+.social-media-links {
+    display: flex;              /* Use Flexbox to arrange the icons horizontally */
+    justify-content: center;    /* Center the icons */
+    gap: 20px;                  /* Space between icons */
+    padding: 20px 0;            /* Padding for top and bottom */
+    position: fixed;            /* Fixed position at the bottom */
+    left: 0;                    /* Align to the left */
+    bottom: 0;                  /* Align to the bottom */
+    width: 100%;                /* Full width */
+    background-color: #fff;     /* Background color to make sure it’s not transparent */
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+    z-index: 1000;              /* Ensure it stays above other content */
+}
+ 
+/* Individual social media link styles */
+.social-media-links a {
+    font-size: 30px;            /* Size of the icons */
+    color: #333;                /* Default color for icons */
+    text-decoration: none;      /* Remove underlines from links */
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transitions for color and scaling */
+}
+ 
+/* Hover effects for social media links */
+.social-media-links a:hover {
+    color: #00A682;             /* Change color on hover */
+    transform: scale(1.1);      /* Slightly enlarge the icon when hovered */
+}
+ 
+/* border around the icons for visual effect */
+.social-media-links a {
+    border: 2px solid transparent; /* Transparent border */
+    border-radius: 50%;            /* Round border to create circular effect */
+    padding: 10px;                 /* Add padding around the icons */
+    transition: border-color 0.3s ease; /* Smooth border transition */
+}
+ 
+/* Hover effect for border */
+.social-media-links a:hover {
+    border-color: #00A682;      /* Show border color on hover */
+}
+ 
+/* Optional: Add a slight shadow to the icons */
+.social-media-links a {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Small shadow for depth */
+}
+ 
+/* Responsive Design - Adjust social media icon sizes on smaller screens */
+@media (max-width: 768px) {
+    .social-media-links {
+        gap: 15px; /* Reduce the gap between icons on smaller screens */
+    }
+    .social-media-links a {
+        font-size: 25px; /* Reduce the size of icons on smaller screens */
+    }
+}
+
+.social-footer {
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #dee2e6;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.social-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Style for the Tutorial button */
+.tutorial-btn {
+    padding: 10px 20px;
+    background-color: #84F3DA; /* background */
+    color: rgb(0, 0, 0);
+    font-size: 25px;
+    border-radius: 5px;
+    border: 2px solid #3b9b84;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: absolute; /* Absolute positioning relative to the nearest positioned ancestor */
+    top: 100px; /* Adjust this value to make sure it's below the top bar */
+    right: 25px; /* Adjust the value to place the button on the right side */
+}
+
+/* Hover effect for the Tutorial button */
+.tutorial-btn:hover {
+    background-color: #53af9a; /* Darker red on hover */
+    color: rgb(255, 255, 255);
+}
+
+#google_translate_element {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+/*--------------------------------------------------------- Flashcard Messages ---------------------------------------------------------*/
+
+#message-container {
+    position: fixed; 
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%; /* Ensure messages don’t exceed the container */
+    max-width: 500px; /* Limit width */
+    z-index: 1000; /* Ensure it appears above content */
+}
+
+.messages {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%; /* Adjust width for responsiveness */
+    max-width: 500px; /* Prevent messages from getting too wide */
+    z-index: 1000;
+}
+
+.alert {
+    padding: 12px 16px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal; /* Allow text to wrap */
+    overflow-wrap: break-word; /* Ensure long words don’t overflow */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for visibility */
+}
+
+.alert.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f44336;
+    color: white;
+}
+
+.message {
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    font-size: 14px;
+    word-wrap: break-word; /* Ensure long messages break properly */
+    text-align: center;
+    white-space: normal; /* Allow wrapping */
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+  
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.warning {
+    background-color: #e3edd4;
+    color: #c1c808;
+    border: 1px solid #d5e6c3;
 }
