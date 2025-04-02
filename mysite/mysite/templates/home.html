@@ -6,13 +6,13 @@
 
 {% load static %}
 
-  <!-- Main Content Section -->
-  <h1 class="page-title">Study Time!</h1>
+<!-- Main Content Section -->
+<h1 class="page-title">Study Time!</h1>
 
-  <!-- Tutorial Button -->
-  <button class="tutorial-btn" data-set-id="home-tutorial">?</button>
+<!-- Tutorial Button -->
+<button class="tutorial-btn" data-set-id="home-tutorial">?</button>
 
-  <div class="content">
+<div class="content">
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
@@ -22,9 +22,11 @@
         {% endfor %}
     </div>
     {% endif %}
-       <div class="flashcard-display">
-          <!-- Displays the set selector, users will use this to select the set of flashcard they want to study -->
-          <div class="set-selector-dropdown">
+
+    <div class="flashcard-display">
+        
+        <!-- Set Selector Dropdown -->
+        <div class="set-selector-dropdown">
             <button id="set-selector" class="set-selector-btn">
                 {% if last_viewed_set %}
                     {{ last_viewed_set.title }} ▼
@@ -38,42 +40,21 @@
                 {% endfor %}
             </div>
         </div>
-          
-        <!-- Left and Right Navigation Buttons -->
-        <div class="button">
-            <button id="previous">Previous</button>
-            <button id="rand-button">Random</button>
-            <button id="next">Next</button>
-            
-            <form action="{% url 'learn_view' %}" method="get" style="display: inline;">
-                <input type="hidden" name="set_id" value="{{ last_viewed_set.set_id }}">
-                <button type="submit">Learn
-                    {% if remaining_cards > 0 %}
-                        <span class="card-count">({{ remaining_cards }} left)</span>
-                    {% else %}
-                        <span class="card-count">(No unlearned cards)</span>
-                    {% endif %}
-                </button>
-            </form>
-            
-             <!-- Review Button: Disable or Show Only If `last_viewed_set` Exists -->
-             <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get" style="display: inline;">
-                {% if last_viewed_set %}
-                    <button type="submit">Review
-                        {% if reviewable_cards_count > 0 %}
-                            <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
-                        {% else %}
-                            <span class="card-count">(No reviews available)</span>
-                        {% endif %}
-                    </button>
-                {% else %}
-                    <button type="button" disabled>Review</button>
-                {% endif %}
-            </form>
 
+        <!-- Centered Shuffle Button -->
+        <div class="shuffle-container">
+            <button class="rand-button" id="rand-button">
+                <img src="{% static 'shuffle.png' %}" alt="Shuffle Icon" class="icon"> Shuffle
+            </button>
         </div>
-        
-            <!-- Flashcard Display Area -->
+
+        <div class="flashcard-section">
+            <!-- Left Navigation Button -->
+            <button id="previous" class="nav-button">
+                <img src="{% static 'leftarrow.png' %}" alt="Left Arrow" class="icon"> Previous
+            </button>
+
+            <!-- Flashcard Display -->
             <div class="flashcard patrick-hand-regular" id="flashcard">
                 {% if flashcards %}
                     <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
@@ -81,20 +62,54 @@
                     <p class="flashcard-text">No flashcards available. Go to the Library page and make a Set to add Flashcards to.</p>
                 {% endif %}
             </div>
-    
-            <!-- Flip card button -->
-            <div class="button">
-                <button id="flip-button">Flip</button>
-            </div>
 
+            <!-- Right Navigation Button -->
+            <button id="next" class="nav-button">
+                Next <img src="{% static 'rightarrow.png' %}" alt="Right Arrow" class="icon">
+            </button>
         </div>
+
+        <!-- Learn, Flip, and Review Buttons -->
+        <div class="bottom-buttons">
+            <form action="{% url 'learn_view' %}" method="get">
+                <input type="hidden" name="set_id" value="{{ last_viewed_set.set_id }}">
+                <button type="submit" id="learn-button">Learn
+                    {% if remaining_cards > 0 %}
+                        <span class="card-count">({{ remaining_cards }} left)</span>
+                    {% else %}
+                        <span class="card-count">(No unlearned cards)</span>
+                    {% endif %}
+                </button>
+            </form>
+
+            <!-- Flip card button -->
+            <button id="flip-button">
+                <img src="{% static 'flip.png' %}" alt="Flip Icon" class="icon"> Flip
+            </button>
+
+            <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get">
+                {% if last_viewed_set %}
+                    <button type="submit" id="review-button">Review
+                        {% if reviewable_cards_count > 0 %}
+                            <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
+                        {% else %}
+                            <span class="card-count">(No reviews available)</span>
+                        {% endif %}
+                    </button>
+                {% else %}
+                    <button type="button" id="review-button" disabled>Review</button>
+                {% endif %}
+            </form>
+        </div>
+
+    </div>
 
         <!-- Terms and Conditions -->
         <footer class="footer">
             <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
         </footer>
         
-    </div>
+  </div>
     
         <!-- JavaScript to handle set selection, flashcard flipping, and navigation -->
         <script>
