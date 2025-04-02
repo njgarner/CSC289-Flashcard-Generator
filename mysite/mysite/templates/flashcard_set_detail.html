@@ -6,6 +6,35 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <title>{{ flashcard_set.title }} - Details</title>
+    <!-- JavaScript-->
+    <script>
+        // Function to calculate time until next review
+        function timeUntilNextReview(nextReviewDate) {
+            const reviewDate = new Date(nextReviewDate);
+            const now = new Date();
+            const diff = reviewDate - now; // Difference in milliseconds
+
+            // If the review date is in the past, show the difference in minutes, hours, or days
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            const remainingMinutes = minutes % 60;
+            const remainingHours = hours % 24;
+
+            let timeString = '';
+
+            if (days > 0) timeString += days + " day" + (days > 1 ? 's' : '') + " ";
+            if (remainingHours > 0) timeString += remainingHours + " hour" + (remainingHours > 1 ? 's' : '') + " ";
+            if (remainingMinutes > 0) timeString += remainingMinutes + " minute" + (remainingMinutes > 1 ? 's' : '');
+
+            if (diff <= 0) {
+                timeString = `-${Math.abs(minutes)} minutes`; // If review is overdue, show how many minutes ago
+            }
+
+            return timeString || "Less than a minute";  // For cases with less than a minute difference
+        }
+    </script>
     <!-- Internal CSS -->
 	<style>
         #editForm{
@@ -23,10 +52,25 @@
         <p>Created on: {{ flashcard_set.created_at }}</p>
         <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
     </div>
+
+    <!-- Edit Set Button -->
+    <button id="toggleEditSetForm">
+        <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> Edit Set
+    </button>
+
+    <!-- Edit Set Form (Initially Hidden) -->
+    <form id="editSetForm" action="{% url 'edit_set' flashcard_set.set_id %}" method="POST" style="display:none; margin-top:10px;">
+        {% csrf_token %}
+        <input type="text" name="title" required value="{{ flashcard_set.title }}"><br><br>
+        <input type="text" name="category" required value="{{ flashcard_set.category.name }}"><br><br>
+        <textarea name="description">{{ flashcard_set.description }}</textarea><br><br>
+        <button type="submit" class="button">Save Changes</button>
+    </form>
+
+    <!-- Card Count -->
+    <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/500</h2>
     
-    <h2 class="flashcards_set_details">Flashcards in this Set:</h2>
-    
-    <!-- Flashcard list -->
+    <!-- Flashcard List -->
 <ul class="flashcards_list">
     {% if messages %}
         <div id="message-container">
@@ -43,16 +87,34 @@
             <strong>Question:</strong> {{ flashcard.question }}<br>
             <strong>Answer:</strong> {{ flashcard.answer }}<br>
 
+            <!-- Display the learned status of the flashcard -->
+            {% if flashcard.is_learned %}
+            <strong>Time Until Next Review:</strong> 
+            <span class="time-until-next-review" data-review-date="{{ flashcard.next_review_date|date:'c' }}">
+                <!-- Time will be calculated and displayed here by JavaScript -->
+            </span><br>
+
+            <!-- Debugging: Display raw review date and calculated time -->
+            <strong>Next Review Date:</strong> {{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}<br>
+            <strong>Calculated Time:</strong> <span class="calculated-time">{{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}</span><br>
+        {% else %}
+            <strong>Not yet learned</strong><br>
+        {% endif %}
+
             <!-- Delete flashcard form with confirmation popup -->
             <form action="{% url 'delete_flashcard' flashcard.card_id %}" method="post" onsubmit="return confirmDelete(event);">
                 {% csrf_token %}
-                <button type="submit" class="delete-btn-cards">Delete</button>
+                <button type="submit" class="delete-btn-cards">
+                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon"> Delete
+                </button>
             </form>
 
-            <!-- Hide/Show Edit flashcard form -->
-            <button class="showFormButton" type="button">Edit</button>
+            <!-- Hide/Show edit flashcard form -->
+            <button class="showFormButton" type="button">
+                <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> Edit
+            </button>
 
-            <!-- Confirm Edit flashcard form -->
+            <!-- Confirm edit flashcard form -->
             <form class="editForm" action="{% url 'edit_flashcard' flashcard.card_id %}" method="post" style="display: none;">
                 {% csrf_token %}
                 <input type="text" name="question" required placeholder="Enter New Question" value="{{ flashcard.question }}"><br><br>
@@ -66,8 +128,31 @@
     {% endfor %}
 </ul>
 
-<!-- JavaScript for Hide/Show and Delete Confirmation -->
+<!-- JavaScript -->
 <script>
+    // This script calculates and updates the time until next review for each flashcard.
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.time-until-next-review').forEach(element => {
+            const reviewDate = element.getAttribute('data-review-date');
+            const timeRemaining = timeUntilNextReview(reviewDate);
+            element.textContent = timeRemaining;
+
+            // Debugging: Log calculated times for each flashcard to the console
+            console.log(`Flashcard review: ${reviewDate} -> ${timeRemaining}`);
+        });
+
+        // Debugging: Log calculated times for each flashcard
+        document.querySelectorAll('.calculated-time').forEach(element => {
+            const reviewDate = element.textContent;
+            console.log("Calculated time for next review:", reviewDate, "->", timeUntilNextReview(reviewDate));
+        });
+    });
+    // Toggle edit form visibility for the set
+    document.getElementById("toggleEditSetForm").addEventListener("click", function() {
+        var form = document.getElementById("editSetForm");
+        form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+    });
+
     // Toggle edit form visibility
     document.querySelectorAll('.showFormButton').forEach(function(button) {
         button.addEventListener('click', function() {
