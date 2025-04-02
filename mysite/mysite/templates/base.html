@@ -30,55 +30,59 @@
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <a href="{% url 'settings' %}" style="color:black" class="flashlite-title">{{ user|safe }}</a>
-            <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
-            <div id="google_translate_element" style="display: inline-block; margin-left: 20px;"></div>
+            <a href="{% url 'settings' %}" style="color:black" class="name-title">{{ user|safe }}</a>
+            <!-- Google Translate Plugin -->
+            <div id="google_translate_element" class="translate-container"></div>
+    
+            <!-- Centered FlashLite Logo -->
+            <a href="{% url 'home' %}">
+                <img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
+            </a>
+    
+            <!-- Login/Logout Buttons -->
             <div class="login-content">
-                <!-- LogOut -->
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
-                        <button class="button" type="submit">Logout</button>
+                        <button type="submit">Logout</button>
                     </form>
                 {% else %}
-                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
     </header>
 
+    <!-- Sidebar Toggle Button -->
+<button id="nav-toggle" class="nav-toggle">☰</button>
+
     <!-- Vertical Navigation Bar -->
-    <div class="nav-bar">
+    <div class="nav-bar" id="sidebar">
         <a href="{% url 'home' %}">
             <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon" class="icon"> Study Time
-        </a>
-        <a href="{% url 'create_flashcard' %}">
-            <img src="{% static 'anvil.png' %}" alt="Anvil Icon" class="icon"> Create Flashcards
         </a>
         <a href="{% url 'library_view' %}">
             <img src="{% static 'stackofbooks.png' %}" alt="Stack of Books Icon" class="icon"> Library
         </a>
-        <a href="{% url 'settings' %}">
-            <img src="{% static 'gears.png' %}" alt="Gear Icon" class="icon"> Settings
-        </a>
-        <a href="{% url 'schedule' %}">
-            <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Schedule
-        </a>
-        
         <div class="dropdown">
             <button class="dropbtn">
-                <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Favorite Sets
+               <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Favorite Sets
             </button>
             <div class="dropdown-content">
                 {% for favorite in favorite_sets %}
-                    <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
-                {% empty %}
-                    <p>No favorite sets.</p>
+                   <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
+               {% empty %}
+                   <p>No favorite sets.</p>
                 {% endfor %}
             </div>
         </div>
-
+        <a href="{% url 'schedule' %}">
+            <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Schedule
+        </a>
+        <a href="{% url 'settings' %}">
+            <img src="{% static 'gears.png' %}" alt="Gear Icon" class="icon"> Settings
+        </a>
         <!-- About Us Page -->
         <div class="contact">
             <a href="{% url 'about' %}">
@@ -173,6 +177,10 @@
     
         // Start inactivity timer
         resetTimer();
+
+        document.getElementById("nav-toggle").addEventListener("click", function() {
+               document.getElementById("sidebar").classList.toggle("closed");
+            });
     </script>
     
     <style>
