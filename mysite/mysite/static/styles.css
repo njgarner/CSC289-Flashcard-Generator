@@ -642,3 +642,24 @@ hr {
     background-color: #C62828; /* Darker red on hover */
     color: white;
 }
+
+.social-footer {
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #dee2e6;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.social-icon {
+    width: 24px;
+    height: 24px;
+}
