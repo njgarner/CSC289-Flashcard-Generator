@@ -6,11 +6,12 @@
 </head>
 <body>
 <header>
-    <div class="navigation-div"></div>
-    <h1>Flashlite</h1>
+    <div class="navigation-div">
+    <img id="auth-logo" src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
+    </div>
 </header>
-<div class="auth-div"><br><br>
-    <h2 id="auth-heading">Sign Up</h2><br>
+<div class="auth-div">
+    <h1 id="auth-heading">Sign Up</h1>
 
     <!-- Display Messages -->
     {% if messages %}
@@ -49,7 +50,7 @@
                 <option value="teacher">Teacher</option>
             </select><br><br>
         
-            <button type="submit">Sign Up</button>
+            <button type="submit" class="btn btn-success">Sign Up</button>
         </form>
         
         <!-- Links -->
