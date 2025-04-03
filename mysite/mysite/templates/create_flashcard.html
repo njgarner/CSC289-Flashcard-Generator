@@ -1,9 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Flashcard{% endblock title %}
+{% block title %}Create Flashcard - Flashlite{% endblock title %}
+
 {% block main %}
+
+{% load static %}
+
 <h2 class="page-title">Create Flashcard</h2>
+
+<!-- Tutorial Button -->
+<button class="tutorial-btn" data-set-id="create-tutorial">?</button>
+
 <div class="content">
+    <!-- Display Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="form-content">
     <form method="POST">
         {% csrf_token %}
@@ -16,4 +34,8 @@
         <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
     </footer>
 </div>
+
+<!-- Script for Tutorial Function -->
+<script src="{% static 'tutorial.js' %}"></script>
+
 {% endblock main %}

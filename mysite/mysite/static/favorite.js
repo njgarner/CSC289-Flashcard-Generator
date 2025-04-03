@@ -25,10 +25,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     this.innerText = "♡";  // Change button to empty heart
                 }
 
-                // Refresh the page after updating the favorite status
-                setTimeout(() => {
-                    location.reload();
-                }, 100); // Slight delay to allow UI change before reload
+                 // Dynamically update the dropdown text without reloading the page
+                // Get the last viewed set from the session (update with the correct set)
+                let lastViewedSet = data.last_viewed_set; // Ensure backend sends the updated last viewed set title
+                if (lastViewedSet) {
+                    document.getElementById("set-selector").innerText = lastViewedSet + " ▼";
+                }
             })
             .catch(error => {
                 console.error('Error:', error);  // Log any errors that occur
