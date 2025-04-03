@@ -765,7 +765,7 @@ def review_view(request, set_id):
     # Debugging: Print the flashcard_set details
     print(f"Flashcard Set: {flashcard_set.title}, ID: {flashcard_set.set_id}")
 
-    # Fetch all flashcards for the set that are learned
+    # Fetch all flashcards for the set that are marked as learned
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set, is_learned=True)
 
     # Debugging: Log each learned flashcard and its next_review_date
@@ -775,8 +775,10 @@ def review_view(request, set_id):
     # Filter flashcards that are due for review (next_review_date <= now)
     reviewable_cards = flashcards.filter(next_review_date__lte=timezone.now())
 
-    # Debugging: Log the filtered reviewable flashcards
-    print(f"Reviewable cards: {reviewable_cards}")  # This will show the cards that are ready for review
+    # If there are no reviewable flashcards, notify the user and redirect to the home page
+    if not reviewable_cards.exists():
+        messages.info(request, "There are no flashcards to review at this time.")
+        return redirect('home')  # Redirect to the home page
 
     return render(request, "review.html", {"flashcards": reviewable_cards})
 
