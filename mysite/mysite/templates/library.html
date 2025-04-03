@@ -24,7 +24,7 @@
         </div>
         {% endif %}
         <p>Sets: {{ set_count }}/100</p>
-        <p>Favorite Sets: {{ favorite_count }}/100</p>
+        <p>Favorite Sets: <span id="favorite-count">{{ favorite_count }}</span>/100</p>
         <div class="flashcard-sets-list">
             <button class="add-box">
                 <a href="{% url 'create_set' %}">+</a>
