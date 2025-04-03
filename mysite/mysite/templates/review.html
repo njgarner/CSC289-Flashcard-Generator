@@ -1,0 +1,257 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review - Flashlite</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        body {
+            font-family: 'Varela Round', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+        }
+
+        .flashcard-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 20px;
+            width: 600px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 10px;
+            font-size: 30px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .next-button { right: 10px; color: blue; }
+
+        .nav-button:hover { color: darkblue; }
+
+        .flashcard {
+            width: 100%;
+            height: 300px;
+            border: 12px solid #84F3DA;
+            text-align: center;
+            background-color: #f4f4f4;
+            color: #333;
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .answer-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .answer-input {
+            font-size: 18px;
+            padding: 10px;
+            width: 250px;
+            border: 2px solid #00A682;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .submit-answer {
+            padding: 10px 20px;
+            background-color: #00A682;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .submit-answer:hover {
+            background-color: #008B5C;
+        }
+
+        .result {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        .end-session {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .end-session:hover {
+            background-color: darkred;
+        }
+
+        .complete-message {
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .return-home {
+            padding: 10px 20px;
+            background-color: blue;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .return-home:hover {
+            background-color: darkblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="flashcard-display" id="flashcard-display">
+        <a href="#" class="nav-button next-button" id="next-arrow" style="display: none;">&#8594;</a>
+
+        <div class="flashcard" id="flashcard">
+            {% if flashcards %}
+                <p id="card-content">{{ flashcards.0.question }}</p>
+            {% else %}
+                <p>No flashcards available for review.</p>
+            {% endif %}
+        </div>
+
+        <div class="answer-container">
+            <input type="text" id="answer-input" class="answer-input" placeholder="Type your answer here...">
+            <button id="submit-answer" class="submit-answer">Submit</button>
+            <div id="result" class="result"></div>
+        </div>
+
+        <a href="{% url 'home' %}" class="end-session">End Session</a>
+    </div>
+
+    <div id="complete-message" class="complete-message" style="display: none;">
+        <p>Reviews complete!</p>
+        <a href="{% url 'home' %}" class="return-home">Return to Home</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var flashcards = [
+                {% for flashcard in flashcards %}
+                    {
+                        card_id: "{{ flashcard.card_id }}",
+                        question: "{{ flashcard.question|escapejs }}",
+                        answer: "{{ flashcard.answer|escapejs }}",
+                        is_learned: {{ flashcard.is_learned|yesno:"true,false" }},
+                        level: {{ flashcard.level }},
+                        next_review_date: "{{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}"
+                    },
+                {% endfor %}
+            ];
+    
+            if (flashcards.length === 0) {
+                console.error("No flashcards found for review.");
+                document.getElementById("card-content").innerText = "No flashcards available for review.";
+                return;
+            }
+    
+            let currentIndex = 0;
+            let cardContent = document.getElementById("card-content");
+            let nextArrow = document.getElementById("next-arrow");
+            let completeMessage = document.getElementById("complete-message");
+            let flashcardDisplay = document.getElementById("flashcard-display");
+    
+            function updateCardContent() {
+                if (flashcards.length > 0 && flashcards[currentIndex]) {
+                    cardContent.innerText = flashcards[currentIndex].question;
+                    nextArrow.style.display = "none";  // Hide next arrow until answered correctly
+                } else {
+                    console.error("Flashcard not found at index " + currentIndex);
+                }
+                resetAnswerBox();
+            }
+    
+            function resetAnswerBox() {
+                document.getElementById("answer-input").value = "";
+                document.getElementById("answer-input").disabled = false;
+                document.getElementById("submit-answer").disabled = false;
+                document.getElementById("result").innerText = "";
+            }
+    
+            document.getElementById("submit-answer").addEventListener("click", function () {
+                if (flashcards[currentIndex]) {
+                    let userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
+                    let correctAnswer = flashcards[currentIndex].answer.trim().toLowerCase();
+                    let resultElement = document.getElementById("result");
+    
+                    if (userAnswer === correctAnswer) {
+                        resultElement.innerText = "Correct!";
+                        resultElement.style.color = "green";
+                    } else {
+                        resultElement.innerText = "Incorrect! The correct answer was: " + correctAnswer;
+                        resultElement.style.color = "red";
+                    }
+    
+                    nextArrow.style.display = "inline";  // Show next arrow after answer (correct or incorrect)
+                    document.getElementById("answer-input").disabled = true;
+                    document.getElementById("submit-answer").disabled = true;
+                }
+            });
+    
+            nextArrow.addEventListener("click", function () {
+                fetch(`/update_flashcard_review/${flashcards[currentIndex].card_id}/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(),
+                    }
+                }).then(() => {
+                    if (currentIndex < flashcards.length - 1) {
+                        currentIndex++;
+                        updateCardContent();
+                    } else {
+                        // If no more flashcards, show the "Reviews complete!" message
+                        flashcardDisplay.style.display = "none";
+                        completeMessage.style.display = "block";
+                    }
+                });
+            });
+    
+            function getCSRFToken() {
+                return document.cookie.split("; ")
+                    .find(row => row.startsWith("csrftoken"))
+                    ?.split("=")[1];
+            }
+    
+            updateCardContent();
+        });
+    </script>    
+</body>
+</html>
