@@ -437,9 +437,8 @@ def add_sample_sets_and_cards(user):
                 answer=card["answer"],
             )
 
-@login_required  # Create a new set
 def create_set(request):
- # Get favorite sets for the current user
+    # Get favorite sets for the current user
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
     set_count = FlashcardSet.objects.filter(user=request.user).count()
 
@@ -448,12 +447,17 @@ def create_set(request):
         return redirect('library_view')
 
     if request.method == 'POST':
-        title = request.POST.get('title')
-        category_name = request.POST.get('category')
-        description = request.POST.get('description')
+        title = request.POST.get('title').strip()
+        category_name = request.POST.get('category').strip()
+        description = request.POST.get('description', '').strip()
 
         # Validate if title and category are provided
         if title and category_name:
+            # Check if a set with the same title already exists for this user
+            if FlashcardSet.objects.filter(user=request.user, title__iexact=title).exists():
+                messages.error(request, "A flashcard set with this title already exists. Please choose a different name.")
+                return redirect('create_set')
+
             # Create or get the Category object
             category, created = Category.objects.get_or_create(name=category_name)
 
@@ -466,13 +470,11 @@ def create_set(request):
             )
 
             messages.success(request, "Flashcard set successfully created!")
-
-            # Redirect to library view after creating the set
             return redirect('library_view')
         
         # Add error message if title or category is missing
         messages.error(request, "Please fill in all required fields.")
-    
+
     return render(request, 'create_set.html', {
         'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
@@ -581,22 +583,28 @@ def create_flashcard(request):
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
     if request.method == 'POST':
-        selected_set_id = request.POST.get('flashcard_set') # The Selected Set from the Set Select Field
-        selected_set = get_object_or_404(FlashcardSet, set_id=selected_set_id) # Get the selected set
-        card_count = Flashcard.objects.filter(flashcard_set=selected_set).count() # Get the number of cards in the selected set
-        print(f'Set ID= {selected_set_id} Card Count: {card_count}') # Debugging statement to check the card count
+        selected_set_id = request.POST.get('flashcard_set')  # The Selected Set from the Set Select Field
+        selected_set = get_object_or_404(FlashcardSet, set_id=selected_set_id)  # Get the selected set
+        card_count = Flashcard.objects.filter(flashcard_set=selected_set).count()  # Get the number of cards in the selected set
 
-        
-        if card_count >= 500: # Max number of cards a user can have in one set
+        print(f'Set ID= {selected_set_id} Card Count: {card_count}')  # Debugging statement to check the card count
+
+        if card_count >= 500:  # Max number of cards a user can have in one set
             messages.error(request, "Maximum number of flashcards reached for this set. Please delete an existing flashcard before creating a new one.")
         elif form.is_valid():
             flashcard_set = form.cleaned_data['flashcard_set']
-            
+            question = form.cleaned_data['question'].strip()
+            answer = form.cleaned_data['answer'].strip()
+
             # Ensure the flashcard set belongs to the logged-in user
             if flashcard_set.user == request.user:
-                form.save()
-                messages.success(request, "Flashcard created successfully!")
-                return redirect('create_flashcard')
+                # Check if a flashcard with the same question and answer already exists
+                if Flashcard.objects.filter(flashcard_set=flashcard_set, question__iexact=question, answer__iexact=answer).exists():
+                    messages.error(request, "A flashcard with the same question and answer already exists in this set.")
+                else:
+                    form.save()
+                    messages.success(request, "Flashcard created successfully!")
+                    return redirect('create_flashcard')
             else:
                 messages.error(request, "You do not have permission to add flashcards to this set.")
         else:
@@ -606,7 +614,7 @@ def create_flashcard(request):
 
     return render(request, 'create_flashcard.html', {
         'form': form,
-        'favorite_sets': favorite_sets # Pass favorite sets to the template
+        'favorite_sets': favorite_sets  # Pass favorite sets to the template
     })
 
 @login_required  # View flashcard set details
