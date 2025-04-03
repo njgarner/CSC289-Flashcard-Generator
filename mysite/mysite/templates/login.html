@@ -6,11 +6,13 @@
 </head>
 <body>
 <header>
-    <div class="navigation-div"></div>
-    <img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
+    <div class="navigation-div">
+    <img id="auth-logo" src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
+    </div>
 </header>
-<div class="auth-div"><br><br>
-    <h2 id="auth-heading">Login</h2><br>
+<div class="auth-div">
+
+    <h1 id="auth-heading">Login</h1>
 
     <!-- Display Messages -->
     {% if messages %}
@@ -23,6 +25,7 @@
             {% endfor %}
         </div>
     {% endif %}
+    
 
     <!-- Login Form -->
     <form method="POST" action="{% url 'user_login' %}" class="form-group">
@@ -30,8 +33,10 @@
         <input type="text" id="username-input" name="username" minlength="6" maxlength="30" required 
             placeholder="Enter username" value="{{ username|default:'' }}"><br><br>
         <input type="password" id="password-input" name="password" required placeholder="Enter password"><br><br>
-        <button type="submit" class="btn btn-success">Login</button><br><br><br>
+        <button type="submit" class="btn btn-success">Login</button>
     </form>
+
+    <p>---- OR ----</p>
 
     <!-- Guest Login Button -->
     <form method="POST" action="{% url 'guest_login' %}" class="form-group">
