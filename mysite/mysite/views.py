@@ -100,6 +100,7 @@ def library_view(request):
     favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
     set_count = FlashcardSet.objects.filter(user=request.user).count()
     favorite_count = FavoriteSet.objects.filter(user=request.user).count()
+    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
     
     # Get a list of favorited set IDs for easy lookup
     favorite_set_ids = set(favorite.set.set_id for favorite in favorites)
@@ -107,6 +108,7 @@ def library_view(request):
     return render(request, 'library.html', {
         'flashcard_sets': flashcard_sets,
         'favorites': favorites,
+        'favorite_sets': favorite_sets,  # Pass favorite sets to the template
         'favorite_set_ids': favorite_set_ids,  # Pass the IDs to the template
         'set_count': set_count, # Pass the set count to the template
         'favorite_count': favorite_count  # Pass the count of favorite sets to the template
@@ -365,7 +367,7 @@ def user_login(request):  # Logs in user
             messages.success(request, "Login successful!")
             return redirect('home')
         else:
-            messages.error(request, "Invalid credentials")
+            messages.error(request, "Invalid username or password.")
             return render(request, 'login.html', {"username": username})  # Preserve input
 
     return render(request, 'login.html')
@@ -535,9 +537,6 @@ def delete_set(request, set_id):
 @login_required
 def toggle_favorite(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
-    
-    # Count user's favorite sets
-    favorite_count = FavoriteSet.objects.filter(user=request.user).count()
 
     # Check if the set is already favorited
     favorite, created = FavoriteSet.objects.get_or_create(user=request.user, set=flashcard_set)
@@ -546,16 +545,16 @@ def toggle_favorite(request, set_id):
         # If the favorite exists, remove it
         favorite.delete()
         favorited = False
-        favorite_count -= 1  # Decrease count since it's being removed
     else:
         # Prevent exceeding the limit
+        favorite_count = FavoriteSet.objects.filter(user=request.user).count()
         if favorite_count >= 100:
             return JsonResponse({
                 "error": "You have reached the maximum limit of 100 favorite sets."
             }, status=400)
-        
         favorited = True
-        favorite_count += 1  # Increase count since a favorite is added
+
+    favorite_count = FavoriteSet.objects.filter(user=request.user).count()
 
     # Get the last viewed set from the session
     last_viewed_set_id = request.session.get("last_viewed_set_id", None)
@@ -565,7 +564,7 @@ def toggle_favorite(request, set_id):
 
     return JsonResponse({
         "favorited": favorited,
-        "favorite_count": favorite_count,  # Send count to frontend
+        "favorite_count": favorite_count,
         "last_viewed_set": last_viewed_set.title if last_viewed_set else None
     })
 
