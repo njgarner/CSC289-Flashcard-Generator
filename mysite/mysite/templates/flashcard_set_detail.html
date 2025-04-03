@@ -69,6 +69,10 @@
 
     <!-- Card Count -->
     <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/500</h2>
+
+    <a href="{% url 'create_flashcard' %}">
+        <img src="{% static 'anvil.png' %}" alt="Anvil Icon" class="icon"> Create Flashcards
+    </a>
     
     <!-- Flashcard List -->
 <ul class="flashcards_list">
