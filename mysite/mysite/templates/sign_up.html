@@ -5,24 +5,36 @@
     <link rel="stylesheet" href="{% static 'user_auth.css' %}">
     <style>
         .alert {
-          padding: 20px;
-          background-color: #3e3577;
-          color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
         }
-        
+    
+        .alert.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    
+        .alert.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+    
         .closebtn {
-          margin-left: 15px;
-          color: white;
-          font-weight: bold;
-          float: right;
-          font-size: 22px;
-          line-height: 20px;
-          cursor: pointer;
-          transition: 0.3s;
+            margin-left: 15px;
+            color: inherit;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        
+    
         .closebtn:hover {
-          color: black;
+            color: black;
         }
         </style>
 </head>
@@ -34,29 +46,45 @@
 <div class="auth-div"><br><br>
     <h2 id="auth-heading">Sign Up</h2><br>
 
-        <!-- Display Messages -->
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="alert">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;
-                </span>
+    <!-- Display Messages -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% endif %}">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
                     {{ message }}
                 </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
 
-    <form method="POST" action="{% url 'signup_user' %}">
-        {% csrf_token %}
-        <input type="text" id="username-input" name="username" minlength="6" maxlength="30" required placeholder="Enter username"><br><br>
-        <input type="email" id="email-input" name="email" required placeholder="Enter email"><br><br>
-        <input type="password" id="password-input" name="password" minlength="8" required placeholder="Enter password"><br><br>
-        <button type="submit">Sign Up</button>
-    </form>
-
-    <br><br>
-    <a href="{% url 'login_user' %}">Already have an account? Login here!</a>
+        <!-- Signup Form -->
+        <form method="POST" action="{% url 'signup_user' %}">
+            {% csrf_token %}
+            
+            <label for="username-input">Username:</label>
+            <input type="text" id="username-input" name="username" minlength="6" maxlength="30" required 
+                placeholder="Enter username" value="{{ username|default:'' }}"><br><br>
+            
+            <label for="email-input">Email:</label>
+            <input type="email" id="email-input" name="email" required 
+                placeholder="Enter email" value="{{ email|default:'' }}"><br><br>
+            
+            <label for="password-input">Password:</label>
+            <input type="password" id="password-input" name="password" minlength="8" required placeholder="Enter password"><br><br>
+            
+            <label for="role">Choose your role:</label><br>
+            <select id="role" name="role" required>
+                <option value="student" {% if role == "student" %}selected{% endif %}>Student</option>
+                <option value="instructor" {% if role == "instructor" %}selected{% endif %}>Instructor</option>
+            </select><br><br>
+            
+            <!-- Submit Button -->
+            <button type="submit">Sign Up</button>
+        </form>
+        
+        <!-- Links -->
+        <a href="{% url 'login_user' %}">Already have an account? Login here!</a>
 
 </div>
 </body>

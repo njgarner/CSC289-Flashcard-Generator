@@ -54,5 +54,10 @@ urlpatterns = [
     path('review/<int:set_id>/', views.review_view, name='review_view'),
     path('update_flashcard_level/<int:card_id>/<str:action>/', views.update_flashcard_level, name='update_flashcard_level'),
     path('mark_flashcard_as_learned/<int:card_id>/', views.mark_flashcard_as_learned, name='mark_flashcard_as_learned'),
-     path('update_flashcard_review/<int:card_id>/', views.update_flashcard_review, name='update_flashcard_review'),
+    path('update_flashcard_review/<int:card_id>/', views.update_flashcard_review, name='update_flashcard_review'),
+    path('classrooms/', views.classrooms_view, name="classrooms_view"),
+    path('classrooms/', views.classrooms_view, name='classrooms_view'),
+    path('classrooms/create/', views.create_classroom, name='create_classroom'),
+    path('classrooms/<int:classroom_id>/', views.view_classroom, name='view_classroom'),
+    path('classrooms/<int:classroom_id>/delete/', views.delete_classroom, name='delete_classroom'),
 ]

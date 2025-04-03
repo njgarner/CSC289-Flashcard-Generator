@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from .models import FlashcardSet, Category, Flashcard, FavoriteSet
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet, Classroom
 from .forms import FlashcardForm, ChangePasswordForm
 from django.http import JsonResponse
 from django.core.mail import EmailMultiAlternatives
@@ -524,3 +524,30 @@ def update_flashcard_review(request, card_id):
             return JsonResponse({"status": "success", "next_review_date": flashcard.next_review_date})
         return JsonResponse({"status": "error", "message": "Flashcard not found."}, status=404)
 
+@login_required
+def classrooms_view(request):
+    classrooms = Classroom.objects.filter(user=request.user)
+    return render(request, 'classrooms.html', {'classrooms': classrooms})
+
+@login_required
+def create_classroom(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+
+        if name:
+            Classroom.objects.create(name=name, description=description, user=request.user)
+            return redirect('classrooms_view')
+
+    return render(request, 'create_classroom.html')
+
+@login_required
+def view_classroom(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+    return render(request, 'view_classroom.html', {'classroom': classroom})
+
+@login_required
+def delete_classroom(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+    classroom.delete()
+    return redirect('classrooms_view')

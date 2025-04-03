@@ -1,7 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-    <!-- External Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
@@ -12,18 +11,16 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Home - Flashcard Generator{% endblock title %}</title>
+    <title>Classrooms - Flashlite</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
-    <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <a href="{% url 'home' %}" style="color:black" class="flashlite-title">FlashLite</a>
+            <a href="{% url 'home' %}" class="flashlite-title">FlashLite</a>
             <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
             <div class="login-content">
-                <!-- LogOut -->
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
@@ -37,37 +34,53 @@
         </div>
     </header>
 
-    <!-- Vertical Navigation Bar -->
     <div class="nav-bar">
         <a href="{% url 'home' %}">Study Time</a>
         <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'classrooms_view' %}">Classrooms</a>
         <a href="{% url 'settings' %}">Settings</a>
-        
+
+        <!-- Favorite Decks Dropdown -->
         <div class="dropdown">
-            <button class="dropbtn">Favorite Sets</button>
+            <button class="dropbtn">Favorite Decks</button>
             <div class="dropdown-content">
-                {% for favorite in favorite_sets %}
-                    <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
+                {% for favorite_deck in favorite_decks %}
+                    <a href="{% url 'study_view' favorite_deck.id %}">{{ favorite_deck.name }}</a>
                 {% empty %}
-                    <p>No favorite sets.</p>
+                    <p>No favorite decks.</p>
                 {% endfor %}
             </div>
         </div>
-
-        <!-- About Us Page -->
-        <div class="contact">
-            <a href="{% url 'about' %}">Contact us!</a>
-        </div>
     </div>
 
-    <!-- Main content area (this will be populated by other templates) -->
-    {% block main %}
-    {% endblock main %}
-    
-    <!-- Link to External JS File -->
-    <script src="{% static 'favorite.js' %}"></script>
-    
+    <h1 class="page-title">Classrooms</h1>
+
+    <div class="content">
+        <div class="flashcard-sets-list">  <!-- Changed from classroom-list to match library.html -->
+            <button class="add-box">
+                <a href="{% url 'create_classroom' %}">+</a>
+            </button>
+
+            {% for classroom in classrooms %}
+                <div class="flashcard-set"> <!-- Changed from classroom to flashcard-set -->
+                    <p>{{ classroom.name }}</p>
+                    <p>{{ classroom.description }}</p>
+
+                    <a href="{% url 'view_classroom' classroom.id %}" class="view-button">View Classroom</a>
+
+                    <form action="{% url 'delete_classroom' classroom.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+            {% empty %}
+                <p>No classrooms created yet.</p>
+            {% endfor %}
+        </div>
+        <footer class="footer">
+            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+    </div>
 </body>
 </html>
