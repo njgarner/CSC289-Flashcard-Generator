@@ -1,40 +1,52 @@
 document.addEventListener("DOMContentLoaded", function () {
-
     // Loop through each favorite button
     document.querySelectorAll('.favorite-btn').forEach(button => {
         button.addEventListener('click', function () {
+            let setId = this.dataset.setId; // Get set ID from button's data attribute
 
-            // Get the set ID from the button's data attribute
-            let setId = this.getAttribute('data-set-id');
-
-            // Send a POST request to the backend to toggle the favorite status
-            fetch(`/favorite/${setId}/`, {
-                method: 'POST',
+            fetch(`/toggle_favorite/${setId}/`, {  // Send AJAX request to backend
+                method: "POST",
                 headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'Content-Type': 'application/json'
+                    "X-CSRFToken": getCSRFToken(),  // Get CSRF token
+                    "Content-Type": "application/json"
                 },
-                credentials: 'same-origin'
+                credentials: "same-origin"
             })
-            .then(response => response.json())  // Parse JSON from response
+            .then(response => response.json()) // Parse JSON from response
             .then(data => {
-                // Check if the set was favorited
-                if (data.favorited) {
-                    this.innerText = "❤️";  // Change button to filled heart
+                if (data.error) {
+                    alert(data.error);  // Alert user if max favorites reached
                 } else {
-                    this.innerText = "♡";  // Change button to empty heart
-                }
+                    // Toggle button state
+                    this.classList.toggle("favorited", data.favorited);
+                    this.innerHTML = data.favorited ? "❤️" : "♡";  // Match original design
 
-                 // Dynamically update the dropdown text without reloading the page
-                // Get the last viewed set from the session (update with the correct set)
-                let lastViewedSet = data.last_viewed_set; // Ensure backend sends the updated last viewed set title
-                if (lastViewedSet) {
-                    document.getElementById("set-selector").innerText = lastViewedSet + " ▼";
+                    console.log("Favorite count before update:", document.getElementById("favorite-count").textContent);
+                    console.log("New favorite count:", data.favorite_count);
+
+                    // Update the favorite count dynamically
+                    document.getElementById("favorite-count").textContent = data.favorite_count;
+
+                    // Update dropdown text dynamically without reloading
+                    if (data.last_viewed_set) {
+                        let setSelector = document.getElementById("set-selector");
+                        if (setSelector) {
+                            setSelector.innerText = data.last_viewed_set + " ▼";
+                        }
+                    }
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);  // Log any errors that occur
-            });
+            .catch(error => console.error("Error:", error));
         });
     });
 });
+
+// Function to get CSRF token from cookies (Required for Django POST requests)
+function getCSRFToken() {
+    let cookies = document.cookie.split("; ");
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].split("=");
+        if (cookie[0] === "csrftoken") return cookie[1];
+    }
+    return "";
+}
