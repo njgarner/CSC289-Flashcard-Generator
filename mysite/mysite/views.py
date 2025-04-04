@@ -17,6 +17,7 @@ from django.utils.html import strip_tags
 from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
+from .utils import export_flashcards_to_excel
 
 # ======================== Main Pages ======================== #
 
@@ -229,6 +230,13 @@ def favorite_sets(request):
     favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
     print(f"Favorite sets: {favorite_sets}")
     return render(request, 'home.html', {'favorites': favorites})
+
+@login_required
+def export_flashcards(request):
+    # Assuming Flashcard is the model for flashcards
+    flashcards = list(Flashcard.objects.values())
+    export_flashcards_to_excel(flashcards)
+    return render(request, 'export_success.html')
 
 # ======================== Flashcard Management ======================== #
 
