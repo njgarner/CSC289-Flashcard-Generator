@@ -63,4 +63,5 @@ urlpatterns = [
     path('password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
+    path('export/', views.export_flashcards, name='export_flashcards'),
 ]
