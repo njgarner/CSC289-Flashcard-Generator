@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Customize - Flashlite{% endblock %}
+
+{% block main %}
+    <!-- Internal CSS -->
+    <style>
+      :root {
+        --setcolor: #84F3DA;
+        --textcolor: #333333;
+        --cardcolor: #f4f4f4;
+        --bordercolor: #84F3DA;
+      }
+
+      .content span, input[type="color"] {
+        margin-left: 450px;
+        width: 50px;
+        height: 50px;
+        margin: 5px;
+        display: inline-block;
+        cursor: pointer;
+        border-style: solid;
+        border-color: #000000;
+      }
+
+      input[type="color"] {
+        border: none;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .add-box {
+        align-content: left;
+        background-color: var(--setcolor);
+        color: var(--textcolor);
+      }
+
+      .flashcard {
+        width: 600px;
+        height: 300px;
+        border-color: var(--bordercolor);
+        background-color: var(--cardcolor);
+        color: var(--textcolor);
+        border-radius: 20px;
+        align-content: left;
+        padding: 15px 10px;
+      }
+
+      .content {
+        display: flex;
+        flex-direction: row; /* Align items horizontally */
+        justify-content: space-between; /* Pushes items apart */
+        align-items: flex-start; /* Aligns content at the top */
+        max-width: 100%;
+      }
+
+      /* Left Section: Customize Colors */
+      .customize-colors {
+        width: 50%; /* Takes up half of the available space */
+      }
+
+      /* Right Section: Live Preview */
+      .live-preview {
+        width: 100%; /* Adjust width as needed */
+        display: flex;
+        flex-direction: column; /* Stack preview items vertically */
+      }
+
+      /* Flashcard preview styling */
+      .flashcard-sets-list {
+        width: 60%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .clear-colors {
+        padding: 10px;
+        font-family: 'Varela Round', sans-serif; /* Font family */
+        font-size: 20px;           /* Font size */
+        color: black;              /* Text color */
+        background-color: #84F3DA; /* Background color */
+        border: 2px solid #00A682; /* Border color */
+        margin-bottom: 20px;       /* Space between buttons */
+        border-radius: 5px;        /* Rounded corners */
+        cursor: pointer;          /* Change cursor to pointer */
+        transition: background-color 0.3s ease; /* Smooth background transition */
+      }
+
+      .clear-colors:hover {
+          background-color: #00A682; /* Darker background on hover */
+          color: white; /* Text color changes to white */
+          border-color: #008B5C; /* Darker border on hover */
+      }
+    </style>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Left Side: Customize Colors -->
+        <div class="customize-colors">
+          <h2>Customize Colors</h2>
+      
+          <!-- Set Color -->
+          <h3>Set Color</h3>
+          <div>
+            <span class="set-color" data-color="#84F3DA" style="background-color: #84F3DA;"></span>
+            <span class="set-color" data-color="#F4F4F4" style="background-color: #F4F4F4;"></span>
+            <input type="color" id="customSetColor">
+          </div>
+      
+          <!-- Card Color -->
+          <h3>Card Color</h3>
+          <div>
+            <span class="card-color" data-color="#84F3DA" style="background-color: #84F3DA;"></span>
+            <span class="card-color" data-color="#F4F4F4" style="background-color: #F4F4F4;"></span>
+            <input type="color" id="customCardColor">
+          </div>
+      
+          <!-- Border Color -->
+          <h3>Border Color</h3>
+          <div>
+            <span class="border-color" data-color="#84F3DA" style="background-color: #84F3DA;"></span>
+            <span class="border-color" data-color="#333333" style="background-color: #333333;"></span>
+            <input type="color" id="customBorderColor">
+          </div>
+      
+          <!-- Text Color -->
+          <h3>Text Color</h3>
+          <div>
+            <span class="text-color" data-color="#F4F4F4" style="background-color: #F4F4F4;"></span>
+            <span class="text-color" data-color="#333333" style="background-color: #333333;"></span>
+            <input type="color" id="customTextColor">
+          </div>
+      
+          <!-- Clear Colors / Restore Default -->
+          <button class="clear-colors" id="clearColorsBtn">Clear Colors</button>
+        </div>
+      
+        <!-- Right Side: Live Preview -->
+        <div class="live-preview">
+          <h3>Live Preview</h3>
+          <div class="flashcard-sets-list">
+            <button class="add-box"><a href="">+</a></button>
+          </div>
+      
+          <div class="flashcard">
+            <p class="flashcard-text">Live Preview.</p>
+          </div>
+        </div>
+      </div>
+
+    <!-- JavaScript -->
+    <script>
+      window.addEventListener("load", function() {
+        googleTranslateElementInit();
+      });
+
+      function saveColor(key, cssVariable, color) {
+        localStorage.setItem(key, color);
+        document.documentElement.style.setProperty(cssVariable, color);
+      }
+
+      function loadColor(key, cssVariable, defaultColor) {
+        const color = localStorage.getItem(key) || defaultColor;
+        document.documentElement.style.setProperty(cssVariable, color);
+      }
+
+      function setupColorSelection(className, storageKey, cssVariable, inputId) {
+        // Predefined color buttons
+        document.querySelectorAll("." + className).forEach(element => {
+          element.addEventListener("click", function() {
+            let color = this.dataset.color;
+            saveColor(storageKey, cssVariable, color);
+            document.getElementById(inputId).value = color; // Update picker
+          });
+        });
+
+        // Custom color picker
+        document.getElementById(inputId).addEventListener("input", function() {
+          let color = this.value;
+          saveColor(storageKey, cssVariable, color);
+        });
+      }
+
+      function resetColors() {
+        localStorage.clear();
+        document.documentElement.style.setProperty("--setcolor", "#84F3DA");
+        document.documentElement.style.setProperty("--cardcolor", "#F4F4F4");
+        document.documentElement.style.setProperty("--bordercolor", "#84F3DA");
+        document.documentElement.style.setProperty("--textcolor", "#333333");
+
+        // Reset color pickers to defaults
+        document.getElementById("customSetColor").value = "#84F3DA";
+        document.getElementById("customCardColor").value = "#F4F4F4";
+        document.getElementById("customBorderColor").value = "#84F3DA";
+        document.getElementById("customTextColor").value = "#333333";
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        // Load colors from localStorage
+        loadColor("setcolor", "--setcolor", "#84F3DA");
+        loadColor("cardcolor", "--cardcolor", "#F4F4F4");
+        loadColor("bordercolor", "--bordercolor", "#84F3DA");
+        loadColor("textcolor", "--textcolor", "#333333");
+
+        // Setup event listeners
+        setupColorSelection("set-color", "setcolor", "--setcolor", "customSetColor");
+        setupColorSelection("card-color", "cardcolor", "--cardcolor", "customCardColor");
+        setupColorSelection("border-color", "bordercolor", "--bordercolor", "customBorderColor");
+        setupColorSelection("text-color", "textcolor", "--textcolor", "customTextColor");
+
+        // Clear colors button
+        document.getElementById("clearColorsBtn").addEventListener("click", resetColors);
+      });
+    </script>
+{% endblock main %}

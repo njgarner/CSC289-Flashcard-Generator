@@ -7,27 +7,96 @@ body {
 
 }
 
+.navigation-div {
+  display: flex;
+  justify-content: center;
+}
+
 .auth-div {
   background-color: rgb(255, 255, 255);
-  margin-top: 200;
+  margin-top: 100;
   margin-left: auto;
   margin-right: auto;
-  width: 25%;
+  width: 35%;
   padding: 5px;
   text-align: center;
-  height: 400px;
+  height: 600px;
   border-radius: 10px;
   border-width: 100%;
   border-color:#3f9480;
   border-style: solid;
 }
 
-#auth-heading
-{
-  
+#auth-heading {
+  margin-top: 50;
+  margin-bottom: 60;
+}
+
+
+.logo {
+  width: 350px; /* Adjust as needed */
+  height: auto;
+  margin-left: 10px; /* Add spacing between text and logo */
+}
+
+.btn-secondary {
+  font-size: 15;
+  word-wrap: break-word;
+  width: 100px;
+  height: auto;
+}
+
+.btn-success {
+  font-size: 20;
 }
 
 .auth-div button {
-  height: 50px;
-  width: 100px;
+  padding: 10px;
+  font-family: 'Varela Round', sans-serif; /* Font family */
+  color: black;              /* Text color */
+  background-color: #84F3DA; /* Background color */
+  border: 2px solid #00A682; /* Border color */
+  border-radius: 5px;        /* Rounded corners */
+  cursor: pointer;          /* Change cursor to pointer */
+  transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for buttons */
+.auth-div button:hover {
+  background-color: #00A682; /* Darker background on hover */
+  color: white; /* Text color changes to white */
+  border-color: #008B5C; /* Darker border on hover */
+}
+
+.alert {
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+
+.alert.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: inherit;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
 }

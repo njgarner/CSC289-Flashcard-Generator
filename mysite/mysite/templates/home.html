@@ -4,29 +4,57 @@
 
 {% block main %}
 
-  <!-- Main Content Section -->
-  <h1 class="page-title">Study Time!</h1>
-  <div class="content">
-       <div class="flashcard-display">
+{% load static %}
 
-          <!-- Displays the set selector, users will use this to select the set of flashcard they want to study -->
-           <div class="set-selector-dropdown">
-              <button id="set-selector" class="set-selector-btn">Select a Set &#8595;</button>
-              <div id="set-selector-content">
-                  {% for set in flashcard_sets %}
-                  <a href="{% url 'study_view' set.set_id %}">{{ set.title }}</a>
-                  {% endfor %}
-              </div>
-           </div>
-          
-            <!-- Left and Right Navigation Buttons -->
-            <div class="button">
-                <button id="previous">Previous</button>
-                <button id="rand-button">Random</button>
-                <button id="next">Next</button>
+<!-- Main Content Section -->
+<h1 class="page-title">Study Time!</h1>
+
+<!-- Tutorial Button -->
+<button class="tutorial-btn" data-set-id="home-tutorial">?</button>
+
+<div class="content">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                {{ message }}
             </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="flashcard-display">
         
-            <!-- Flashcard Display Area -->
+        <!-- Set Selector Dropdown -->
+        <div class="set-selector-dropdown">
+            <button id="set-selector" class="set-selector-btn">
+                {% if last_viewed_set %}
+                    {{ last_viewed_set.title }} ▼
+                {% else %}
+                    Select a Set ▼
+                {% endif %}
+            </button>
+            <div id="set-selector-content">
+                {% for set in flashcard_sets %}
+                    <a href="{% url 'study_view' set.set_id %}" data-set-id="{{ set.set_id }}">{{ set.title }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Centered Shuffle Button -->
+        <div class="shuffle-container">
+            <button class="rand-button" id="rand-button">
+                <img src="{% static 'shuffle.png' %}" alt="Shuffle Icon" class="icon"> Shuffle
+            </button>
+        </div>
+
+        <div class="flashcard-section">
+            <!-- Left Navigation Button -->
+            <button id="previous" class="nav-button">
+                <img src="{% static 'leftarrow.png' %}" alt="Left Arrow" class="icon"> Previous
+            </button>
+
+            <!-- Flashcard Display -->
             <div class="flashcard patrick-hand-regular" id="flashcard">
                 {% if flashcards %}
                     <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
@@ -34,107 +62,154 @@
                     <p class="flashcard-text">No flashcards available. Go to the Library page and make a Set to add Flashcards to.</p>
                 {% endif %}
             </div>
-    
-            <!-- Flip card button -->
-            <div class="button">
-                <button id="flip-button">Flip</button>
-            </div>
-            
+
+            <!-- Right Navigation Button -->
+            <button id="next" class="nav-button">
+                Next <img src="{% static 'rightarrow.png' %}" alt="Right Arrow" class="icon">
+            </button>
         </div>
+
+        <!-- Learn, Flip, and Review Buttons -->
+        <div class="bottom-buttons">
+            <form action="{% url 'learn_view' %}" method="get">
+                <input type="hidden" name="set_id" value="{{ last_viewed_set.set_id }}">
+                <button type="submit" id="learn-button">Learn
+                    {% if remaining_cards > 0 %}
+                        <span class="card-count">({{ remaining_cards }} left)</span>
+                    {% else %}
+                        <span class="card-count">(No unlearned cards)</span>
+                    {% endif %}
+                </button>
+            </form>
+
+            <!-- Flip card button -->
+            <button id="flip-button">
+                <img src="{% static 'flip.png' %}" alt="Flip Icon" class="icon"> Flip
+            </button>
+
+            <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get">
+                {% if last_viewed_set %}
+                    <button type="submit" id="review-button">Review
+                        {% if reviewable_cards_count > 0 %}
+                            <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
+                        {% else %}
+                            <span class="card-count">(No reviews available)</span>
+                        {% endif %}
+                    </button>
+                {% else %}
+                    <button type="button" id="review-button" disabled>Review</button>
+                {% endif %}
+            </form>
+        </div>
+
+    </div>
 
         <!-- Terms and Conditions -->
         <footer class="footer">
             <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
         </footer>
         
-    </div>
+  </div>
     
-        <!-- Script -->
-         <script>
-            let setSelector = document.getElementById("set-selector");
-            let setSelectorContent = document.getElementById("set-selector-content");
-            setSelectorContent.style.display = "none";
-
-            setSelector.addEventListener("click", dropdownFunction);
-
-            function dropdownFunction(){
-                if(setSelectorContent.style.display == "block"){
-                    setSelectorContent.style.display = "none";
-                }
-                else{
-                    setSelectorContent.style.display = "block";
-                }
-            }
-            
-
-
-        </script>
-
+        <!-- JavaScript to handle set selection, flashcard flipping, and navigation -->
         <script>
-            let flashcards = [
-                {% for flashcard in flashcards %}
-                    { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
-                {% endfor %}
-            ];
-            
-            let currentIndex = 0;
-            let showingQuestion = true;
+            document.addEventListener("DOMContentLoaded", function () {
+                let setSelector = document.getElementById("set-selector");
+                let setSelectorContent = document.getElementById("set-selector-content");
+                setSelectorContent.style.display = "none";
         
-            function updateCardContent() {
-                if (flashcards.length > 0) {
-                    let cardContent = document.getElementById("card-content");
-                    let cardAnswer = document.getElementById("card-answer");
+                // If there is a last viewed set, auto-select it and update the button text
+                {% if last_viewed_set %}
+                    setSelector.innerText = "{{ last_viewed_set.title }}" + " ▼"; // Update button text
+                {% endif %}
         
-                    // Ensure that we start with the question when switching cards
-                    showingQuestion = true;
+                setSelector.addEventListener("click", function () {
+                    setSelectorContent.style.display = setSelectorContent.style.display === "block" ? "none" : "block";
+                });
         
-                    cardContent.innerText = flashcards[currentIndex].question;
-                    cardAnswer.style.display = "none";
-                }
-            }
+                document.querySelectorAll("#set-selector-content a").forEach(link => {
+                    link.addEventListener("click", function (event) {
+                        event.preventDefault(); // Prevent immediate navigation
         
-            document.getElementById("flip-button").addEventListener("click", function () {
-                if (flashcards.length > 0) {
-                    let cardContent = document.getElementById("card-content");
-                    let cardAnswer = document.getElementById("card-answer");
+                        let selectedSetTitle = this.innerText;
+                        let selectedSetId = this.getAttribute("data-set-id");
+                        let selectedSetUrl = this.getAttribute("href");
         
-                    showingQuestion = !showingQuestion;
-                    if (showingQuestion) {
+                        // Update the set selector button text immediately before redirect
+                        setSelector.innerText = selectedSetTitle + " ▼";
+        
+                        // Send an AJAX request to update the last viewed set in the session
+                        fetch("{% url 'update_last_viewed_set' %}", {
+                            method: 'POST',
+                            body: JSON.stringify({ set_id: selectedSetId }),
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
+                            }
+                        }).then(function(response) {
+                            // After the request is done, redirect to the selected set's study page
+                            window.location.href = selectedSetUrl;
+                        });
+                    });
+                });
+        
+                // Flashcard navigation logic
+                let flashcards = [
+                    {% for flashcard in flashcards %}
+                        { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
+                    {% endfor %}
+                ];
+        
+                let currentIndex = 0;
+                let showingQuestion = true;
+        
+                function updateCardContent() {
+                    if (flashcards.length > 0) {
+                        let cardContent = document.getElementById("card-content");
                         cardContent.innerText = flashcards[currentIndex].question;
-                        cardAnswer.style.display = "none";
-                    } else {
-                        cardContent.innerText = flashcards[currentIndex].answer;
-                        cardAnswer.style.display = "block";
+                        showingQuestion = true; // Reset to question
                     }
                 }
-            });
         
-            document.getElementById("next").addEventListener("click", function () {
-                if (flashcards.length > 0) {
-                    currentIndex = (currentIndex + 1) % flashcards.length;
-                    updateCardContent();
-                }
-            });
+                document.getElementById("flip-button").addEventListener("click", function () {
+                    if (flashcards.length > 0) {
+                        let cardContent = document.getElementById("card-content");
         
-            document.getElementById("previous").addEventListener("click", function () {
-                if (flashcards.length > 0) {
-                    currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
-                    updateCardContent();
-                }
-            });
+                        showingQuestion = !showingQuestion;
+                        cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
+                    }
+                });
         
-            document.getElementById("rand-button").addEventListener("click", function () {
-                if (flashcards.length > 1) { // Prevent random picking the same card if there's only 1 card
-                    let newIndex;
-                    do {
-                        newIndex = Math.floor(Math.random() * flashcards.length);
-                    } while (newIndex === currentIndex);  // Ensures a different card is selected
-                    currentIndex = newIndex;
-                    updateCardContent();
-                }
-            });
+                document.getElementById("next").addEventListener("click", function () {
+                    if (flashcards.length > 0) {
+                        currentIndex = (currentIndex + 1) % flashcards.length;
+                        updateCardContent();
+                    }
+                });
         
-            updateCardContent();  // Initialize first card
+                document.getElementById("previous").addEventListener("click", function () {
+                    if (flashcards.length > 0) {
+                        currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                        updateCardContent();
+                    }
+                });
+        
+                document.getElementById("rand-button").addEventListener("click", function () {
+                    if (flashcards.length > 1) {
+                        let newIndex;
+                        do {
+                            newIndex = Math.floor(Math.random() * flashcards.length);
+                        } while (newIndex === currentIndex);
+                        currentIndex = newIndex;
+                        updateCardContent();
+                    }
+                });
+        
+                updateCardContent();  // Initialize the card content
+            });
         </script>
+
+        <!-- Script for Tutorial Function -->
+        <script src="{% static 'tutorial.js' %}"></script>
 
     {% endblock main %}

@@ -15,49 +15,79 @@
     <title>{% block title %}Home - Flashcard Generator{% endblock title %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,es,fr,de,it,pt,zh-CN,ja,ko,ru', // Add languages you want to support
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
-            <a href="{% url 'home' %}" style="color:black" class="flashlite-title">FlashLite</a>
-            <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
+            <a href="{% url 'settings' %}" style="color:black" class="name-title">{{ user|safe }}</a>
+            <!-- Google Translate Plugin -->
+            <div id="google_translate_element" class="translate-container"></div>
+    
+            <!-- Centered FlashLite Logo -->
+            <a href="{% url 'home' %}">
+                <img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
+            </a>
+    
+            <!-- Login/Logout Buttons -->
             <div class="login-content">
-                <!-- LogOut -->
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'logout_user' %}">
                         {% csrf_token %}
-                        <button class="button" type="submit">Logout</button>
+                        <button type="submit">Logout</button>
                     </form>
                 {% else %}
-                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                    <button onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
                 {% endif %}
             </div>
         </div>
     </header>
 
+    <!-- Sidebar Toggle Button -->
+<button id="nav-toggle" class="nav-toggle">☰</button>
+
     <!-- Vertical Navigation Bar -->
-    <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a>
-        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
-        <a href="{% url 'library_view' %}">Library</a>
-        <a href="{% url 'settings' %}">Settings</a>
-        
+    <div class="nav-bar" id="sidebar">
+        <a href="{% url 'home' %}">
+            <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon" class="icon"> Study Time
+        </a>
+        <a href="{% url 'library_view' %}">
+            <img src="{% static 'stackofbooks.png' %}" alt="Stack of Books Icon" class="icon"> Library
+        </a>
         <div class="dropdown">
-            <button class="dropbtn">Favorite Sets</button>
+            <button class="dropbtn">
+               <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Favorite Sets
+            </button>
             <div class="dropdown-content">
                 {% for favorite in favorite_sets %}
-                    <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
-                {% empty %}
-                    <p>No favorite sets.</p>
+                   <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
+               {% empty %}
+                   <p>No favorite sets.</p>
                 {% endfor %}
             </div>
         </div>
-
+        <a href="{% url 'schedule' %}">
+            <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Schedule
+        </a>
+        <a href="{% url 'settings' %}">
+            <img src="{% static 'gears.png' %}" alt="Gear Icon" class="icon"> Settings
+        </a>
         <!-- About Us Page -->
         <div class="contact">
-            <a href="{% url 'about' %}">Contact us!</a>
+            <a href="{% url 'about' %}">
+                <img src="{% static 'mail.png' %}" alt="Mail Icon" class="icon"> Contact us!
+            </a>
         </div>
     </div>
 
@@ -67,6 +97,126 @@
     
     <!-- Link to External JS File -->
     <script src="{% static 'favorite.js' %}"></script>
+    <script>
+        let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
     
+        function resetTimer() {
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+    
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+    
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+    
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
+
+        document.getElementById("nav-toggle").addEventListener("click", function() {
+               document.getElementById("sidebar").classList.toggle("closed");
+            });
+    </script>
+
+    <!-- <footer class="social-footer">
+        <div class="social-icons">
+            <a href="https://www.facebook.com" target="_blank">
+                <img src="{% static 'facebook.png' %}" alt="Facebook" class="social-icon">
+            </a>
+            <a href="https://www.instagram.com/flashliteteam/" target="_blank">
+                <img src="{% static 'instagram.png' %}" alt="Instagram" class="social-icon">
+            </a>
+            <a href="https://www.linkedin.com" target="_blank">
+                <img src="{% static 'linkedin.png' %}" alt="LinkedIn" class="social-icon">
+            </a>
+             <a href="https://https://www.youtube.com/@FlashLiteTeam" target="_blank">
+                <img src="{% static 'youtube.png' %}" alt="YouTube" class="social-icon">
+            </a>
+        </div>
+    </footer> -->
+    
+    <style>
+        .logout-popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .logout-popup button {
+            margin: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+    </style>
 </body>
 </html>

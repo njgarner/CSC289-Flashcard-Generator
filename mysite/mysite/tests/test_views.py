@@ -8,9 +8,11 @@ def test_signup_user(client):
     response = client.post(reverse('signup_user'), {
         'username': 'testuser',
         'email': 'test@example.com',
-        'password': 'securepassword123'
+        'password': 'securepassword123',
+        'password_confirm': 'securepassword123',  # Required
+        'role': 'student'  # Required
     })
-    
+
     # Ensure user is created in the database
     assert User.objects.filter(username='testuser').exists()
 
@@ -39,5 +41,5 @@ def test_user_login(client):
         'password': 'wrongpassword'
     })
     
-    assert response.status_code == 302  # Redirect back to login
-    assert response.url == reverse('login_user')
+    assert response.status_code == 200  # Redirect back to login
+    assert b'Invalid credentials' in response.content
