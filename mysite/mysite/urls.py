@@ -37,6 +37,7 @@ urlpatterns = [
     path("send-reminder-email/", views.send_reminder_email, name="send_reminder_email"),
     path('customize/', views.customize, name="customize"),
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
+    path('flashcards/<int:set_id>/details/', views.flashcard_details_json, name='flashcard_details_json'),
     path('about/', views.about, name="about"),
     path('terms', views.terms, name="terms"),
     path('', include("django.contrib.auth.urls")),
@@ -72,3 +73,4 @@ urlpatterns = [
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
 ]
+

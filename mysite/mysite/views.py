@@ -498,6 +498,27 @@ def view_flashcard_set(request, set_id):
         {'flashcard_set': flashcard_set, 'flashcards': flashcards}
     )
 
+def flashcard_details_json(request, set_id):
+    """API view to return flashcard set details in JSON format."""
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+
+    flashcard_data = []
+    for flashcard in flashcards:
+        flashcard_info = {
+            'question': flashcard.question,
+            'answer': flashcard.answer,
+            'next_review_date': flashcard.next_review_date.strftime('%Y-%m-%d') if flashcard.next_review_date else None
+        }
+        flashcard_data.append(flashcard_info)
+
+    data = {
+        'title': flashcard_set.title,
+        'flashcards': flashcard_data
+    }
+
+    return JsonResponse(data)
+
 def edit_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
 
