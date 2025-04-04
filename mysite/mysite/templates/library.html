@@ -75,34 +75,35 @@
             <button class="add-box">
                 <a href="{% url 'create_set' %}">+</a>
             </button>
-
             {% for flashcard_set in flashcard_sets %}
-                <div class="flashcard-set">
-                    <p>{{ flashcard_set.title }}</p>
-                    <p>{{ flashcard_set.description }}</p>
-                    <p>Category: {{ flashcard_set.category.name }}</p>
+                {% if flashcard_set.user == request.user %}
+                    <div class="flashcard-set">
+                        <p>{{ flashcard_set.title }}</p>
+                        <p>{{ flashcard_set.description }}</p>
+                        <p>Category: {{ flashcard_set.category.name }}</p>
 
-                    <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
-                    <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+                        <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                        <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
 
-                    <div>
-                        <!-- Favorite Button -->
-                        <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
-                            {% if flashcard_set.set_id in favorite_set_ids %}
-                                ❤️  <!-- Filled heart if favorited -->
-                            {% else %}
-                                ♡  <!-- Empty heart if not favorited -->
-                            {% endif %}
-                        </button>
-                        
-                        <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+                        <div>
+                            <!-- Favorite Button -->
+                            <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                                {% if flashcard_set.set_id in favorite_set_ids %}
+                                    ❤️  <!-- Filled heart if favorited -->
+                                {% else %}
+                                    ♡  <!-- Empty heart if not favorited -->
+                                {% endif %}
+                            </button>
+                            
+                            <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
 
-                        <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="delete-button">Delete</button>
-                        </form>
+                            <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-button">Delete</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             {% empty %}
                 <p>No flashcard sets created yet.</p>
             {% endfor %}
