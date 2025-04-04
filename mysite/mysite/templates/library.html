@@ -65,6 +65,11 @@
     <!-- Main Content Section -->
     <h1 class="page-title">Library</h1>
 
+    <form method="post" action="{% url 'export_flashcards' %}">
+        {% csrf_token %}
+        <button type="submit">Export to Excel</button>
+    </form>    
+
     <div class="content">
         <div class="flashcard-sets-list">
             <button class="add-box">
