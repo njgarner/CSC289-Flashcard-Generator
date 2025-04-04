@@ -367,7 +367,7 @@ def user_login(request):  # Logs in user
             messages.success(request, "Login successful!")
             return redirect('home')
         else:
-            messages.error(request, "Invalid credentials.")
+            messages.error(request, "Invalid credentials")
             return render(request, 'login.html', {"username": username})  # Preserve input
 
     return render(request, 'login.html')
