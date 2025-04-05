@@ -19,11 +19,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
 from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 import json
 
 # ======================= Python files ======================= #
 
-from .models import FlashcardSet, Category, Flashcard, FavoriteSet
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet, Classroom, UserProfile
 from .forms import FlashcardForm, ChangePasswordForm
 
 # ======================= Time Management ======================= #
@@ -255,7 +256,7 @@ def custom_logout(request):  # Logs out the user
         messages.add_message(request, messages.ERROR, "Logout failed. You were not logged in.")
         return redirect('home')  # Redirects to home page with failure message
 
-def signup_user(request):  # Signup page with email verification
+def signup_user(request):
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -305,36 +306,57 @@ def signup_user(request):  # Signup page with email verification
                 "role": role
             })
 
-        # Create user but keep inactive until email is verified
-        user = User.objects.create(
-            username=username,
-            email=email,
-            password=make_password(password),
-            is_active=False
-        )
+        try:
+            with transaction.atomic(): # Use a transaction for atomicity
+                # Create the user first (save to the database)
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    is_active=False  # User is inactive until email is verified
+                )
 
-        # Send verification email
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        verification_link = f"http://{get_current_site(request).domain}/activate/{uid}/{token}/"
+                # Check if a profile already exists
+                if not UserProfile.objects.filter(user=user).exists():
+                    # Now that the user exists, create the user profile
+                    UserProfile.objects.create(user=user, role=role)
+                else:
+                    messages.error(request, "A profile already exists for this user.")
+                    return render(request, "sign_up.html", {
+                        "username": username,
+                        "email": email,
+                        "role": role
+                    })
 
-        html_message = render_to_string("email_verification.html", {
-            "username": username,
-            "verification_link": verification_link
-        })
+                # Send verification email (similar to your existing code)
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                verification_link = f"http://{get_current_site(request).domain}/activate/{uid}/{token}/"
 
-        email_message = EmailMultiAlternatives(
-            subject="Verify Your Email - Flashcard App",
-            body=strip_tags(html_message),
-            from_email="noreply@yourdomain.com",
-            to=[email]
-        )
-        email_message.attach_alternative(html_message, "text/html")
-        email_message.send()
+                html_message = render_to_string("email_verification.html", {
+                    "username": username,
+                    "verification_link": verification_link
+                })
 
-        messages.success(request, "Check your email for verification.")
-        return redirect("login_user")
+                email_message = EmailMultiAlternatives(
+                    subject="Verify Your Email - Flashcard App",
+                    body=strip_tags(html_message),
+                    from_email="noreply@yourdomain.com",
+                    to=[email]
+                )
+                email_message.attach_alternative(html_message, "text/html")
+                email_message.send()
 
+                messages.success(request, "Check your email for verification.")
+                return redirect(reverse('login_user')) # use reverse to get the url from the name.
+
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}") # Log the error for debugging
+            return render(request, "sign_up.html", {
+                "username": username,
+                "email": email,
+                "role": role
+            })
     return render(request, "sign_up.html")
 
 def activate_account(request, uidb64, token):  # Activates user account via email link
@@ -374,8 +396,20 @@ def user_login(request):  # Logs in user
 
 def delete_account(request):
     if request.method == 'POST':
+        # Get the current user
         deleteUser = User.objects.get(username=request.user)
+        
+        # Delete the associated UserProfile
+        try:
+            user_profile = UserProfile.objects.get(user=deleteUser)
+            user_profile.delete()  # Delete the related user profile
+        except UserProfile.DoesNotExist:
+            pass  # If no profile exists, we just skip it
+        
+        # Delete the user
         deleteUser.delete()
+
+        # Provide success message and redirect
         messages.success(request, "Account deleted! You can now create a new account.")
         return redirect('signup_user')
     
@@ -837,3 +871,69 @@ def update_flashcard_review(request, card_id):
 
             return JsonResponse({"status": "success", "next_review_date": flashcard.next_review_date})
         return JsonResponse({"status": "error", "message": "Flashcard not found."}, status=404)
+
+@login_required
+def classrooms_view(request):
+    # Get the user's role from the UserProfile model
+    user_profile = request.user.userprofile
+    
+    # If the user is a teacher, show teacher-specific classrooms
+    if user_profile.role == 'teacher':
+        classrooms = Classroom.objects.filter(user=request.user)
+        return render(request, 'teacher_classrooms.html', {'classrooms': classrooms})
+    else:
+        # If the user is a student, show student-specific classrooms
+        classrooms = Classroom.objects.filter(user=request.user)
+        return render(request, 'student_classrooms.html', {'classrooms': classrooms})
+
+
+@login_required
+def create_classroom(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+
+        if name:
+            Classroom.objects.create(name=name, description=description, user=request.user)
+            return redirect('classrooms')
+
+    return render(request, 'create_classroom.html')
+
+@login_required
+def view_classroom(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+    return render(request, 'view_classrooms.html', {'classroom': classroom})
+
+@login_required
+def delete_classroom(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+    classroom.delete()
+    return redirect('classrooms')
+
+#######################################
+
+@login_required
+def teacher_classrooms(request):
+    # Logic for teacher classrooms view
+    return render(request, 'teacher_classrooms.html')
+
+@login_required
+def student_classrooms(request):
+    # Logic for student classrooms view
+    return render(request, 'student_classrooms.html')
+
+@login_required
+def join_classroom(request):
+    if request.method == "POST":
+        classroom_code = request.POST['classroom_code']
+        try:
+            classroom = Classroom.objects.get(code=classroom_code)  # Assuming you have a 'code' field in Classroom
+            # Add logic to enroll the student in the classroom
+            classroom.students.add(request.user)  # Assuming 'students' is a ManyToMany field
+            messages.success(request, "You have successfully joined the classroom!")
+            return redirect('student_classrooms')  # Redirect to the classroom list
+        except Classroom.DoesNotExist:
+            messages.error(request, "Invalid classroom code. Please try again.")
+            return redirect('student_classrooms')
+    
+    return redirect('student_classrooms')

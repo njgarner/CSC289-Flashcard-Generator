@@ -71,4 +71,11 @@ urlpatterns = [
     path('password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
+    path('classrooms/', views.classrooms_view, name='classrooms'),
+    path('classrooms/create/', views.create_classroom, name='create_classroom'),
+    path('classrooms/<int:classroom_id>/', views.view_classroom, name='view_classroom'),
+    path('classrooms/<int:classroom_id>/delete/', views.delete_classroom, name='delete_classroom'),
+    path('teacher_classrooms/', views.teacher_classrooms, name='teacher_classrooms'),
+    path('student_classrooms/', views.student_classrooms, name='student_classrooms'),
+    path('join-classroom/', views.join_classroom, name='join_classroom'),
 ]

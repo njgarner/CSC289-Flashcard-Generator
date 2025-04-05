@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Classroom - Flashlite</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="home.html" class="flashlite-title">FlashLite</a>
+            <a href="home.html"><img src="flashlitelogo.png" alt="FlashLite Logo" class="logo"></a>
+            <div class="login-content">
+                <form method="post" action="logout_user">
+                    <button class="button" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <a href="home.html">Study Time</a>
+        <a href="create_flashcard.html">Create Flashcards</a>
+        <a href="library_view.html">Library</a>
+        <a href="classrooms_view.html">Classrooms</a>
+        <a href="settings.html">Settings</a>
+        <div class="dropdown">
+            <button class="dropbtn">Favorite Decks</button>
+            <div class="dropdown-content">
+                <a href="study_view.html?id=1">Deck 1</a>
+                <a href="study_view.html?id=2">Deck 2</a>
+            </div>
+        </div>
+    </div>
+
+    <h1 class="page-title">View Classroom - Math 101</h1>
+
+    <div class="content">
+        <div class="classroom-details">
+            <h2>Classroom Information</h2>
+            <p><strong>Description:</strong> This is a basic math class for beginners. Learn addition, subtraction, multiplication, and division.</p>
+            
+            <p><strong>Number of Students:</strong> 25</p>
+            
+            <p><strong>Classroom Join Code:</strong> ABC123XYZ</p>
+            
+            <hr>
+
+            <h3>Assign Flashcard Sets to This Classroom</h3>
+            <p>Select flashcard sets to assign to this classroom for students to study.</p>
+
+            <div class="available-sets">
+                <form method="post" action="assign_sets_to_classroom">
+                    <div class="set-selection">
+                        <label for="sets">Available Sets:</label>
+                        <select id="sets" name="sets" multiple>
+                            <option value="1">Flashcard Set 1 - Math Basics</option>
+                            <option value="2">Flashcard Set 2 - Addition</option>
+                            <option value="3">Flashcard Set 3 - Subtraction</option>
+                            <option value="4">Flashcard Set 4 - Multiplication</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="button">Assign Sets</button>
+                </form>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <a href="terms.html">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+    </div>
+</body>
+</html>

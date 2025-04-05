@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <title>Create Classroom</title>
+</head>
+<body>
+    <h1>Create Classroom</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Classroom Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description"></textarea>
+
+        <button type="submit">Create</button>
+    </form>
+</body>
+</html>
