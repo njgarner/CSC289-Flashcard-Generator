@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - Flashlite{% endblock %}
+
+{% block main %}
+
+{% load static %}
+    
+    <h1 class="page-title">Activity Dashboard</h2>
+        <div class="content">
+            <p>Quizzes Completed: {{ activity.quizzes_completed }}</p>
+            <p>Time Spent (HH:MM:SS): {{ time_spent }}</p>
+            <p>Cards Viewed: {{ activity.cards_viewed }}</p>
+            <p>Learned Cards: {{ learned_count }}</p>
+        </div>
+
+
+{% endblock main %}
