@@ -67,16 +67,14 @@
         </a>
         <div class="dropdown">
             <button class="dropbtn">
-                <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Recent Sets
+               <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Favorite Sets
             </button>
             <div class="dropdown-content">
-              {% for recent in recent_sets %}
-                <a href="{% url 'study_view' recent.set_id %}" class="truncate-nav" title="{{ recent.title }}">
-                  {{ recent.title|truncatechars:25 }}
-                </a>
-            {% empty %}
-            <p>No recent sets.</p>
-            {% endfor %}
+                {% for favorite in favorite_sets %}
+                   <a href="{% url 'study_view' favorite.set.set_id %}">{{ favorite.set.title }}</a>
+               {% empty %}
+                   <p>No favorite sets.</p>
+                {% endfor %}
             </div>
         </div>
         <a href="{% url 'schedule' %}">
@@ -184,16 +182,25 @@
                document.getElementById("sidebar").classList.toggle("closed");
             });
     </script>
+
+    <!-- <footer class="social-footer">
+        <div class="social-icons">
+            <a href="https://www.facebook.com" target="_blank">
+                <img src="{% static 'facebook.png' %}" alt="Facebook" class="social-icon">
+            </a>
+            <a href="https://www.instagram.com/flashliteteam/" target="_blank">
+                <img src="{% static 'instagram.png' %}" alt="Instagram" class="social-icon">
+            </a>
+            <a href="https://www.linkedin.com" target="_blank">
+                <img src="{% static 'linkedin.png' %}" alt="LinkedIn" class="social-icon">
+            </a>
+             <a href="https://https://www.youtube.com/@FlashLiteTeam" target="_blank">
+                <img src="{% static 'youtube.png' %}" alt="YouTube" class="social-icon">
+            </a>
+        </div>
+    </footer> -->
     
     <style>
-        .truncate-nav {
-            display: inline-block;
-            max-width: 180px; 
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            vertical-align: middle;
-        }
         .logout-popup {
             position: fixed;
             bottom: 20px;

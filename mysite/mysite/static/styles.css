@@ -202,31 +202,15 @@ body {
 
 /* Set Selector Dropdown Style */
 .set-selector-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    max-width: 220px;
     padding: 8px 12px;
-    font-family: 'Varela Round', sans-serif;
-    font-size: 20px;
-    color: black;
-    background-color: #84F3DA;
-    border: 2px solid #00A682;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-/* Styling for the truncated title */
-.selected-set-title {
-    display: inline-block;
-    max-width: 140px; 
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
 }
 
 /* Hover effect for Set Selector buttons */
@@ -239,20 +223,12 @@ body {
 #set-selector-content {
     display: none;
     background-color: #f4f4f4; /* Background color */
-    min-width: 140px;
+    min-width: 200px;
     position: absolute;
     border: #00A682;
     border-style: solid;
     z-index: 1;
     text-align: center;
-}
-
-.selector-shuffle-bar {
-    display: flex;
-    flex-direction: column;  /* Stack items vertically */
-    align-items: center;
-    gap: 16px; /* Adjust the space between the set selector and shuffle button */
-    margin-top: 20px; /* Adjust to your layout */
 }
 
 #set-selector-content a {
@@ -422,15 +398,6 @@ body {
     justify-content: center;
     gap: 15px;
     margin-top: 3px;
-}
-
-#search-favorite {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
 }
 
 .shuffle-container {
@@ -696,25 +663,6 @@ hr {
     overflow: hidden;           /* Hide the content that exceeds the box */
     text-overflow: ellipsis;    /* Truncate text with an ellipsis if needed */
     word-wrap: break-word;      /* Break long words or URLs */
-}
-
-.truncate-text {
-    width: 100%;
-    max-width: 100%;
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 16px;
-}
-
-.truncate-title {
-    display: inline-block;
-    max-width: 180px; /* adjust as needed based on layout */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
 }
 
 /* Hover effect */

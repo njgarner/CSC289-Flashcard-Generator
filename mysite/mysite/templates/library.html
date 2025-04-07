@@ -23,16 +23,6 @@
             {% endfor %}
         </div>
         {% endif %}
-        <div class="library-search-bar">
-                <input type="text" id="library-search-input" placeholder="Search sets..." onkeyup="searchLibrarySets()">
-                <select id="search-filter" onchange="searchLibrarySets()">
-                    <option value="all">All</option>
-                    <option value="title">Title</option>
-                    <option value="description">Description</option>
-                    <option value="category">Category</option>
-                </select>
-                <button onclick="clearLibrarySearch()">Clear</button>
-            </div>
         <p>Sets: {{ set_count }}/100</p>
         <p>Favorite Sets: <span id="favorite-count">{{ favorite_count }}</span>/100</p>
         <div class="flashcard-sets-list">
@@ -41,13 +31,10 @@
             </button>
 
             {% for flashcard_set in flashcard_sets %}
-                <div class="flashcard-set"
-                    data-title="{{ flashcard_set.title|lower }}"
-                    data-description="{{ flashcard_set.description|lower }}"
-                    data-category="{{ flashcard_set.category.name|lower }}">
-                    <p class="truncate-text">{{ flashcard_set.title }}</p>
-                    <p class="truncate-text">{{ flashcard_set.description }}</p>
-                    <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
+                <div class="flashcard-set">
+                    <p>{{ flashcard_set.title }}</p>
+                    <p>{{ flashcard_set.description }}</p>
+                    <p>Category: {{ flashcard_set.category.name }}</p>
 
                     <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
                     <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
@@ -82,45 +69,12 @@
             <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
         </footer>
     </div>
+    
+    <!-- Script for Print Function -->
+    <script src="{% static 'print.js' %}"></script>
 
     <!-- Variables for Print Function -->
     <script>
-        function searchLibrarySets() {
-            const input = document.getElementById("library-search-input").value.toLowerCase();
-            const filterType = document.getElementById("search-filter").value;
-            const sets = document.getElementsByClassName("flashcard-set");
-        
-            Array.from(sets).forEach(set => {
-                const title = set.getAttribute("data-title") || "";
-                const description = set.getAttribute("data-description") || "";
-                const category = set.getAttribute("data-category") || "";
-        
-                let textToSearch = "";
-                if (filterType === "title") {
-                    textToSearch = title;
-                } else if (filterType === "description") {
-                    textToSearch = description;
-                } else if (filterType === "category") {
-                    textToSearch = category;
-                } else {
-                    textToSearch = title + " " + description + " " + category;
-                }
-        
-                if (textToSearch.includes(input)) {
-                    set.style.display = "";
-                } else {
-                    set.style.display = "none";
-                }
-            });
-        }
-            
-        function clearLibrarySearch() {
-            document.getElementById("library-search-input").value = '';
-            document.getElementById("search-filter").value = 'all';
-            searchLibrarySets(); // Show all
-        }
-
-
         function confirmDeleteSet(event) {
             var confirmation = confirm("Are you sure you want to delete this flashcard set? This action cannot be undone.");
             if (!confirmation) {
@@ -138,9 +92,6 @@
         var static_img1 = "{% static 'study_guide_answers.jpeg' %}";
         var static_img2 = "{% static 'study_guide.jpeg' %}";
     </script>
-
-    <!-- Script for Print Function -->
-    <script src="{% static 'print.js' %}"></script>
 
     <!-- Script for Tutorial Function -->
     <script src="{% static 'tutorial.js' %}"></script>

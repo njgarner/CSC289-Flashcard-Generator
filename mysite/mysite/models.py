@@ -12,7 +12,7 @@ class FlashcardSet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.title  # Display the title of the set
+        return self.title  # Display the title of the deck
 
 class Flashcard(models.Model):
     card_id = models.AutoField(primary_key=True)
