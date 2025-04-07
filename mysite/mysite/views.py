@@ -23,7 +23,7 @@ import json
 
 # ======================= Python files ======================= #
 
-from .models import FlashcardSet, Category, Flashcard, FavoriteSet
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet, UserActivity
 from .forms import FlashcardForm, ChangePasswordForm
 
 # ======================= Time Management ======================= #
@@ -716,6 +716,15 @@ def study_view(request, set_id):
     # Set the last viewed set in the session when entering the study page
     request.session['last_viewed_set_id'] = set_id
 
+    # Retrieve or create the user activity record
+    activity, created = UserActivity.objects.get_or_create(user=request.user)
+
+    # Update the recent flashcard being viewed
+    if flashcards.exists():
+        recent_flashcard = flashcards.first()  # Get the first flashcard or the most recently displayed one
+        activity.recent_flashcard = recent_flashcard  # Update recent flashcard
+        activity.save()
+
     # Retrieve the last viewed set from session
     last_viewed_set_id = request.session.get('last_viewed_set_id', None)
     last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first() if last_viewed_set_id else None
@@ -764,15 +773,27 @@ def update_learned_flashcards(request):
         data = json.loads(request.body)  # Get the data sent with the request
         flashcard_ids = data.get('flashcard_ids', [])
         
-        # Update the flashcards with the provided IDs
+        # Retrieve the flashcards by their IDs
         flashcards = Flashcard.objects.filter(card_id__in=flashcard_ids)
         
-        # Set is_learned to True for each flashcard and set next_review_date to 2 minutes from now
+        # Set `is_learned` to True for each flashcard and set the next review date
         flashcards.update(
             is_learned=True,
             next_review_date=timezone.now() + timedelta(minutes=2)  # Set review time to 2 minutes later
         )
         
+        # Retrieve or create the current user's activity
+        activity, created = UserActivity.objects.get_or_create(user=request.user)
+        
+        # Add the learned flashcards to the activity's learned_cards field (ManyToManyField)
+        activity.learned_cards.add(*flashcards)
+        
+        # Optionally, increment `quizzes_completed` or other activity fields
+        activity.quizzes_completed += 1
+        
+        # Save the user activity
+        activity.save()
+
         # Return success response
         return JsonResponse({"success": True})
 
@@ -803,11 +824,19 @@ def review_view(request, set_id):
     return render(request, "review.html", {"flashcards": reviewable_cards})
 
 @login_required
-def update_flashcard_level(request, card_id, action):
+def update_flashcard_level(request, card_id):
     if request.method == 'POST':
         flashcard = get_object_or_404(Flashcard, card_id=card_id, flashcard_set__user=request.user)
 
-        # Get the new level from the request body (the action indicates whether it's a promotion or demotion)
+        # Track the flashcard view
+        activity, _ = UserActivity.objects.get_or_create(user=request.user)
+        activity.cards_viewed += 1  # Increment the number of viewed cards
+
+        # Update the recent flashcard
+        activity.recent_flashcard = flashcard
+        activity.save()
+
+        # Get the new level from the request body (assuming the level is provided in the request)
         data = json.loads(request.body)
         new_level = data.get('level')
 
@@ -833,19 +862,28 @@ def update_flashcard_level(request, card_id, action):
             return JsonResponse({"status": "error", "message": "Invalid level"}, status=400)
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
-@login_required
-def mark_flashcard_as_learned(request, card_id):
+
+@csrf_exempt
+def mark_flashcards_as_learned(request):
     if request.method == 'POST':
-        flashcard = get_object_or_404(Flashcard, card_id=card_id, flashcard_set__user=request.user)
-        
-        # Mark the flashcard as learned
-        flashcard.is_learned = True
-        flashcard.level = 0  # Set level to 0 when learned
-        flashcard.next_review_date = timezone.now() + timedelta(minutes=1)  # Set review time to 1 minute later
-        flashcard.save()
-        
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "error"}, status=400)
+        # Retrieve the UserActivity for the current user
+        activity, created = UserActivity.objects.get_or_create(user=request.user)
+
+        # Parse the request body to get the flashcard IDs
+        try:
+            flashcard_ids = request.POST.getlist('flashcard_ids')  # Assuming flashcard IDs are sent in a list
+            flashcards = Flashcard.objects.filter(id__in=flashcard_ids)
+
+            # Add the flashcards to the user's learned_cards
+            for flashcard in flashcards:
+                activity.learned_cards.add(flashcard)
+            activity.save()
+
+            return JsonResponse({"status": "success", "message": "Flashcards marked as learned."})
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
 @csrf_exempt
 def update_flashcard_review(request, card_id):
@@ -858,3 +896,93 @@ def update_flashcard_review(request, card_id):
 
             return JsonResponse({"status": "success", "next_review_date": flashcard.next_review_date})
         return JsonResponse({"status": "error", "message": "Flashcard not found."}, status=404)
+
+@login_required
+def track_time_spent(request):
+    if request.method == 'POST':
+        card_id = request.POST.get('card_id')
+        time_spent = int(request.POST.get('time_spent'))  # Time spent in seconds
+        
+        # Get the flashcard object based on the card_id
+        flashcard = get_object_or_404(Flashcard, card_id=card_id)
+
+        # Retrieve or create the user activity entry, associated with this flashcard
+        activity, created = UserActivity.objects.get_or_create(user=request.user, flashcard=flashcard)
+        
+        # If the activity was created, you can perform logic if needed (e.g., initial setup)
+        if created:
+            print(f"New activity entry created for user {request.user.username} and flashcard {flashcard.card_id}")
+        
+        # Add time spent to the total time for this flashcard
+        activity.time_spent += time_spent
+        activity.save()
+
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "error"}, status=400)
+
+def activity_dashboard(request):
+    activity = UserActivity.objects.get(user=request.user)
+    
+    # Ensure that time_spent is an integer representing the total time spent in seconds
+    time_spent_seconds = activity.time_spent
+
+    # Calculate hours, minutes, and seconds
+    hours = time_spent_seconds // 3600
+    minutes = (time_spent_seconds % 3600) // 60
+    seconds = time_spent_seconds % 60
+
+    # Format the time to always show two digits for hours, minutes, and seconds
+    formatted_time = f"{hours:02}:{minutes:02}:{seconds:02}"
+
+    return render(request, 'activity_dashboard.html', {
+        'activity': activity,
+        'time_spent': formatted_time,  # Pass the formatted time
+        'learned_count': activity.learned_cards.count(),
+        'recent_flashcard': activity.recent_flashcard,
+    })
+
+@login_required
+def update_user_activity(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        activity_type = data.get('activity_type')  # e.g., "quiz_completed"
+        time_spent = data.get('time_spent')  # Time spent in seconds
+        flashcards_completed = data.get('flashcards_completed', 0)  # Number of flashcards completed
+
+        # Get or create the user activity record
+        activity, created = UserActivity.objects.get_or_create(user=request.user)
+
+        if activity_type == "quiz_completed":
+            # Update fields in the UserActivity model (you can add more fields here as needed)
+            activity.quizzes_completed += 1
+            activity.time_spent += time_spent
+            activity.cards_viewed += flashcards_completed  # You can also track how many flashcards were viewed
+
+            # Save the updated activity
+            activity.save()
+
+            return JsonResponse({"success": True})
+
+        return JsonResponse({"success": False, "message": "Invalid activity type"}, status=400)
+    
+    return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+
+@csrf_exempt
+def track_flashcard_time(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)  # Parse incoming JSON data
+        flashcard_id = data.get('flashcard_id')
+        time_spent = data.get('time_spent')
+
+        # Get or create the user's activity record
+        activity, created = UserActivity.objects.get_or_create(user=request.user)
+
+        # Track the time spent on the specific flashcard
+        flashcard = Flashcard.objects.get(id=flashcard_id)
+        activity.time_spent += time_spent
+        activity.cards_viewed += 1  # Increment the number of cards viewed
+        activity.save()  # Save the updated activity
+
+        return JsonResponse({"status": "success"})
+
+    return JsonResponse({"status": "error"}, status=400)
