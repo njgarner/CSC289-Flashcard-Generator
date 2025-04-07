@@ -8,6 +8,48 @@
      
     <!-- Internal CSS -->
 	<style>
+	  .reminder-layout {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 40px;
+		flex-wrap: wrap; /* Makes it responsive */
+	  }
+		
+	  .reminder-form {
+		flex: 1;
+		max-width: 400px;
+	  }
+		
+	  .reminder-table {
+		flex: 1;
+		min-width: 300px;
+	  }
+		
+	  .reminder-form label[for="emailReminder"] {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 10px;
+		font-weight: bold;
+	  }
+		
+	  .reminder-form input[type="checkbox"] {
+		margin-right: 8px;
+	  }
+
+	  .reminder-table button {
+		background-color: #f44336;
+		color: white;
+		border-radius: 3px;
+		padding: 5px 10px;
+		cursor: pointer;
+	  }
+	  
+	  .reminder-table button:hover {
+		background-color: #d32f2f;
+	  }
+
 	  .alert {
 		padding: 10px;
 		margin: 10px 0;
@@ -15,13 +57,11 @@
 		text-align: center;
 		font-weight: bold;
 	  }
-	  .container{
-		max-width: 500px;
-		margin: atuo;
-		background-color: #fff;
-		padding: 1px 20px 20px 20px;
+	  .content {
+		max-width: 1000px; /* Increase max width */
+		margin: 0 auto;    /* Center horizontally */
+		padding: 20px;
 		border-radius: 5px;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 	  }
 	  label, input, button{
 		margin: 10px 0;
@@ -57,48 +97,61 @@
 	</style>
     <!-- Main Content Section -->
 	<div class="content">
-      <br><br><br>
-	  <h2 style="text-align: center;">Study Time Reminder</h2>
-	  <div id="message-container" style="display: none;"></div>
-      <hr>
-
-	  <label for="">Title :</label>
-      <input type="text" id="title" />
-	  <label for="">Description :</label>
-	  <input type="text" id="description" />
-	  <label for="">Date :</label>
-	  <input type="date" id="date" />
-	  <label for="">Time :</label>
-	  <input type="time" id="time" />
-	  <label for="">Email Address (optional) :</label>
-	  <input type="email" id="email" placeholder="Enter your email" />
-	
-	  <label>
-		<input type="checkbox" id="emailReminder"> Send Reminder to Email
-	  </label>
-
-	   <!-- Disclaimer for denied notifications -->
-  <p id="notificationDisclaimer" style="color: red; display: none;">
-    ⚠️ You have denied notifications. You will not receive a desktop reminder!
-  </p>
-
-  <button style="width: 100%" onclick="scheduleReminder();">
-    Schedule Study Time
-  </button>
-
-  <table border="1">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Date & Time</th>
-        <th>Email Reminder</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="reminderTableBody"></tbody>
-  </table>
-</div>
+		<br><br><br>
+		<h2 style="text-align: center;">Study Time Reminder</h2>
+		<div id="message-container" style="display: none;"></div>
+		<hr>
+	  
+		<div class="reminder-layout">
+		  <!-- Left: Form section -->
+		  <div class="reminder-form">
+			<label for="title">Title :</label>
+			<input type="text" id="title" maxlength="100" />
+	  
+			<label for="description">Description :</label>
+			<input type="text" id="description" maxlength="200" />
+	  
+			<label for="date">Date :</label>
+			<input type="date" id="date" />
+	  
+			<label for="time">Time :</label>
+			<input type="time" id="time" />
+	  
+			<label for="email">Email Address (optional) :</label>
+			<input type="email" id="email" placeholder="Enter your email" />
+	  
+			<label for="emailReminder">
+			  <input type="checkbox" id="emailReminder"> Send Reminder to Email
+			</label>
+	  
+			<!-- Disclaimer for denied notifications -->
+			<p id="notificationDisclaimer" style="color: red; display: none; text-align: center;">
+			  ⚠️ You have denied notifications. You will not receive a desktop reminder!
+			</p>
+	  
+			<button style="width: 100%;" onclick="scheduleReminder();">
+			  Schedule Study Time
+			</button>
+		  </div>
+	  
+		  <!-- Right: Table section -->
+		  <div class="reminder-table">
+			<h3 style="text-align: center;">Your Reminders</h3>
+			<table border="1">
+			  <thead>
+				<tr>
+				  <th>Title</th>
+				  <th>Description</th>
+				  <th>Date & Time</th>
+				  <th>Email Reminder</th>
+				  <th>Action</th>
+				</tr>
+			  </thead>
+			  <tbody id="reminderTableBody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
 
 <audio src="{% static 'mixkit.mp3' %}" id="notificationSound"></audio>
 
@@ -146,6 +199,18 @@
   });
 
   function scheduleReminder() {
+	  // Check for existing reminder count
+	  const tableBody = document.getElementById("reminderTableBody");
+	  const currentCount = tableBody.rows.length;
+	
+	  if (currentCount >= 25) {
+		showMessage(
+		  "🚫 You’ve reached the maximum of 25 scheduled reminders. Please delete one to add a new reminder.",
+		  "error"
+		);
+		return; // Stop further execution
+	  }
+
     var title = document.getElementById("title").value;
     var description = document.getElementById("description").value;
     var date = document.getElementById("date").value;
