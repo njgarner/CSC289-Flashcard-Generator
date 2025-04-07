@@ -61,16 +61,3 @@ class FavoriteSet(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.set.title}"
-
-class UserActivity(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    quizzes_completed = models.PositiveIntegerField(default=0)
-    time_spent = models.PositiveIntegerField(default=0)
-    cards_viewed = models.PositiveIntegerField(default=0)
-    recent_flashcard = models.ForeignKey('Flashcard', null=True, blank=True, on_delete=models.SET_NULL)
-    learned_cards = models.ManyToManyField('Flashcard', related_name='learned_by', blank=True)
-
-
-    def __str__(self):
-        return f"Activity for {self.user.username} on {self.date_created}"
-

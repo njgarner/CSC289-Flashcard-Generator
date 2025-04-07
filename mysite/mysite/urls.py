@@ -57,7 +57,7 @@ urlpatterns = [
     path('update_learned_flashcards/', views.update_learned_flashcards, name='update_learned_flashcards'),
     path('review/<int:set_id>/', views.review_view, name='review_view'),
     path('update_flashcard_level/<int:card_id>/<str:action>/', views.update_flashcard_level, name='update_flashcard_level'),
-    path('mark_flashcard_as_learned/<int:card_id>/', views.mark_flashcards_as_learned, name='mark_flashcard_as_learned'),
+    path('mark_flashcard_as_learned/<int:card_id>/', views.mark_flashcard_as_learned, name='mark_flashcard_as_learned'),
     path('update_flashcard_review/<int:card_id>/', views.update_flashcard_review, name='update_flashcard_review'),
     path('change_password/', views.change_password, name='change_password'),
     path('password_change_done/', views.password_change_done, name='password_change_done'),
@@ -72,10 +72,5 @@ urlpatterns = [
     path('password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
-    path('activity-dashboard/', views.activity_dashboard, name='activity_dashboard'),
-    path('update-user-activity/', views.update_user_activity, name='update_user_activity'),
-    path('update_flashcard_review/<int:flashcard_id>/', views.mark_flashcards_as_learned, name='mark_flashcard_as_learned'),
-    path('track_flashcard_time/', views.track_flashcard_time, name='track_flashcard_time'),
-    path('track-time-spent/', views.track_time_spent, name='track_time_spent'),
 ]
 

@@ -117,145 +117,96 @@
                 let setSelector = document.getElementById("set-selector");
                 let setSelectorContent = document.getElementById("set-selector-content");
                 setSelectorContent.style.display = "none";
-
+        
                 // If there is a last viewed set, auto-select it and update the button text
                 {% if last_viewed_set %}
                     setSelector.innerText = "{{ last_viewed_set.title }}" + " ▼"; // Update button text
                 {% endif %}
-
+        
                 setSelector.addEventListener("click", function () {
                     setSelectorContent.style.display = setSelectorContent.style.display === "block" ? "none" : "block";
                 });
-
-            document.querySelectorAll("#set-selector-content a").forEach(link => {
-                link.addEventListener("click", function (event) {
-                    event.preventDefault(); // Prevent immediate navigation
-
-                    let selectedSetTitle = this.innerText;
-                    let selectedSetId = this.getAttribute("data-set-id");
-                    let selectedSetUrl = this.getAttribute("href");
-
-                    // Update the set selector button text immediately before redirect
-                    setSelector.innerText = selectedSetTitle + " ▼";
-
-                    // Send an AJAX request to update the last viewed set in the session
-                    fetch("{% url 'update_last_viewed_set' %}", {
-                        method: 'POST',
-                        body: JSON.stringify({ set_id: selectedSetId }),
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
-                        }
-                    }).then(function(response) {
-                        // After the request is done, redirect to the selected set's study page
-                        window.location.href = selectedSetUrl;
+        
+                document.querySelectorAll("#set-selector-content a").forEach(link => {
+                    link.addEventListener("click", function (event) {
+                        event.preventDefault(); // Prevent immediate navigation
+        
+                        let selectedSetTitle = this.innerText;
+                        let selectedSetId = this.getAttribute("data-set-id");
+                        let selectedSetUrl = this.getAttribute("href");
+        
+                        // Update the set selector button text immediately before redirect
+                        setSelector.innerText = selectedSetTitle + " ▼";
+        
+                        // Send an AJAX request to update the last viewed set in the session
+                        fetch("{% url 'update_last_viewed_set' %}", {
+                            method: 'POST',
+                            body: JSON.stringify({ set_id: selectedSetId }),
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
+                            }
+                        }).then(function(response) {
+                            // After the request is done, redirect to the selected set's study page
+                            window.location.href = selectedSetUrl;
+                        });
                     });
                 });
-            });
-
-            // Flashcard navigation logic
-            let flashcards = [
-                {% for flashcard in flashcards %}
-                    { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
-                {% endfor %}
-            ];
-
-            let currentIndex = 0;
-            let showingQuestion = true;
-            let timeStart = null;  // To track when the flashcard was first viewed
-            let totalTime = 0;     // Track total time spent on the flashcard
-
-            function updateCardContent() {
-                if (flashcards.length > 0) {
-                    let cardContent = document.getElementById("card-content");
-                    cardContent.innerText = flashcards[currentIndex].question;
-                    showingQuestion = true; // Reset to question
-                    timeStart = Date.now(); // Start tracking time when flashcard is viewed
+        
+                // Flashcard navigation logic
+                let flashcards = [
+                    {% for flashcard in flashcards %}
+                        { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
+                    {% endfor %}
+                ];
+        
+                let currentIndex = 0;
+                let showingQuestion = true;
+        
+                function updateCardContent() {
+                    if (flashcards.length > 0) {
+                        let cardContent = document.getElementById("card-content");
+                        cardContent.innerText = flashcards[currentIndex].question;
+                        showingQuestion = true; // Reset to question
+                    }
                 }
-            }
-
-            document.getElementById("flip-button").addEventListener("click", function () {
-                if (flashcards.length > 0) {
-                    let cardContent = document.getElementById("card-content");
-
-                    showingQuestion = !showingQuestion;
-                    cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
-                }
+        
+                document.getElementById("flip-button").addEventListener("click", function () {
+                    if (flashcards.length > 0) {
+                        let cardContent = document.getElementById("card-content");
+        
+                        showingQuestion = !showingQuestion;
+                        cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
+                    }
+                });
+        
+                document.getElementById("next").addEventListener("click", function () {
+                    if (flashcards.length > 0) {
+                        currentIndex = (currentIndex + 1) % flashcards.length;
+                        updateCardContent();
+                    }
+                });
+        
+                document.getElementById("previous").addEventListener("click", function () {
+                    if (flashcards.length > 0) {
+                        currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                        updateCardContent();
+                    }
+                });
+        
+                document.getElementById("rand-button").addEventListener("click", function () {
+                    if (flashcards.length > 1) {
+                        let newIndex;
+                        do {
+                            newIndex = Math.floor(Math.random() * flashcards.length);
+                        } while (newIndex === currentIndex);
+                        currentIndex = newIndex;
+                        updateCardContent();
+                    }
+                });
+        
+                updateCardContent();  // Initialize the card content
             });
-
-            document.getElementById("next").addEventListener("click", function () {
-                if (flashcards.length > 0) {
-                    let timeSpent = Math.floor((Date.now() - timeStart) / 1000); // Time spent in seconds
-                    totalTime += timeSpent;  // Add time spent on this flashcard to the total time
-
-                    // Send the time spent to the backend via AJAX
-                    fetch("{% url 'track_flashcard_time' %}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": '{{ csrf_token }}',
-                        },
-                        body: JSON.stringify({
-                            flashcard_id: flashcards[currentIndex].id,
-                            time_spent: timeSpent
-                        })
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            console.log("Time spent on flashcard tracked.");
-                        } else {
-                            console.error("Failed to track time.");
-                        }
-                    });
-
-                    currentIndex = (currentIndex + 1) % flashcards.length;
-                    updateCardContent();
-                }
-            });
-
-            document.getElementById("previous").addEventListener("click", function () {
-                if (flashcards.length > 0) {
-                    let timeSpent = Math.floor((Date.now() - timeStart) / 1000); // Time spent in seconds
-                    totalTime += timeSpent;  // Add time spent on this flashcard to the total time
-
-                    // Send the time spent to the backend via AJAX
-                    fetch("{% url 'track_flashcard_time' %}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": '{{ csrf_token }}',
-                        },
-                        body: JSON.stringify({
-                            flashcard_id: flashcards[currentIndex].id,
-                            time_spent: timeSpent
-                        })
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            console.log("Time spent on flashcard tracked.");
-                        } else {
-                            console.error("Failed to track time.");
-                        }
-                    });
-
-                    currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
-                    updateCardContent();
-                }
-            });
-
-            document.getElementById("rand-button").addEventListener("click", function () {
-                if (flashcards.length > 1) {
-                    let newIndex;
-                    do {
-                        newIndex = Math.floor(Math.random() * flashcards.length);
-                    } while (newIndex === currentIndex);
-                    currentIndex = newIndex;
-                    updateCardContent();
-                }
-            });
-
-            updateCardContent();  // Initialize the card content
-        });
         </script>
 
         <!-- Script for Tutorial Function -->

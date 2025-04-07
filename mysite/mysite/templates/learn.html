@@ -430,10 +430,7 @@
             // Function to update the `is_learned` status of flashcards after quiz completion
             function markFlashcardsAsLearned() {
                 const flashcardIds = flashcards.map(flashcard => flashcard.card_id);  // Get IDs of all flashcards
-
-                // Log the number of flashcards being marked as learned
-                console.log("Flashcards being marked as learned:", flashcardIds.length);  // This will log the count of flashcards
-
+        
                 // Send an AJAX POST request to update the `is_learned` field
                 fetch("{% url 'update_learned_flashcards' %}", {
                     method: "POST",
@@ -447,72 +444,12 @@
                 .then(data => {
                     if (data.success) {
                         console.log("Flashcards marked as learned.");
-                        console.log("Learned flashcards count sent to backend:", flashcardIds.length); // Log the count sent to the backend
-                        // Now update user activity for the quiz completion
-                        sendActivityUpdate();
                     } else {
                         console.error("Failed to mark flashcards as learned.");
                     }
                 })
                 .catch(error => console.error("Error:", error));
             }
-
-            function sendActivityUpdate() {
-                // Send an activity update to the backend to record that the user has completed the quiz
-                fetch("{% url 'update_user_activity' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCookie("csrftoken")  // Django CSRF token for security
-                    },
-                    body: JSON.stringify({
-                        activity_type: "quiz_completed",  // Type of activity (could be extended to track more activities)
-                        time_spent: 300,  // Example: Add the time spent in seconds (replace with actual time)
-                        flashcards_completed: flashcards.length  // Number of flashcards completed
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log("User activity updated.");
-                    } else {
-                        console.error("Failed to update user activity.");
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            }
-
-            let startTime = Date.now();  // Start tracking time when the user starts studying
-
-            function endStudySession(flashcardId) {
-                let endTime = Date.now();  // End tracking time when the user finishes studying
-
-                let timeSpent = Math.floor((endTime - startTime) / 1000);  // Time spent in seconds
-
-                // Send the time spent to the backend
-                fetch("{% url 'track_time_spent' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCookie("csrftoken"),
-                    },
-                    body: JSON.stringify({
-                        flashcard_id: flashcardId,
-                        time_spent: timeSpent,
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        console.log("Time spent tracked successfully.");
-                    } else {
-                        console.error("Failed to track time spent.");
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            }
-
-
         
             // Function to get the CSRF token from the cookies
             function getCookie(name) {
