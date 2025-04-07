@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.utils.text import Truncator
 from django.urls import reverse
 from django.contrib.auth.views import PasswordResetView  
 from django.contrib.auth.password_validation import validate_password
@@ -48,8 +49,12 @@ def home(request):
             "is_guest": True,  # Send a flag to the template
         })
 
-    # Get favorite sets for the current user
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related("set")
+    # Get recent sets (by ID from session)
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them to match the order in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
     # Get Flashcard sets for the current user
     flashcard_sets = FlashcardSet.objects.filter(user=request.user)
@@ -63,6 +68,9 @@ def home(request):
         # Get the last viewed set for the current user
         last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first()
         if last_viewed_set:
+            # Truncate the title of the last viewed set to 25 characters
+            last_viewed_set.title = Truncator(last_viewed_set.title).chars(25)
+
             # Get the flashcards for the last viewed set
             flashcards = last_viewed_set.flashcard_set.all()
 
@@ -74,13 +82,13 @@ def home(request):
 
     # Render the home page with all necessary context
     return render(request, "home.html", {
-        "flashcard_sets": flashcard_sets,
-        "favorite_sets": favorite_sets,
-        "last_viewed_set": last_viewed_set,
-        "flashcards": flashcards,
-        "remaining_cards": remaining_cards,
-        "reviewable_cards_count": reviewable_cards.count(),
-        "is_guest": False,  # Send a flag to the template
+      "flashcard_sets": flashcard_sets,
+      "recent_sets": recent_sets,
+      "last_viewed_set": last_viewed_set,
+      "flashcards": flashcards,
+      "remaining_cards": remaining_cards,
+      "reviewable_cards_count": reviewable_cards.count(),
+      "is_guest": False,
     })
 
 @login_required
@@ -100,25 +108,38 @@ def library_view(request):
     favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
     set_count = FlashcardSet.objects.filter(user=request.user).count()
     favorite_count = FavoriteSet.objects.filter(user=request.user).count()
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
     
     # Get a list of favorited set IDs for easy lookup
     favorite_set_ids = set(favorite.set.set_id for favorite in favorites)
 
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
     return render(request, 'library.html', {
         'flashcard_sets': flashcard_sets,
         'favorites': favorites,
-        'favorite_sets': favorite_sets,  # Pass favorite sets to the template
         'favorite_set_ids': favorite_set_ids,  # Pass the IDs to the template
         'set_count': set_count, # Pass the set count to the template
-        'favorite_count': favorite_count  # Pass the count of favorite sets to the template
+        'favorite_count': favorite_count,  # Pass the count of favorite sets to the template
+        'recent_sets': recent_sets # Pass recent sets to the template
     })
+
 
 @login_required  # About Us page
 def about(request):
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
     return render(request, 'about_us.html', {
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    'recent_sets': recent_sets # Pass recent sets to the template
     })
 
 @login_required  # Terms and conditions page
@@ -127,30 +148,54 @@ def terms(request):
 
 @login_required
 def settings(request):
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
     return render(request, 'settings.html', {
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    'recent_sets': recent_sets # Pass recent sets to the template
     })
 
 @login_required  # Schedule study time page
 def schedule(request):
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
     return render(request, 'study_schedule.html', {
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    'recent_sets': recent_sets # Pass recent sets to the template
     })
 
 @login_required  # Customization page
 def customize(request):
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
     return render(request, 'customize.html', {
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    'recent_sets': recent_sets # Pass recent sets to the template
     })
 
 @login_required  # User acount deletion page
 def account_delete(request):
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
     return render(request, 'account_delete.html', {
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    'recent_sets': recent_sets # Pass recent sets to the template
     })
 
 def send_reminder_email(request):
@@ -230,10 +275,31 @@ def change_password(request):
                 return redirect('change_password')
     else:
         form = ChangePasswordForm(request.user)
-    return render(request, 'change-password/change_password.html', {'form': form})
+
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
+    return render(request, 'change-password/change_password.html', {
+    'form': form,
+    'recent_sets': recent_sets # Pass recent sets to the template
+    })
 
 def password_change_done(request):
-    return render(request, 'change-password/password_change_done.html')
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
+    return render(request, 'change-password/password_change_done.html', {
+    'recent_sets': recent_sets # Pass recent sets to the template
+    })
+    
 
 def guest_login(request):
     # Logs in a user as a guest without requiring authentication.
@@ -324,7 +390,7 @@ def signup_user(request):  # Signup page with email verification
         })
 
         email_message = EmailMultiAlternatives(
-            subject="Verify Your Email - Flashcard App",
+            subject="Verify Your Email - FlashLite",
             body=strip_tags(html_message),
             from_email="noreply@yourdomain.com",
             to=[email]
@@ -367,7 +433,7 @@ def user_login(request):  # Logs in user
             messages.success(request, "Login successful!")
             return redirect('home')
         else:
-            messages.error(request, "Invalid credentials")
+            messages.error(request, "Invalid username or password.")
             return render(request, 'login.html', {"username": username})  # Preserve input
 
     return render(request, 'login.html')
@@ -440,9 +506,13 @@ def add_sample_sets_and_cards(user):
             )
 
 def create_set(request):
-    # Get favorite sets for the current user
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
     set_count = FlashcardSet.objects.filter(user=request.user).count()
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
     if set_count >= 100:  # Check if the user has reached the maximum number of sets (100)
         messages.error(request, "Maximum number of flashcard sets reached. Please delete an existing set before creating a new one.")
@@ -478,11 +548,19 @@ def create_set(request):
         messages.error(request, "Please fill in all required fields.")
 
     return render(request, 'create_set.html', {
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+    'recent_sets': recent_sets # Pass recent sets to the template
     })
 
 @login_required  # View flashcard set details
 def view_flashcard_set(request, set_id):
+    # Track recently viewed sets
+    recent = request.session.get('recent_sets', [])
+    if set_id in recent:
+        recent.remove(set_id)
+    recent.insert(0, set_id)  # Add to front
+    recent = recent[:3]  # Keep only 3
+    request.session['recent_sets'] = recent
+
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
 
@@ -600,7 +678,13 @@ def favorite_sets(request):
 @login_required  # Create a flashcard
 def create_flashcard(request):
     form = FlashcardForm(request.POST or None)
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+
+    # Get recent sets from session
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+
+    # Sort them in the order stored in session
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
     if request.method == 'POST':
         selected_set_id = request.POST.get('flashcard_set')  # The Selected Set from the Set Select Field
@@ -634,7 +718,7 @@ def create_flashcard(request):
 
     return render(request, 'create_flashcard.html', {
         'form': form,
-        'favorite_sets': favorite_sets  # Pass favorite sets to the template
+        'recent_sets': recent_sets # Pass recent sets to the template
     })
 
 @login_required  # View flashcard set details
@@ -707,27 +791,37 @@ def study_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
 
-    # Get favorite sets for the current user
+    # Update session with most recent set BEFORE reading it
+    recent = request.session.get('recent_sets', [])
+    if set_id in recent:
+        recent.remove(set_id)
+    recent.insert(0, set_id)
+    recent = recent[:3]
+    request.session['recent_sets'] = recent
+
+    # Now that session is updated, load and sort actual recent sets
+    recent_ids = request.session.get("recent_sets", [])
+    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
+    # Favorite sets
     favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
-    # Count the number of unlearned flashcards in the set
+    # Remaining cards
     remaining_cards = flashcards.filter(is_learned=False).count()
 
-    # Set the last viewed set in the session when entering the study page
+    # Set last viewed set
     request.session['last_viewed_set_id'] = set_id
+    last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=set_id).first()
 
-    # Retrieve the last viewed set from session
-    last_viewed_set_id = request.session.get('last_viewed_set_id', None)
-    last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=last_viewed_set_id).first() if last_viewed_set_id else None
-
-    # Render the study page (home.html in this case) with the correct context
     return render(request, 'home.html', {
         "flashcard_set": flashcard_set,
         "flashcards": flashcards,
         "favorite_sets": favorite_sets,
         "flashcard_sets": flashcard_sets,
-        "last_viewed_set": last_viewed_set,  # Pass last viewed set to the template
-        "remaining_cards": remaining_cards,  # Add unlearned flashcards count
+        "recent_sets": recent_sets,  # ✅ Don't forget to pass this!
+        "last_viewed_set": last_viewed_set,
+        "remaining_cards": remaining_cards,
     })
 
 def learn_view(request):
