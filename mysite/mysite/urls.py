@@ -71,11 +71,19 @@ urlpatterns = [
     path('password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
-    path('classrooms/', views.classrooms_view, name='classrooms'),
+    # Classroom views
     path('classrooms/create/', views.create_classroom, name='create_classroom'),
     path('classrooms/<int:classroom_id>/', views.view_classroom, name='view_classroom'),
     path('classrooms/<int:classroom_id>/delete/', views.delete_classroom, name='delete_classroom'),
-    path('teacher_classrooms/', views.teacher_classrooms, name='teacher_classrooms'),
-    path('student_classrooms/', views.student_classrooms, name='student_classrooms'),
+    path('classrooms/', views.classrooms_view, name='classrooms'),  # Combined view for teachers and students
+    
+    # Teacher and student-specific views
+    path('teacher_classrooms/', views.teacher_classrooms, name='teacher_classrooms'),  # Optional: If you want a separate teacher view
+    path('student_classrooms/', views.student_classrooms, name='student_classrooms'),  # Optional: If you want a separate student view
+    
+    # Classroom joining
     path('join-classroom/', views.join_classroom, name='join_classroom'),
+    
+    # Classroom actions
+    path('classrooms/<int:classroom_id>/assign_flashcard_sets/', views.assign_flashcard_sets, name='assign_flashcard_sets'),  # Path for assigning flashcard sets to classrooms
 ]

@@ -305,6 +305,7 @@ def signup_user(request):
                 "email": "",
                 "role": role
             })
+        
 
         try:
             with transaction.atomic(): # Use a transaction for atomicity
@@ -316,17 +317,7 @@ def signup_user(request):
                     is_active=False  # User is inactive until email is verified
                 )
 
-                # Check if a profile already exists
-                if not UserProfile.objects.filter(user=user).exists():
-                    # Now that the user exists, create the user profile
-                    UserProfile.objects.create(user=user, role=role)
-                else:
-                    messages.error(request, "A profile already exists for this user.")
-                    return render(request, "sign_up.html", {
-                        "username": username,
-                        "email": email,
-                        "role": role
-                    })
+                user_profile = UserProfile.objects.create(user=user, role=role)
 
                 # Send verification email (similar to your existing code)
                 token = default_token_generator.make_token(user)
@@ -879,14 +870,30 @@ def classrooms_view(request):
     
     # If the user is a teacher, show teacher-specific classrooms
     if user_profile.role == 'teacher':
+        print("TEACHER")
         classrooms = Classroom.objects.filter(user=request.user)
         return render(request, 'teacher_classrooms.html', {'classrooms': classrooms})
     else:
         # If the user is a student, show student-specific classrooms
-        classrooms = Classroom.objects.filter(user=request.user)
+        print("STUDENT")
+        classrooms = Classroom.objects.filter(students=request.user)
         return render(request, 'student_classrooms.html', {'classrooms': classrooms})
 
+# Teacher-specific classrooms view
+@login_required
+def teacher_classrooms(request):
+    # Only teachers will access this view
+    classrooms = Classroom.objects.filter(user=request.user)
+    return render(request, 'teacher_classrooms.html', {'classrooms': classrooms})
 
+# Student-specific classrooms view
+@login_required
+def student_classrooms(request):
+    # Only students will access this view
+    classrooms = Classroom.objects.filter(students=request.user)
+    return render(request, 'student_classrooms.html', {'classrooms': classrooms})
+
+# Create a new classroom
 @login_required
 def create_classroom(request):
     if request.method == 'POST':
@@ -899,29 +906,30 @@ def create_classroom(request):
 
     return render(request, 'create_classroom.html')
 
+from django.http import HttpResponseForbidden
+
 @login_required
 def view_classroom(request, classroom_id):
-    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
-    return render(request, 'view_classrooms.html', {'classroom': classroom})
+    classroom = get_object_or_404(Classroom, id=classroom_id)
 
+    # Check if the user is either the teacher or a student
+    if request.user == classroom.user:
+        role = 'teacher'  # Teacher
+    elif request.user in classroom.students.all():
+        role = 'student'  # Student
+    else:
+        return HttpResponseForbidden("You do not have permission to view this classroom.")
+
+    return render(request, 'view_classroom.html', {'classroom': classroom, 'role': role})
+
+# Delete a classroom
 @login_required
 def delete_classroom(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
     classroom.delete()
     return redirect('classrooms')
 
-#######################################
-
-@login_required
-def teacher_classrooms(request):
-    # Logic for teacher classrooms view
-    return render(request, 'teacher_classrooms.html')
-
-@login_required
-def student_classrooms(request):
-    # Logic for student classrooms view
-    return render(request, 'student_classrooms.html')
-
+# Join a classroom as a student
 @login_required
 def join_classroom(request):
     if request.method == "POST":
@@ -937,3 +945,46 @@ def join_classroom(request):
             return redirect('student_classrooms')
     
     return redirect('student_classrooms')
+
+@login_required
+def assign_flashcard_sets(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+
+    # Get IDs of already assigned sets
+    assigned_ids = classroom.flashcard_sets.values_list('set_id', flat=True)
+
+    # Get sets not already assigned
+    flashcard_sets = FlashcardSet.objects.exclude(set_id__in=assigned_ids)
+
+    # 🔍 Debug print
+    print("Flashcard sets available to assign:")
+    for s in flashcard_sets:
+        print(f"- {s.title} (ID: {s.set_id})")
+
+    if request.method == 'POST':
+        if 'remove_set' in request.POST:
+            remove_id = request.POST.get('remove_set')
+            flashcard_set = get_object_or_404(FlashcardSet, set_id=remove_id)
+            classroom.flashcard_sets.remove(flashcard_set)
+            return redirect('assign_flashcard_sets', classroom_id=classroom.id)
+
+        else:
+            selected_set_ids = request.POST.getlist('sets')
+            if not selected_set_ids:
+                messages.error(request, "Please select at least one flashcard set.")
+            else:
+                for set_id in selected_set_ids:
+                    flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+                    classroom.flashcard_sets.add(flashcard_set)
+                return redirect('assign_flashcard_sets', classroom_id=classroom.id)
+
+    # Recalculate assigned/unassigned sets after modifications
+    assigned_ids = classroom.flashcard_sets.values_list('set_id', flat=True)
+    flashcard_sets = FlashcardSet.objects.exclude(set_id__in=assigned_ids)
+    assigned_flashcard_sets = classroom.flashcard_sets.all()
+
+    return render(request, 'assign_flashcard_sets.html', {
+        'classroom': classroom,
+        'flashcard_sets': flashcard_sets,
+        'assigned_flashcard_sets': assigned_flashcard_sets,
+    })

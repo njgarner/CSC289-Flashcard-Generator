@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classrooms - Flashlite</title>
+    <title>{{ classroom.name }} - Flashlite</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -41,39 +41,41 @@
         <a href="{% url 'settings' %}">Settings</a>
     </div>
 
-    <h1 class="page-title">Join a Classroom</h1>
+    <h1 class="page-title">{{ classroom.name }}</h1>
 
     <div class="content">
-        <!-- Classroom Join Section -->
-        <div class="join-classroom">
-            <h2>Enter Classroom Code</h2>
-            <form method="POST" action="{% url 'join_classroom' %}">
-                {% csrf_token %}
-                <label for="classroom_code">Classroom Code:</label>
-                <input type="text" id="classroom_code" name="classroom_code" required placeholder="Enter code">
-                <button type="submit" class="btn btn-primary">Join Classroom</button>
-            </form>
+        <div class="classroom-details">
+            <h2>Classroom Description</h2>
+            <p>{{ classroom.description }}</p>
+            <p><strong>Classroom Code:</strong> {{ classroom.code }}</p>
+            
+            {% if role == 'teacher' %}
+                <!-- Teacher-specific content -->
+                <h3>Teacher's Actions</h3>
+                <p>Here you can assign flashcard sets to your students, manage your classroom, etc.</p>
+                <a href="{% url 'assign_flashcard_sets' classroom.id %}" class="btn btn-primary">Assign Flashcard Sets</a>
+                <a href="{% url 'delete_classroom' classroom.id %}" class="btn btn-danger">Delete Classroom</a>
+            {% elif role == 'student' %}
+                <!-- Student-specific content -->
+                <h3>Students Section</h3>
+                <p>You are currently enrolled in this classroom. You can review flashcards assigned to this classroom.</p>
+                <h4>Assigned Flashcard Sets:</h4>
+                <ul>
+                    {% for set in classroom.flashcard_sets.all %}
+                        <li>{{ set.title }} - {{ set.description }}</li>
+                    {% empty %}
+                        <p>No flashcard sets assigned yet.</p>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'library_view' %}" class="btn btn-info">Start Reviewing Flashcards</a>
+            {% else %}
+                <p>You do not have permission to view this classroom.</p>
+            {% endif %}
         </div>
-
-        <!-- List of Classrooms the Student is in -->
-        <div class="student-classrooms-list mt-4">
-            <h2>Your Classrooms</h2>
-            {% for classroom in classrooms %}
-                <div class="classroom-item mb-4 p-3 border rounded bg-light">
-                    <h4>{{ classroom.name }}</h4>
-                    <p><strong>Description:</strong> {{ classroom.description|default:"No description provided." }}</p>
-                    <p><strong>Join Code:</strong> {{ classroom.code }}</p>
-                    <p><strong>Students Enrolled:</strong> {{ classroom.students.count }}</p>
-                    <a href="{% url 'view_classroom' classroom.id %}" class="btn btn-secondary mt-2">View Classroom</a>
-                </div>
-            {% empty %}
-                <p>You are not enrolled in any classrooms yet. Join one using the code above!</p>
-            {% endfor %}
-        </div>
-
-        <footer class="footer">
-            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-        </footer>
     </div>
+
+    <footer class="footer">
+        <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+    </footer>
 </body>
 </html>

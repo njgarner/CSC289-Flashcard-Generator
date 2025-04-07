@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Classroom - Flashlite</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <h1 class="page-title">View Classroom - {{ classroom.name }}</h1>
+
+    <div class="classroom-details">
+        <h2>Classroom Information</h2>
+        <p><strong>Description:</strong> {{ classroom.description }}</p>
+        <p><strong>Number of Students:</strong> {{ classroom.students.count }}</p>
+        <p><strong>Classroom Join Code:</strong> {{ classroom.code }}</p>
+        <hr>
+
+        <h3>Assigned Flashcard Sets</h3>
+        <ul>
+            {% for set in classroom.flashcard_sets.all %}
+                <li>{{ set.title }} - {{ set.description }}</li>
+            {% empty %}
+                <p>No flashcard sets assigned yet.</p>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

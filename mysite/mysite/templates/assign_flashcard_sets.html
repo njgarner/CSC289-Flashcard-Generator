@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classrooms - Flashlite</title>
+    <title>Assign Flashcard Sets - {{ classroom.name }} - Flashlite</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
@@ -36,48 +36,52 @@
 
     <div class="nav-bar">
         <a href="{% url 'home' %}">Study Time</a>
-        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
         <a href="{% url 'library_view' %}">Library</a>
         <a href="{% url 'classrooms' %}">Classrooms</a>
         <a href="{% url 'settings' %}">Settings</a>
-
-        <!-- Favorite Decks Dropdown -->
-        <div class="dropdown">
-            <button class="dropbtn">Favorite Decks</button>
-            <div class="dropdown-content">
-                {% for favorite_deck in favorite_decks %}
-                    <a href="{% url 'study_view' favorite_deck.id %}">{{ favorite_deck.name }}</a>
-                {% empty %}
-                    <p>No favorite decks.</p>
-                {% endfor %}
-            </div>
-        </div>
     </div>
 
-    <h1 class="page-title">Classrooms</h1>
+    <h1 class="page-title">Assign Flashcard Sets to {{ classroom.name }}</h1>
 
     <div class="content">
-        <div class="flashcard-sets-list">  <!-- Changed from classroom-list to match library.html -->
-            <button class="add-box">
-                <a href="{% url 'create_classroom' %}">+</a>
-            </button>
-
-            {% for classroom in classrooms %}
-                <div class="flashcard-set"> <!-- Changed from classroom to flashcard-set -->
-                    <p>{{ classroom.name }}</p>
-                    <p>{{ classroom.description }}</p>
-
-                    <a href="{% url 'view_classroom' classroom.id %}" class="view-button">View Classroom</a>
-
-                    <form action="{% url 'delete_classroom' classroom.id %}" method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-button">Delete</button>
-                    </form>
+        <div class="assign-flashcard-sets">
+            <h2>Choose Flashcard Sets to Assign</h2>
+            <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}">
+                {% csrf_token %}
+                <div class="set-selection">
+                    <label for="sets">Available Flashcard Sets:</label>
+                    <select id="sets" name="sets" multiple class="form-control">
+                        {% for set in flashcard_sets %}
+                            <option value="{{ set.set_id }}">{{ set.title }} - {{ set.description }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-            {% empty %}
-                <p>No classrooms created yet.</p>
-            {% endfor %}
+                <button type="submit" class="btn btn-primary">Assign Sets</button>
+            </form>            
         </div>
+
+        <div class="assigned-flashcard-sets">
+            <h2>Currently Assigned Flashcard Sets</h2>
+            {% if assigned_flashcard_sets %}
+                <ul>
+                    {% for set in assigned_flashcard_sets %}
+                        <li>
+                            {{ set.title }} - {{ set.description }}
+                            <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" name="remove_set" value="{{ set.set_id }}" class="btn btn-danger btn-sm ml-2">
+                                    Remove
+                                </button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No flashcard sets assigned yet.</p>
+            {% endif %}
+        </div>
+        
+
         <footer class="footer">
             <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
         </footer>

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User  # Import the built-in User model
 from datetime import timedelta, date, datetime
+import random
+import string
 
 class FlashcardSet(models.Model):
     set_id = models.AutoField(primary_key=True)
@@ -65,10 +67,20 @@ class FavoriteSet(models.Model):
 class Classroom(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_classrooms")
+    code = models.CharField(max_length=10, unique=True, blank=True, null=True)  # Field to store join code
+    students = models.ManyToManyField(User, related_name="classrooms", blank=True)  # Many-to-many relationship for students
+    flashcard_sets = models.ManyToManyField('FlashcardSet', related_name='classrooms', blank=True)  # Many-to-many relationship for flashcard sets
+
+    def save(self, *args, **kwargs):
+        # Generate a unique code if it's not provided
+        if not self.code:
+            self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return f'{self.name} ({self.user.username})'  # Show the classroom's name and creator
+
     
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
