@@ -37,24 +37,74 @@
     </script>
     <!-- Internal CSS -->
 	<style>
+        .title-container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+          
+        .flashcard_set_title {
+            font-size: 32px;
+            text-align: center;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: break-word; /* <-- This is the fix */
+            max-width: 100%;
+            margin: 20px auto;
+        }
+        
+        .set_content {
+          max-width: 90%;
+          margin: 0 auto;
+          padding: 10px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          line-height: 1.6;
+        }
+        
+        .set_content p {
+          font-size: 18px;
+          margin: 8px 0;
+        }
+
         #editForm{
           display: none;
           margin-top: 10px;
+        }
+        .styled-button {
+          padding: 10px;
+          font-family: 'Varela Round', sans-serif;
+          font-size: 20px;
+          color: black;
+          background-color: #84F3DA;
+          border: 2px solid #00A682;
+          margin-bottom: 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+            
+        .styled-button:hover {
+          background-color: #00A682;
+          color: white;
+          border-color: #008B5C;
         }
     </style>
 </head>
 <body>
     <a id="back-button" href="{% url 'library_view' %}" style="margin-left: 10px;">Back to Library</a>
-    <h1 class="flashcard_set_title">{{ flashcard_set.title }}</h1>
+    <div class="title-container">
+        <h1 class="flashcard_set_title">{{ flashcard_set.title }}</h1>
+    </div>
     <div class="set_content">
-        <p>{{ flashcard_set.description }}</p>
-        <p>Category: {{ flashcard_set.category.name }}</p>
-        <p>Created on: {{ flashcard_set.created_at }}</p>
-        <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
+        <p><strong>Description:</strong> {{ flashcard_set.description }}</p>
+        <p><strong>Category:</strong> {{ flashcard_set.category.name }}</p>
+        <p><strong>Created on:</strong> {{ flashcard_set.created_at }}</p>
+        <p><strong>Shared:</strong> {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
     </div>
 
     <!-- Edit Set Button -->
-    <button id="toggleEditSetForm">
+    <button id="toggleEditSetForm" class="styled-button">
         <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> Edit Set
     </button>
 
@@ -64,15 +114,16 @@
         <input type="text" name="title" required value="{{ flashcard_set.title }}"><br><br>
         <input type="text" name="category" required value="{{ flashcard_set.category.name }}"><br><br>
         <textarea name="description">{{ flashcard_set.description }}</textarea><br><br>
-        <button type="submit" class="button">Save Changes</button>
+        <button type="submit" class="styled-button">Save Changes</button>
     </form>
 
     <!-- Card Count -->
     <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/500</h2>
 
-    <a href="{% url 'create_flashcard' %}">
+    <!-- Create Flashcard Button -->
+    <button class="styled-button" onclick="window.location.href='{% url 'create_flashcard' %}'">
         <img src="{% static 'anvil.png' %}" alt="Anvil Icon" class="icon"> Create Flashcards
-    </a>
+    </button>
     
     <!-- Flashcard List -->
 <ul class="flashcards_list">
@@ -114,7 +165,7 @@
             </form>
 
             <!-- Hide/Show edit flashcard form -->
-            <button class="showFormButton" type="button">
+            <button class="showFormButton styled-button" type="button">
                 <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> Edit
             </button>
 
@@ -123,7 +174,7 @@
                 {% csrf_token %}
                 <input type="text" name="question" required placeholder="Enter New Question" value="{{ flashcard.question }}"><br><br>
                 <input type="text" name="answer" required placeholder="Enter New Answer" value="{{ flashcard.answer }}"><br><br>
-                <button type="submit" class="button">Confirm</button>
+                <button type="submit" class="styled-button">Confirm</button>
             </form>
             <br>
         </li>
@@ -157,17 +208,18 @@
         form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
     });
 
-    // Toggle edit form visibility
     document.querySelectorAll('.showFormButton').forEach(function(button) {
         button.addEventListener('click', function() {
             var editForm = this.nextElementSibling;
-            if (editForm.style.display === 'none' || editForm.style.display === '') {
-                editForm.style.display = 'block';
-                this.textContent = 'Hide Edit Form';
-            } else {
-                editForm.style.display = 'none';
-                this.textContent = 'Edit';
-            }
+            var isHidden = (editForm.style.display === 'none' || editForm.style.display === '');
+    
+            editForm.style.display = isHidden ? 'block' : 'none';
+    
+            // Update button text while keeping the icon
+            this.innerHTML = `
+                <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> 
+                ${isHidden ? 'Hide Edit Form' : 'Edit'}
+            `;
         });
     });
 

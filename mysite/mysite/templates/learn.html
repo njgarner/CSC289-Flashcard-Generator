@@ -263,9 +263,6 @@
     <!-- JavaScript to handle flashcard display, number box clicks, and quiz mode -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Capture the time when the page loads (start time)
-            let startTime = Date.now();
-    
             // Filter flashcards to only include those with is_learned = false
             let flashcards = [
                 {% for flashcard in flashcards %}
@@ -289,12 +286,12 @@
             let remainingQuestions = Array.from({ length: flashcards.length }, (_, i) => i);  // List of indices for unanswered questions
             let cardContent = document.getElementById("card-content");
             let flashcardElement = document.getElementById("flashcard");
-    
+        
             // Update the number of boxes based on the number of flashcards
             function updateNumberBoxes() {
                 const numberBoxContainer = document.querySelector('.number-box-container');
                 numberBoxContainer.innerHTML = ''; // Clear existing number boxes
-    
+        
                 // Create new number boxes for the remaining flashcards
                 flashcards.forEach((_, index) => {
                     const numberBox = document.createElement('div');
@@ -302,7 +299,7 @@
                     numberBox.setAttribute('data-index', index);
                     numberBox.innerText = index + 1;
                     numberBoxContainer.appendChild(numberBox);
-    
+        
                     // Add event listener to number box
                     numberBox.addEventListener('click', function () {
                         currentIndex = index;
@@ -310,28 +307,28 @@
                         updateCardContent();
                     });
                 });
-    
+        
                 // After updating the boxes, highlight the selected one (this ensures the first box is highlighted on page load)
                 updateNumberBox();
             }
-    
+        
             // Function to update the displayed flashcard
             function updateCardContent() {
                 if (flashcards.length > 0) {
                     cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
-    
+        
                     // Highlight the corresponding number box
                     updateNumberBox();
                 }
             }
-    
+        
             // Function to update the number box highlighting
             function updateNumberBox() {
                 document.querySelectorAll('.number-box').forEach(box => box.classList.remove('selected-box'));
                 const selectedBox = document.querySelectorAll('.number-box')[currentIndex];
                 selectedBox.classList.add('selected-box');
             }
-    
+        
             // Toggle between question and answer on flashcard click (NOT for quiz mode)
             flashcardElement.addEventListener("click", function () {
                 if (!isQuizMode) {
@@ -350,14 +347,14 @@
                     }
                 }
             });
-    
+        
             // Event listeners for the arrow buttons
             document.getElementById("previous-arrow").addEventListener("click", function () {
                 currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
                 showingQuestion = true;
                 updateCardContent();
             });
-    
+        
             document.getElementById("next-arrow").addEventListener("click", function () {
                 if (currentIndex === flashcards.length - 1) {
                     document.querySelector('.arrow-button').style.display = 'none'; // Hide arrows
@@ -373,12 +370,13 @@
                     updateCardContent();
                 }
             });
-    
+        
             // Function to get the next random question
             function getNextRandomQuestion() {
                 if (remainingQuestions.length > 0) {
                     const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
                     currentIndex = remainingQuestions[randomIndex];
+                    // Do not remove the question from the list yet
                     showingQuestion = true;
                     updateCardContent();
                 } else {
@@ -388,49 +386,51 @@
                     markFlashcardsAsLearned();  // Mark flashcards as learned after completion
                 }
             }
-    
+        
             // Submit the answer in quiz mode
             document.getElementById("submit-answer").addEventListener("click", function () {
                 const userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
                 const correctAnswer = flashcards[currentIndex].answer.trim().toLowerCase();
-    
+        
                 const resultElement = document.getElementById("result");
                 let is_correct = false;
-    
+        
                 if (userAnswer === correctAnswer) {
                     resultElement.innerText = "Correct!";
                     resultElement.style.color = "green";
+                    // Only remove the answered question if it was correct
                     remainingQuestions.splice(remainingQuestions.indexOf(currentIndex), 1); // Remove from remainingQuestions
                     is_correct = true;
+        
                 } else {
                     resultElement.innerText = "Incorrect!";
                     resultElement.style.color = "red";
-                    is_correct = false;
+                    is_correct = false
+                    // Do NOT remove the card from remainingQuestions if it's incorrect
+                    // We want the incorrect card to stay in the list to be retried.
                 }
-    
+        
                 flashcardElement.innerHTML = resultElement.innerText;
-    
+        
                 document.getElementById("answer-input").disabled = true;
                 document.getElementById("submit-answer").disabled = true;
-    
+        
                 if (is_correct == true) {
                     answeredQuestions++;
                 }
-    
+        
+                // When the last question is answered, show the completion message immediately
                 if (answeredQuestions === totalQuestions) {
                     document.getElementById("quiz-mode").style.display = 'none'; // Hide quiz mode
                     document.getElementById("completion-screen").style.display = 'block'; // Show the new completion message
                     markFlashcardsAsLearned();  // Mark flashcards as learned
                 }
             });
-    
+        
             // Function to update the `is_learned` status of flashcards after quiz completion
             function markFlashcardsAsLearned() {
                 const flashcardIds = flashcards.map(flashcard => flashcard.card_id);  // Get IDs of all flashcards
-    
-                // Log the number of flashcards being marked as learned
-                console.log("Flashcards being marked as learned:", flashcardIds.length);  // This will log the count of flashcards
-    
+        
                 // Send an AJAX POST request to update the `is_learned` field
                 fetch("{% url 'update_learned_flashcards' %}", {
                     method: "POST",
@@ -444,44 +444,13 @@
                 .then(data => {
                     if (data.success) {
                         console.log("Flashcards marked as learned.");
-                        console.log("Learned flashcards count sent to backend:", flashcardIds.length); // Log the count sent to the backend
-                        sendActivityUpdate(); // Send activity update
                     } else {
                         console.error("Failed to mark flashcards as learned.");
                     }
                 })
                 .catch(error => console.error("Error:", error));
             }
-    
-            function sendActivityUpdate() {
-                // Calculate the time spent on the quiz (in seconds)
-                let endTime = Date.now();  // End tracking time when the user finishes studying
-                let timeSpent = Math.floor((endTime - startTime) / 1000);  // Time spent in seconds
-    
-                // Send an activity update to the backend to record that the user has completed the quiz
-                fetch("{% url 'update_user_activity' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCookie("csrftoken")  // CSRF token for security
-                    },
-                    body: JSON.stringify({
-                        activity_type: "quiz_completed",  // Type of activity (could be extended to track more activities)
-                        time_spent: timeSpent,  // Send the actual time spent in seconds
-                        flashcards_completed: flashcards.length  // Number of flashcards completed
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log("User activity updated.");
-                    } else {
-                        console.error("Failed to update user activity.");
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            }
-    
+        
             // Function to get the CSRF token from the cookies
             function getCookie(name) {
                 let cookieValue = null;
@@ -497,11 +466,12 @@
                 }
                 return cookieValue;
             }
-    
+        
             // Initialize the card content and number boxes
             updateCardContent();
             updateNumberBoxes();
         });
+                
     </script>
             
     

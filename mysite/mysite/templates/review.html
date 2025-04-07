@@ -175,24 +175,19 @@
                     },
                 {% endfor %}
             ];
-
+    
             if (flashcards.length === 0) {
                 console.error("No flashcards found for review.");
                 document.getElementById("card-content").innerText = "No flashcards available for review.";
                 return;
             }
-
+    
             let currentIndex = 0;
             let cardContent = document.getElementById("card-content");
             let nextArrow = document.getElementById("next-arrow");
             let completeMessage = document.getElementById("complete-message");
             let flashcardDisplay = document.getElementById("flashcard-display");
-
-            // Track time spent
-            let startTime = Date.now();
-            let flashcardsViewed = 0; // Track the number of flashcards viewed
-
-            // Update content with the current card
+    
             function updateCardContent() {
                 if (flashcards.length > 0 && flashcards[currentIndex]) {
                     cardContent.innerText = flashcards[currentIndex].question;
@@ -202,21 +197,20 @@
                 }
                 resetAnswerBox();
             }
-
-            // Reset answer input box
+    
             function resetAnswerBox() {
                 document.getElementById("answer-input").value = "";
                 document.getElementById("answer-input").disabled = false;
                 document.getElementById("submit-answer").disabled = false;
                 document.getElementById("result").innerText = "";
             }
-
+    
             document.getElementById("submit-answer").addEventListener("click", function () {
                 if (flashcards[currentIndex]) {
                     let userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
                     let correctAnswer = flashcards[currentIndex].answer.trim().toLowerCase();
                     let resultElement = document.getElementById("result");
-
+    
                     if (userAnswer === correctAnswer) {
                         resultElement.innerText = "Correct!";
                         resultElement.style.color = "green";
@@ -224,104 +218,40 @@
                         resultElement.innerText = "Incorrect! The correct answer was: " + correctAnswer;
                         resultElement.style.color = "red";
                     }
-
+    
                     nextArrow.style.display = "inline";  // Show next arrow after answer (correct or incorrect)
                     document.getElementById("answer-input").disabled = true;
                     document.getElementById("submit-answer").disabled = true;
                 }
             });
-
+    
             nextArrow.addEventListener("click", function () {
-                // Track the time spent on the current card
-                let timeSpentOnCard = Math.round((Date.now() - startTime) / 1000);  // Time spent in seconds
-
-                // Send the time spent on the current flashcard and the flashcards viewed to the backend
                 fetch(`/update_flashcard_review/${flashcards[currentIndex].card_id}/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": getCSRFToken(),
-                    },
-                    body: JSON.stringify({
-                        time_spent: timeSpentOnCard,
-                        flashcards_viewed: flashcardsViewed + 1  // Increment the viewed count
-                    })
+                    }
                 }).then(() => {
                     if (currentIndex < flashcards.length - 1) {
                         currentIndex++;
-                        flashcardsViewed++;  // Increment the viewed count
-                        startTime = Date.now();  // Reset the start time for the next card
                         updateCardContent();
                     } else {
                         // If no more flashcards, show the "Reviews complete!" message
                         flashcardDisplay.style.display = "none";
                         completeMessage.style.display = "block";
-                        // You can also send the total time spent on reviewing all flashcards here
-                        sendCompletionData();
                     }
                 });
             });
-            
-            let startTime = Date.now();  // Start tracking time when the user starts studying
-
-            function endStudySession(flashcardId) {
-                let endTime = Date.now();  // End tracking time when the user finishes studying
-
-                let timeSpent = Math.floor((endTime - startTime) / 1000);  // Time spent in seconds
-
-                // Send the time spent to the backend
-                fetch("{% url 'track_time_spent' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCookie("csrftoken"),
-                    },
-                    body: JSON.stringify({
-                        flashcard_id: flashcardId,
-                        time_spent: timeSpent,
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        console.log("Time spent tracked successfully.");
-                    } else {
-                        console.error("Failed to track time spent.");
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            }
-
+    
             function getCSRFToken() {
                 return document.cookie.split("; ")
                     .find(row => row.startsWith("csrftoken"))
                     ?.split("=")[1];
             }
-
-            // Function to send the review completion data
-            function sendCompletionData() {
-                let totalTimeSpent = Math.round((Date.now() - startTime) / 1000);  // Total time spent on review session in seconds
-                fetch("/complete_review_session/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCSRFToken(),
-                    },
-                    body: JSON.stringify({
-                        total_time_spent: totalTimeSpent,
-                        flashcards_reviewed: flashcardsViewed,
-                    })
-                }).then(response => {
-                    if (response.ok) {
-                        console.log("Review session completed and activity tracked.");
-                    } else {
-                        console.error("Failed to track review completion.");
-                    }
-                });
-            }
-
+    
             updateCardContent();
-    });
+        });
     </script>    
 </body>
 </html>
