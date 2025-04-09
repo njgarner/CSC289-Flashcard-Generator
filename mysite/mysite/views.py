@@ -830,7 +830,6 @@ def update_flashcard_level(request, card_id):
 
         # Track the flashcard view
         activity, _ = UserActivity.objects.get_or_create(user=request.user)
-        activity.cards_viewed += 1  # Increment the number of viewed cards
 
         # Update the recent flashcard
         activity.recent_flashcard = flashcard
@@ -898,30 +897,52 @@ def update_flashcard_review(request, card_id):
         return JsonResponse({"status": "error", "message": "Flashcard not found."}, status=404)
 
 @login_required
+@csrf_exempt
 def track_time_spent(request):
     if request.method == 'POST':
-        card_id = request.POST.get('card_id')
-        time_spent = int(request.POST.get('time_spent'))  # Time spent in seconds
-        
-        # Get the flashcard object based on the card_id
-        flashcard = get_object_or_404(Flashcard, card_id=card_id)
+        try:
+            # Parse the JSON body of the request
+            data = json.loads(request.body)
 
-        # Retrieve or create the user activity entry, associated with this flashcard
-        activity, created = UserActivity.objects.get_or_create(user=request.user, flashcard=flashcard)
-        
-        # If the activity was created, you can perform logic if needed (e.g., initial setup)
-        if created:
-            print(f"New activity entry created for user {request.user.username} and flashcard {flashcard.card_id}")
-        
-        # Add time spent to the total time for this flashcard
-        activity.time_spent += time_spent
-        activity.save()
+            # Extract flashcard ID and time spent
+            card_id = data.get('flashcard_id')
+            time_spent = int(data.get('time_spent', 0))
 
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "error"}, status=400)
+            # Find the flashcard or return 404
+            flashcard = get_object_or_404(Flashcard, card_id=card_id)
 
+            # Get or create user activity record
+            activity, created = UserActivity.objects.get_or_create(user=request.user)
+
+            # Get viewed flashcards list from session
+            viewed_flashcards = request.session.get('viewed_flashcards', [])
+
+            # If this card hasn't been counted yet, increment cards_viewed
+            if card_id not in viewed_flashcards:
+                activity.cards_viewed += 1
+                viewed_flashcards.append(card_id)
+
+            # Always update time spent and recent flashcard
+            activity.time_spent += time_spent
+            activity.recent_flashcard = flashcard
+            activity.save()
+
+            # Save updated viewed flashcards list back to session
+            request.session['viewed_flashcards'] = viewed_flashcards
+
+            return JsonResponse({"status": "success"})
+
+        except Exception as e:
+            print("Error in track_time_spent:", e)
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    return JsonResponse({"status": "error", "message": "Invalid request method"}, status=400)
+
+
+
+@login_required
 def activity_dashboard(request):
-    activity = UserActivity.objects.get(user=request.user)
+    activity, created = UserActivity.objects.get_or_create(user=request.user)
     
     # Ensure that time_spent is an integer representing the total time spent in seconds
     time_spent_seconds = activity.time_spent
@@ -936,7 +957,7 @@ def activity_dashboard(request):
 
     return render(request, 'activity_dashboard.html', {
         'activity': activity,
-        'time_spent': formatted_time,  # Pass the formatted time
+        'time_spent': formatted_time,
         'learned_count': activity.learned_cards.count(),
         'recent_flashcard': activity.recent_flashcard,
     })
@@ -962,6 +983,13 @@ def update_user_activity(request):
             activity.save()
 
             return JsonResponse({"success": True})
+        if activity_type == "home_study":
+            # Update study time and flashcards viewed
+            activity.time_spent += time_spent
+            activity.cards_viewed += flashcards_completed
+
+            activity.save()
+            return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "message": "Invalid activity type"}, status=400)
     
@@ -986,3 +1014,30 @@ def track_flashcard_time(request):
         return JsonResponse({"status": "success"})
 
     return JsonResponse({"status": "error"}, status=400)
+
+@login_required
+def reset_user_activity(request):
+    if request.method == 'POST':
+        try:
+            # Get or create the user's activity record
+            activity, created = UserActivity.objects.get_or_create(user=request.user)
+
+            # Reset the stats
+            activity.quizzes_completed = 0
+            activity.time_spent = 0
+            activity.cards_viewed = 0
+            activity.learned_cards.clear()  # Clear the learned cards (ManyToManyField)
+
+            # Save the reset stats
+            activity.save()
+
+            # Provide a success message
+            messages.success(request, "Your activity stats have been reset.")
+
+        except Exception as e:
+            messages.error(request, f"An error occurred while resetting the stats: {str(e)}")
+
+        # Redirect back to the activity dashboard after reset
+        return redirect('activity_dashboard')  # Assuming 'activity_dashboard' is the name of your dashboard view
+
+    return redirect('activity_dashboard')  # If not a POST request, redirect to dashboard

@@ -77,5 +77,6 @@ urlpatterns = [
     path('update_flashcard_review/<int:flashcard_id>/', views.mark_flashcards_as_learned, name='mark_flashcard_as_learned'),
     path('track_flashcard_time/', views.track_flashcard_time, name='track_flashcard_time'),
     path('track-time-spent/', views.track_time_spent, name='track_time_spent'),
+    path('reset-user-activity/', views.reset_user_activity, name='reset_user_activity'),
 ]
 

@@ -156,7 +156,11 @@
             // Flashcard navigation logic
             let flashcards = [
                 {% for flashcard in flashcards %}
-                    { question: "{{ flashcard.question|escapejs }}", answer: "{{ flashcard.answer|escapejs }}" },
+                    { 
+                        id: {{ flashcard.card_id }},  // 👈 Make sure we send the correct ID
+                        question: "{{ flashcard.question|escapejs }}", 
+                        answer: "{{ flashcard.answer|escapejs }}"
+                    },
                 {% endfor %}
             ];
 
@@ -164,11 +168,19 @@
             let showingQuestion = true;
             let timeStart = null;  // To track when the flashcard was first viewed
             let totalTime = 0;     // Track total time spent on the flashcard
+            
+            let pageStartTime = Date.now(); // Total time on page
+            let flashcardsViewed = new Set(); // Unique flashcards seen/flipped
+
+            function trackFlashcardView(id) {
+                flashcardsViewed.add(id); // Record that this flashcard was viewed
+            }
 
             function updateCardContent() {
                 if (flashcards.length > 0) {
                     let cardContent = document.getElementById("card-content");
                     cardContent.innerText = flashcards[currentIndex].question;
+                    trackFlashcardView(flashcards[currentIndex].id);
                     showingQuestion = true; // Reset to question
                     timeStart = Date.now(); // Start tracking time when flashcard is viewed
                 }
@@ -189,14 +201,14 @@
                     totalTime += timeSpent;  // Add time spent on this flashcard to the total time
 
                     // Send the time spent to the backend via AJAX
-                    fetch("{% url 'track_flashcard_time' %}", {
+                    fetch("{% url 'track_time_spent' %}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             "X-CSRFToken": '{{ csrf_token }}',
                         },
                         body: JSON.stringify({
-                            flashcard_id: flashcards[currentIndex].id,
+                            flashcard_id: flashcards[currentIndex].id,  // ✅ must match view logic
                             time_spent: timeSpent
                         })
                     }).then(response => response.json())
@@ -219,7 +231,7 @@
                     totalTime += timeSpent;  // Add time spent on this flashcard to the total time
 
                     // Send the time spent to the backend via AJAX
-                    fetch("{% url 'track_flashcard_time' %}", {
+                    fetch("{% url 'track_time_spent' %}", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -255,6 +267,22 @@
             });
 
             updateCardContent();  // Initialize the card content
+
+            window.addEventListener("beforeunload", function () {
+                const timeSpent = Math.floor((Date.now() - pageStartTime) / 1000); // seconds
+
+                // Use Beacon API so it still sends if user closes the page
+                navigator.sendBeacon(
+                    "{% url 'update_user_activity' %}",
+                    new Blob([JSON.stringify({
+                        activity_type: "home_study",
+                        time_spent: timeSpent,
+                        flashcards_completed: flashcardsViewed.size
+                    })], {
+                        type: "application/json"
+                    })
+                );
+            });
         });
         </script>
 
