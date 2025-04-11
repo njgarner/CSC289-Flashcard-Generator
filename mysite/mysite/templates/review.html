@@ -8,29 +8,33 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <style>
-        body {
-            font-family: 'Varela Round', sans-serif;
+        html, body {
             margin: 0;
+            padding: 0;
             height: 100vh;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        body {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: white;
+            font-family: 'Varela Round', sans-serif;
         }
-
         .flashcard-display {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             background-color: white;
-            border-radius: 20px;
-            width: 600px;
-            padding: 20px;
-            position: relative;
+            overflow: hidden;
+            font-family: 'Varela Round', sans-serif;
         }
-
         .nav-button {
             position: absolute;
             top: 10px;
@@ -46,27 +50,27 @@
 
         .flashcard {
             width: 100%;
-            height: 300px;
-            border: 12px solid #84F3DA;
+            max-height: 220px;
+            border: 10px solid #84F3DA;
             text-align: center;
             background-color: #f4f4f4;
             color: #333;
-            border-radius: 20px;
-            padding: 15px;
+            border-radius: 15px;
+            padding: 10px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 24px;
+            align-items: center;
+            flex-grow: 1;
+            overflow: auto;
+            margin: 10px 0;
         }
-
         .answer-container {
-            margin-top: 20px;
+            margin-top: 2vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
         }
-
         .answer-input {
             font-size: 18px;
             padding: 10px;
@@ -76,7 +80,6 @@
             text-align: center;
             margin-bottom: 10px;
         }
-
         .submit-answer {
             padding: 10px 20px;
             background-color: #00A682;
@@ -86,16 +89,18 @@
             font-size: 16px;
             border-radius: 5px;
         }
-
         .submit-answer:hover {
             background-color: #008B5C;
         }
-
         .result {
-            font-size: 20px;
-            margin-top: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            text-align: center;
+            padding: 0 10px;
+            max-width: 100%;
         }
-
         .end-session {
             margin-top: 20px;
             padding: 10px 20px;
@@ -108,17 +113,14 @@
             text-decoration: none;
             text-align: center;
         }
-
         .end-session:hover {
             background-color: darkred;
         }
-
         .complete-message {
             font-size: 24px;
             text-align: center;
             margin-top: 20px;
         }
-
         .return-home {
             padding: 10px 20px;
             background-color: blue;
@@ -129,7 +131,6 @@
             text-align: center;
             margin-top: 20px;
         }
-
         .return-home:hover {
             background-color: darkblue;
         }
@@ -148,7 +149,7 @@
         </div>
 
         <div class="answer-container">
-            <input type="text" id="answer-input" class="answer-input" placeholder="Type your answer here...">
+            <input type="text" id="answer-input" maxlength="200" class="answer-input" placeholder="Type your answer here..." autocomplete="off">
             <button id="submit-answer" class="submit-answer">Submit</button>
             <div id="result" class="result"></div>
         </div>
