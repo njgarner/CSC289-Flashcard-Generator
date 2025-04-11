@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}World Decks - Flashlite{% endblock title %}
+
+{% block main %}
+
+{% load static %}
+<style>
+.world-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-icon {
+    position: absolute;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+#world-search-input {
+    padding: 0.5rem 0.5rem 0.5rem 2.2rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+</style>
+<h2 class="page-title">World Sets</h2>
+
+<!-- Tutorial Button -->
+<button class="tutorial-btn" data-set-id="world-tutorial">?</button>
+
+<div class="content">
+    <div class="world-search-bar">
+            <div class="search-input-wrapper">
+                <img src="{% static 'magnify.png' %}" alt="Search Icon" class="search-icon">
+                <input type="text" id="world-search-input" placeholder="Search sets..." onkeyup="searchWorldSets()">
+            </div>
+            <select id="search-filter" onchange="searchWorldSets()">
+                <option value="all">All</option>
+                <option value="title">Title</option>
+                <option value="description">Description</option>
+                <option value="category">Category</option>
+            </select>
+            <button onclick="clearWorldSearch()">Clear</button>
+        </div>
+        <br>
+
+    <!-- Display Public Flashcard Sets -->
+    <div class="flashcard-sets-list">
+        {% for flashcard_set in flashcard_sets %}
+            <div class="flashcard-set"
+                data-title="{{ flashcard_set.title|lower }}"
+                data-description="{{ flashcard_set.description|lower }}"
+                data-category="{{ flashcard_set.category.name|lower }}">
+                <p>{{ flashcard_set.title }}</p>
+                <p>{{ flashcard_set.description }}</p>
+                <p>Category: {{ flashcard_set.category.name }}</p>
+
+                <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+
+                <div>
+                    <!-- Favorite Button -->
+                    <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                        {% if flashcard_set.set_id in favorite_set_ids %}
+                            ❤️  <!-- Filled heart if favorited -->
+                        {% else %}
+                            ♡  <!-- Empty heart if not favorited -->
+                        {% endif %}
+                    </button>
+
+                    <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+                </div>
+            </div>
+        {% empty %}
+            <p>No public flashcard sets available.</p>
+        {% endfor %}
+    </div>
+    <footer class="footer">
+        <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+    </footer>
+</div>
+
+<script>
+    function searchWorldSets() {
+        const input = document.getElementById("world-search-input").value.toLowerCase();
+        const filterType = document.getElementById("search-filter").value;
+        const sets = document.getElementsByClassName("flashcard-set");
+    
+        Array.from(sets).forEach(set => {
+            const title = set.getAttribute("data-title") || "";
+            const description = set.getAttribute("data-description") || "";
+            const category = set.getAttribute("data-category") || "";
+    
+            let textToSearch = "";
+            if (filterType === "title") {
+                textToSearch = title;
+            } else if (filterType === "description") {
+                textToSearch = description;
+            } else if (filterType === "category") {
+                textToSearch = category;
+            } else {
+                textToSearch = title + " " + description + " " + category;
+            }
+    
+            if (textToSearch.includes(input)) {
+                set.style.display = "";
+            } else {
+                set.style.display = "none";
+            }
+        });
+    }
+    
+    function clearWorldSearch() {
+        document.getElementById("world-search-input").value = '';
+        document.getElementById("search-filter").value = 'all';
+        searchWorldSets();
+    }
+    </script>
+
+{% endblock main %}
