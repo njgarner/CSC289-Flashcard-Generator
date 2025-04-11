@@ -22,18 +22,47 @@
         {% endfor %}
     </div>
     {% endif %}
+
     <div class="form-content">
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}  <!-- Render the form fields -->
-        
-        <button type="submit">Create Flashcard</button>
-    </form>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <!-- Character Counters -->
+            <p id="question-counter"><strong>Question:</strong> 200 characters remaining</p>
+            <p id="answer-counter"><strong>Answer:</strong> 200 characters remaining</p>
+
+            <button type="submit">Create Flashcard</button>
+        </form>
     </div>
+
     <footer class="footer">
         <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
     </footer>
 </div>
+
+<!-- JavaScript for live character counters -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const questionInput = document.querySelector('textarea[name="question"], input[name="question"]');
+    const answerInput = document.querySelector('textarea[name="answer"], input[name="answer"]');
+
+    const questionCounter = document.getElementById('question-counter');
+    const answerCounter = document.getElementById('answer-counter');
+
+    function updateCounter(input, counter, label) {
+        const remaining = 200 - input.value.length;
+        counter.textContent = `${label}: ${remaining} characters remaining`;
+    }
+
+    if (questionInput) {
+        questionInput.addEventListener('input', () => updateCounter(questionInput, questionCounter, 'Question'));
+    }
+    if (answerInput) {
+        answerInput.addEventListener('input', () => updateCounter(answerInput, answerCounter, 'Answer'));
+    }
+});
+</script>
 
 <!-- Script for Tutorial Function -->
 <script src="{% static 'tutorial.js' %}"></script>
