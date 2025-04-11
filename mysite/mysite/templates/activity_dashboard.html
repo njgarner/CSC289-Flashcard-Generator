@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Activity Dashboard - Flashlite{% endblock %}
+
+{% block main %}
+{% load static %}
+
+<h1 class="page-title">Activity Dashboard</h1>
+<div class="content">
+    <p>Quizzes Completed: {{ activity.quizzes_completed }}</p>
+    <p>Time Spent (HH:MM:SS): {{ time_spent }}</p>
+    <p>Cards Viewed: {{ activity.cards_viewed }}</p>  <!-- Show Cards Viewed here -->
+    <p>Learned Cards: {{ learned_count }}</p>
+    <!-- Add a form to reset stats -->
+    <form method="post" action="{% url 'reset_user_activity' %}" id="reset-form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger" onclick="return confirmReset()">Reset Stats</button>
+    </form>
+</div>
+
+
+
+<script type="text/javascript">
+    function confirmReset() {
+        // Confirm with the user if they are sure they want to reset
+        return window.confirm("Are you sure you want to reset your activity stats? This action cannot be undone.");
+    }
+</script>
+
+{% endblock main %}
