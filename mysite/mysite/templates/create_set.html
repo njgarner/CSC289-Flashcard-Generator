@@ -1,24 +1,45 @@
 {% extends 'base.html' %}
  
-   {% block title %}Create a Set{% endblock title %}
+   {% block title %}Create a Set - Flashlite{% endblock title %}
  
  
  {% block main %}
  <h2 class="page-title">Create a Set</h2>
  <div class="content"><!--Provides styling for the content, makes the content go in the middle of space-->
+    <!-- Display Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
      <div class="form-content"> <!--Provides styling for the form-->
      <!-- Display the form -->
      <form method="POST">
          {% csrf_token %}
          
          <label for="title">Set Name</label>
-         <input type="text" name="title" id="title" required><br><br>
+         <input type="text" name="title" id="title" maxlength="100" required><br><br>
          
          <label for="category">Category</label>
-         <input type="text" name="category" id="category" required><br><br>
+         <input type="text" name="category" id="category" maxlength="100" required><br><br>
          
          <label for="description">Description</label>
-         <textarea name="description" id="description"></textarea><br><br>
+         <textarea name="description" id="description" maxlength="200"></textarea><br><br>
+
+         <div class="shared-btn">
+            <!-- Public/Private selection -->
+            <label for="is_shared">Visibility</label>
+            <div class="radio-group" style="display: flex; align-items: center; justify-content: center; gap: 5px; padding-bottom: 15px;">
+                <input type="radio" id="public" style="height:40px; width:40px;" name="is_shared" value="on" checked>
+                <label for="public">Public</label><br>
+                <input type="radio" id="private" style="height:40px; width:40px;" name="is_shared" value="off">
+                <label for="private">Private</label><br><br>
+            </div>
+        </div>
  
          <button class="button" type="submit">Save Set</button>
      </form>
