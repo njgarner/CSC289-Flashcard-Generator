@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Flashcard Sets - {{ classroom.name }} - Flashlite</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}" class="flashlite-title">FlashLite</a>
+            <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
+            <div class="login-content">
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" type="submit">Logout</button>
+                    </form>
+                {% else %}
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <a href="{% url 'home' %}">Study Time</a>
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'classrooms' %}">Classrooms</a>
+        <a href="{% url 'settings' %}">Settings</a>
+    </div>
+
+    <h1 class="page-title">Assign Flashcard Sets to {{ classroom.name }}</h1>
+
+    <div class="content">
+        <div class="assign-flashcard-sets">
+            <h2>Choose Flashcard Sets to Assign</h2>
+            <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}">
+                {% csrf_token %}
+                <div class="set-selection">
+                    <label for="sets">Available Flashcard Sets:</label>
+                    <select id="sets" name="sets" multiple class="form-control">
+                        {% for set in flashcard_sets %}
+                            <option value="{{ set.set_id }}">{{ set.title }} - {{ set.description }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Assign Sets</button>
+            </form>            
+        </div>
+
+        <div class="assigned-flashcard-sets">
+            <h2>Currently Assigned Flashcard Sets</h2>
+            {% if assigned_flashcard_sets %}
+                <ul>
+                    {% for set in assigned_flashcard_sets %}
+                        <li>
+                            {{ set.title }} - {{ set.description }}
+                            <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" name="remove_set" value="{{ set.set_id }}" class="btn btn-danger btn-sm ml-2">
+                                    Remove
+                                </button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No flashcard sets assigned yet.</p>
+            {% endif %}
+        </div>
+        
+
+        <footer class="footer">
+            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+        </footer>
+    </div>
+</body>
+</html>

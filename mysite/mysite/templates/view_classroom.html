@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ classroom.name }} - Flashlite</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}" class="flashlite-title">FlashLite</a>
+            <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
+            <div class="login-content">
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button class="button" type="submit">Logout</button>
+                    </form>
+                {% else %}
+                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <a href="{% url 'home' %}">Study Time</a>
+        <a href="{% url 'library_view' %}">Library</a>
+        <a href="{% url 'classrooms' %}">Classrooms</a>
+        <a href="{% url 'settings' %}">Settings</a>
+    </div>
+
+    <h1 class="page-title">{{ classroom.name }}</h1>
+
+    <div class="content">
+        <div class="classroom-details">
+            <h2>Classroom Description</h2>
+            <p>{{ classroom.description }}</p>
+            <p><strong>Classroom Code:</strong> {{ classroom.code }}</p>
+            
+            {% if role == 'teacher' %}
+                <!-- Teacher-specific content -->
+                <h3>Teacher's Actions</h3>
+                <p>Here you can assign flashcard sets to your students, manage your classroom, etc.</p>
+                <a href="{% url 'assign_flashcard_sets' classroom.id %}" class="btn btn-primary">Assign Flashcard Sets</a>
+                <a href="{% url 'delete_classroom' classroom.id %}" class="btn btn-danger">Delete Classroom</a>
+            {% elif role == 'student' %}
+                <!-- Student-specific content -->
+                <h3>Students Section</h3>
+                <p>You are currently enrolled in this classroom. You can review flashcards assigned to this classroom.</p>
+                <h4>Assigned Flashcard Sets:</h4>
+                <ul>
+                    {% for set in classroom.flashcard_sets.all %}
+                        <li>{{ set.title }} - {{ set.description }}</li>
+                    {% empty %}
+                        <p>No flashcard sets assigned yet.</p>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'library_view' %}" class="btn btn-info">Start Reviewing Flashcards</a>
+            {% else %}
+                <p>You do not have permission to view this classroom.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
+    </footer>
+</body>
+</html>
