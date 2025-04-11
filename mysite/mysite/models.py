@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User  # Import the built-in User model
 from datetime import timedelta, date, datetime
+import random, string
 
 class FlashcardSet(models.Model):
     set_id = models.AutoField(primary_key=True)
@@ -12,13 +13,13 @@ class FlashcardSet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.title  # Display the title of the set
+        return self.title  # Display the title of the flashcard set
 
 class Flashcard(models.Model):
     card_id = models.AutoField(primary_key=True)
     flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
-    question = models.TextField(null=False)
-    answer = models.TextField(null=False)
+    question = models.TextField(max_length=200, null=False)
+    answer = models.TextField(max_length=200, null=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_learned = models.BooleanField(default=False)
@@ -61,3 +62,40 @@ class FavoriteSet(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.set.title}"
+    
+class UserActivity(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    quizzes_completed = models.PositiveIntegerField(default=0)
+    time_spent = models.PositiveIntegerField(default=0)
+    cards_viewed = models.PositiveIntegerField(default=0)
+    recent_flashcard = models.ForeignKey('Flashcard', null=True, blank=True, on_delete=models.SET_NULL)
+    learned_cards = models.ManyToManyField('Flashcard', related_name='learned_by', blank=True)
+
+
+    def __str__(self):
+        return f"Activity for {self.user.username} on {self.date_created}"
+    
+class Classroom(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_classrooms")
+    code = models.CharField(max_length=10, unique=True, blank=True, null=True)  # Field to store join code
+    students = models.ManyToManyField(User, related_name="classrooms", blank=True)  # Many-to-many relationship for students
+    flashcard_sets = models.ManyToManyField('FlashcardSet', related_name='classrooms', blank=True)  # Many-to-many relationship for flashcard sets
+
+    def save(self, *args, **kwargs):
+        # Generate a unique code if it's not provided
+        if not self.code:
+            self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.name} ({self.user.username})'  # Show the classroom's name and creator
+    
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=[('student', 'Student'), ('teacher', 'Teacher')])
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.role}"
+    
