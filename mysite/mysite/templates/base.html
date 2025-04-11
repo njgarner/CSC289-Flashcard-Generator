@@ -62,6 +62,7 @@
         <a href="{% url 'home' %}">
             <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon" class="icon"> Study Time
         </a>
+        <a href="{% url 'world_sets' %}">World Sets</a>
         <a href="{% url 'library_view' %}">
             <img src="{% static 'stackofbooks.png' %}" alt="Stack of Books Icon" class="icon"> Library
         </a>
@@ -81,6 +82,9 @@
         </div>
         <a href="{% url 'schedule' %}">
             <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Schedule
+        </a>
+        <a href="{% url 'classrooms' %}">
+            <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Classrooms
         </a>
         <a href="{% url 'settings' %}">
             <img src="{% static 'gears.png' %}" alt="Gear Icon" class="icon"> Settings
@@ -184,6 +188,23 @@
                document.getElementById("sidebar").classList.toggle("closed");
             });
     </script>
+
+    <!-- <footer class="social-footer">
+        <div class="social-icons">
+            <a href="https://www.facebook.com" target="_blank">
+                <img src="{% static 'facebook.png' %}" alt="Facebook" class="social-icon">
+            </a>
+            <a href="https://www.instagram.com/flashliteteam/" target="_blank">
+                <img src="{% static 'instagram.png' %}" alt="Instagram" class="social-icon">
+            </a>
+            <a href="https://www.linkedin.com" target="_blank">
+                <img src="{% static 'linkedin.png' %}" alt="LinkedIn" class="social-icon">
+            </a>
+             <a href="https://https://www.youtube.com/@FlashLiteTeam" target="_blank">
+                <img src="{% static 'youtube.png' %}" alt="YouTube" class="social-icon">
+            </a>
+        </div>
+    </footer> -->
     
     <style>
         .truncate-nav {
