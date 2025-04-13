@@ -707,7 +707,7 @@ def favorite_sets(request):
 # ======================== Flashcard Management ======================== #
 
 @login_required  # Create a flashcard
-def create_flashcard(request):
+def create_flashcard(request, set_id):
     form = FlashcardForm(request.POST or None)
 
     # Get recent sets from session
@@ -717,17 +717,17 @@ def create_flashcard(request):
     # Sort them in the order stored in session
     recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
-    if request.method == 'POST':
-        selected_set_id = request.POST.get('flashcard_set')  # The Selected Set from the Set Select Field
-        selected_set = get_object_or_404(FlashcardSet, set_id=selected_set_id)  # Get the selected set
-        card_count = Flashcard.objects.filter(flashcard_set=selected_set).count()  # Get the number of cards in the selected set
+    # Sets the flashcard_set to the set from which the user click the create_flashcard button in
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
 
-        print(f'Set ID= {selected_set_id} Card Count: {card_count}')  # Debugging statement to check the card count
+    if request.method == 'POST':
+        card_count = Flashcard.objects.filter(flashcard_set=flashcard_set).count()  # Get the number of cards in the selected set
+
+        print(f'Set ID= {flashcard_set.set_id} Card Count: {card_count}')  # Debugging statement to check the card count
 
         if card_count >= 500:  # Max number of cards a user can have in one set
             messages.error(request, "Maximum number of flashcards reached for this set. Please delete an existing flashcard before creating a new one.")
         elif form.is_valid():
-            flashcard_set = form.cleaned_data['flashcard_set']
             question = form.cleaned_data['question'].strip()
             answer = form.cleaned_data['answer'].strip()
 
@@ -737,19 +737,20 @@ def create_flashcard(request):
                 if Flashcard.objects.filter(flashcard_set=flashcard_set, question__iexact=question, answer__iexact=answer).exists():
                     messages.error(request, "A flashcard with the same question and answer already exists in this set.")
                 else:
+                    form.save(commit=False).flashcard_set = flashcard_set # Fills out the flashcard_set field
                     form.save()
                     messages.success(request, "Flashcard created successfully!")
-                    return redirect('create_flashcard')
+                    return redirect('create_flashcard', set_id=set_id)
             else:
                 messages.error(request, "You do not have permission to add flashcards to this set.")
         else:
             messages.error(request, "Failed to create flashcard. Please check your input.")
 
-    form.fields['flashcard_set'].queryset = FlashcardSet.objects.filter(user=request.user)
 
     return render(request, 'create_flashcard.html', {
         'form': form,
-        'recent_sets': recent_sets # Pass recent sets to the template
+        'recent_sets': recent_sets, # Pass recent sets to the template
+        'flashcard_set' : flashcard_set,
     })
 
 @login_required  # View flashcard set details

@@ -23,7 +23,9 @@
     </div>
     {% endif %}
 
+
     <div class="form-content">
+        <h2>Flashcard Set: {{ flashcard_set.title }}</h2>
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
@@ -34,6 +36,7 @@
 
             <button type="submit">Create Flashcard</button>
         </form>
+        <a id="back-button" href="{% url 'view_flashcard_set' flashcard_set.set_id %}" style="width: fit-content;">Back to {{ flashcard_set.title}} Details </a>
     </div>
 
     <footer class="footer">

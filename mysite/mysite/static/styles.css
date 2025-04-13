@@ -897,6 +897,7 @@ hr {
     cursor: pointer;          /* Change cursor to pointer */
     transition: background-color 0.3s ease; /* Smooth background transition */
     text-decoration: none;
+    width: fit-content;
 }
 
 /* Hover effect for back buttons */
