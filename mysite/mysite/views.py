@@ -19,7 +19,6 @@ from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
 from django.views.decorators.csrf import csrf_exempt
-from .export_utils import export_card_set_to_excel
 import json
 import os
 
@@ -600,6 +599,7 @@ def favorite_sets(request):
 
 @login_required
 def export_card_set(request):
+    from mysite.export_utils import export_card_set_to_excel
     """
     Handle request to export a card set to Excel.
     """
