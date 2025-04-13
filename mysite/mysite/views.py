@@ -597,6 +597,11 @@ def favorite_sets(request):
     return render(request, 'home.html', {'favorites': favorites})
 
 
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.decorators import login_required
+import os
+import json
+
 @login_required
 def export_card_set(request):
     """
@@ -605,21 +610,16 @@ def export_card_set(request):
     if request.method == "POST":
         card_set = request.POST.get('card_set')
 
-        # Validate card set
         if not card_set:
             return JsonResponse({"error": "No card set data provided"}, status=400)
-        
+
         try:
-            # Use a local import to avoid circular dependency
-            from mysite.export_utils import export_card_set_to_excel
+            # Local import to avoid circular dependency
+            from .export_utils import export_card_set_to_excel
 
-            # Convert card_set from JSON string to Python object
             card_set = json.loads(card_set)
-
-            # Export the card set to an Excel file
             file_name = export_card_set_to_excel(card_set)
 
-            # Open the file and return it as an HTTP response
             with open(file_name, 'rb') as excel_file:
                 response = HttpResponse(
                     excel_file.read(),
