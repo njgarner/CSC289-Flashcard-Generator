@@ -599,7 +599,6 @@ def favorite_sets(request):
 
 @login_required
 def export_card_set(request):
-    from mysite.export_utils import export_card_set_to_excel
     """
     Handle request to export a card set to Excel.
     """
@@ -611,8 +610,10 @@ def export_card_set(request):
             return JsonResponse({"error": "No card set data provided"}, status=400)
         
         try:
+            # Use a local import to avoid circular dependency
+            from mysite.export_utils import export_card_set_to_excel
+
             # Convert card_set from JSON string to Python object
-            import json
             card_set = json.loads(card_set)
 
             # Export the card set to an Excel file
@@ -620,7 +621,10 @@ def export_card_set(request):
 
             # Open the file and return it as an HTTP response
             with open(file_name, 'rb') as excel_file:
-                response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response = HttpResponse(
+                    excel_file.read(),
+                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
                 response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_name)}"'
                 return response
         except Exception as e:
