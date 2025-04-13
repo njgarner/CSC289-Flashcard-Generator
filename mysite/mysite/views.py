@@ -597,10 +597,6 @@ def favorite_sets(request):
     return render(request, 'home.html', {'favorites': favorites})
 
 
-from django.http import JsonResponse, HttpResponse
-from django.contrib.auth.decorators import login_required
-import os
-import json
 
 @login_required
 def export_card_set(request):
