@@ -11,9 +11,9 @@ class Database:
 
         "host": "localhost",
 
-        "user": "flashcarduser",
+        "user": "root",
 
-        "password": "Group1!!",
+        "password": "1234",
 
         "database": "flashcard_db",
 
