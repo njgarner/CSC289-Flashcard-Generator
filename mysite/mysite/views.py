@@ -7,7 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -19,7 +19,6 @@ from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
 from django.views.decorators.csrf import csrf_exempt
-from .export_utils import export_card_set_to_excel
 import json
 import os
 
@@ -598,6 +597,7 @@ def favorite_sets(request):
     return render(request, 'home.html', {'favorites': favorites})
 
 
+
 @login_required
 def export_card_set(request):
     """
@@ -606,21 +606,21 @@ def export_card_set(request):
     if request.method == "POST":
         card_set = request.POST.get('card_set')
 
-        # Validate card set
         if not card_set:
             return JsonResponse({"error": "No card set data provided"}, status=400)
-        
-        try:
-            # Convert card_set from JSON string to Python object
-            import json
-            card_set = json.loads(card_set)
 
-            # Export the card set to an Excel file
+        try:
+            # Local import to avoid circular dependency
+            from .export_utils import export_card_set_to_excel
+
+            card_set = json.loads(card_set)
             file_name = export_card_set_to_excel(card_set)
 
-            # Open the file and return it as an HTTP response
             with open(file_name, 'rb') as excel_file:
-                response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response = HttpResponse(
+                    excel_file.read(),
+                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
                 response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_name)}"'
                 return response
         except Exception as e:
