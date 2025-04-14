@@ -21,6 +21,7 @@ from django.core.exceptions import *
 from django.views.decorators.csrf import csrf_exempt
 import json
 import os
+import datetime
 
 # ======================= Python files ======================= #
 
@@ -405,7 +406,6 @@ def get_daily_quote():
 
 def login_view(request):
     daily_quote = get_daily_quote()  # Call the function to get the quote
-    print("Generated Quote:", daily_quote)  # Debugging
     return render(request, 'login.html', {'daily_quote': daily_quote})
 
 # ======================== Flashcard set Management ======================== #
