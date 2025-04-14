@@ -61,10 +61,13 @@ body {
     height: calc(100vh - 50px); /* Take full height minus top bar space */
 }
 
-.page-title{
-    margin-left: 20px; /* To the right of the nav bar */
-    padding-top: 50px; /* To give space below the top bar */
-    padding-left: 220px;
+.page-title {
+    font-size: 3rem; /* Larger font size */
+    font-weight: bold; /* Bold text */
+    text-align: center; /* Center the title */
+    color: #4A90E2; /* Custom color */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    margin-bottom: 20px;
 }
 
 /* Main content buttons */
