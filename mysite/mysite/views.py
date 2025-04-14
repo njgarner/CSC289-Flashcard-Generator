@@ -605,7 +605,7 @@ def export_card_set(request):
     """
     if request.method == "POST":
         # Get the set_id from the form
-        set_id = request.POST.get('card_set')  
+        set_id = request.POST.get('set_id')  
         if not set_id:
             return JsonResponse({"error": "No card set data provided"}, status=400)
 
