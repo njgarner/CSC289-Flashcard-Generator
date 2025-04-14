@@ -382,6 +382,31 @@ def delete_account(request):
     
     return render(request, 'account_delete.html')
 
+def get_daily_quote():
+    """
+    Returns a motivational quote based on the day of the year.
+    """
+    quotes = [
+        "Believe you can and you're halfway there.",
+        "Your limitation—it's only your imagination.",
+        "Push yourself, because no one else is going to do it for you.",
+        "Great things never come from comfort zones.",
+        "Dream it. Wish it. Do it.",
+        "Success doesn’t just find you. You have to go out and get it.",
+        "The harder you work for something, the greater you’ll feel when you achieve it.",
+        "Dream bigger. Do bigger.",
+        "Don’t stop when you’re tired. Stop when you’re done.",
+        "Wake up with determination. Go to bed with satisfaction."
+    ]
+    # Get the day of the year (1 to 365)
+    day_of_year = datetime.datetime.now().timetuple().tm_yday
+    # Rotate the quotes based on the day of the year
+    return quotes[day_of_year % len(quotes)]
+
+def login_view(request):
+    daily_quote = get_daily_quote()  # Call the function to get the quote
+    return render(request, 'login.html', {'daily_quote': daily_quote})
+
 # ======================== Flashcard set Management ======================== #
 
 def add_sample_sets_and_cards(user):
