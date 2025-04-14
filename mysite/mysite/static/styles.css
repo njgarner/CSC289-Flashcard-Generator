@@ -1036,3 +1036,21 @@ hr {
     color: #c1c808;
     border: 1px solid #d5e6c3;
 }
+
+.export-button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 5px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.export-button:hover {
+    background-color: #45a049; /* Darker green */
+}
