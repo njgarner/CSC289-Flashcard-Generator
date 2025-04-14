@@ -25,6 +25,13 @@
         {% endif %}
         <p>Sets: {{ set_count }}/100</p>
         <p>Favorite Sets: <span id="favorite-count">{{ favorite_count }}</span>/100</p>
+
+        <!-- Export to Excel Button -->
+        <form action="{% url 'export_card_set' %}" method="POST" style="margin-top: 10px;">
+            {% csrf_token %}
+            <button type="submit" class="export-button">Export All Sets to Excel</button>
+        </form>
+        
         <div class="flashcard-sets-list">
             <button class="add-box">
                 <a href="{% url 'create_set' %}">+</a>
@@ -50,13 +57,7 @@
                         </button>
                         
                         <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
-
-                        <form action="{% url 'export_card_set' %}" method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="set_id" value="{{ flashcard_set.set_id }}">
-                            <button type="submit" class="export-button">Export to Excel</button>
-                        </form>
-
+                        
                         <!-- Delete Flashcard Set Form -->
                         <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
                             {% csrf_token %}
