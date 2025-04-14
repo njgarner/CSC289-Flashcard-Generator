@@ -41,14 +41,23 @@
 
 /* Body styles */
 body {
-    padding-top: 50px; /* Adds space at the top to avoid overlap with the top bar */
-    font-family: 'Varela Round', sans-serif; /* Body font */
-    margin: 0; /* Remove default body margin */
-    display: flex; /* Using flexbox for centering */
-    align-items: flex-start; /* Align the content to the top */
-    height: 100vh; /* Take up full viewport height */
-    flex-direction: column; /* Stack content vertically */
-    justify-content: flex-start; /* Start content from the top */
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #b5c6e0, #a1c4fd, #c2e59c, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+    margin: 0;
+    padding: 0;
+    font-family: 'Varela Round', sans-serif; /* Ensure the font matches your theme */
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Main content container styles */
@@ -61,10 +70,13 @@ body {
     height: calc(100vh - 50px); /* Take full height minus top bar space */
 }
 
-.page-title{
-    margin-left: 20px; /* To the right of the nav bar */
-    padding-top: 50px; /* To give space below the top bar */
-    padding-left: 220px;
+.page-title {
+    font-size: 3rem; /* Larger font size */
+    font-weight: bold; /* Bold text */
+    text-align: center; /* Center the title */
+    color: #4A90E2; /* Custom color */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    margin-bottom: 20px;
 }
 
 /* Main content buttons */
@@ -1061,3 +1073,11 @@ hr {
     text-align: center;
     margin-bottom: 20px;
 }
+
+.rainbow-color-1 { background-color: red; }
+.rainbow-color-2 { background-color: orange; }
+.rainbow-color-3 { background-color: yellow; }
+.rainbow-color-4 { background-color: green; }
+.rainbow-color-5 { background-color: blue; }
+.rainbow-color-6 { background-color: indigo; }
+.rainbow-color-7 { background-color: violet; }

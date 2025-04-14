@@ -39,7 +39,7 @@
             </button>
 
             {% for flashcard_set in flashcard_sets %}
-                <div class="flashcard-set">
+                <div class="flashcard-set rainbow-color-{{ forloop.counter|add:"-1"|divisibleby:7|add:"1" }}">
                     <p>{{ flashcard_set.title }}</p>
                     <p>{{ flashcard_set.description }}</p>
                     <p>Category: {{ flashcard_set.category.name }}</p>

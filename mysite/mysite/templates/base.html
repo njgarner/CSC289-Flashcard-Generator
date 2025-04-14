@@ -92,8 +92,10 @@
     </div>
 
     <!-- Main content area (this will be populated by other templates) -->
-    {% block main %}
-    {% endblock main %}
+    <div id="main-container">
+        {% block main %}
+        {% endblock main %}
+    </div>
     
     <!-- Link to External JS File -->
     <script src="{% static 'favorite.js' %}"></script>
