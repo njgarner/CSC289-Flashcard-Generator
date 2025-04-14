@@ -45,6 +45,8 @@
                     <p>{{ flashcard_set.description }}</p>
                     <p>Category: {{ flashcard_set.category.name }}</p>
                 </div>
+            {% empty %}
+                <p>No flashcard sets created yet.</p>
             {% endfor %}
 
                     <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
