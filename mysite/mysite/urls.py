@@ -24,7 +24,8 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("guest-login/", views.guest_login, name="guest_login"),
-    path('login/', views.login_view, name='login'),
+    path('login_user', views.login_user, name="login_user"),
+    path("user_login/", views.user_login, name="user_login"),
     path('signup_user', views.signup_user, name="signup_user"),
     path('create_set/', views.create_set, name='create_set'),
     path('account_delete', views.account_delete, name="account_delete"),
@@ -51,7 +52,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='login_user'), name="logout_user"),
     path('study/<int:set_id>/', views.study_view, name='study_view'),
     path('update_last_viewed_set/', views.update_last_viewed_set, name='update_last_viewed_set'),
-    path('update_last_viewed_set/', views.update_last_viewed_set, name='update_last_viewed_set'),
     path('learn/', views.learn_view, name='learn_view'),
     path('update_learned_flashcards/', views.update_learned_flashcards, name='update_learned_flashcards'),
     path('review/<int:set_id>/', views.review_view, name='review_view'),
@@ -72,6 +72,5 @@ urlpatterns = [
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
     path('export-card-set/', views.export_card_set, name='export_card_set'),
-    path('login/', views.login_view, name='user_login'),
 ]
 
