@@ -105,41 +105,36 @@ def update_last_viewed_set(request):
 
 @login_required
 def library_view(request):
-    # Get all sets created by the user
+    # Get all sets created by the user (all sets the user owns)
     all_sets = FlashcardSet.objects.filter(user=request.user)
 
-    # Get all favorites (with related 'set' to avoid extra queries)
+    # Get all the sets the user has favorited (regardless of the owner)
     favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
 
-    # Get a set of favorited set IDs for easy lookup
-    favorite_set_ids = set(favorite.set.set_id for favorite in favorites)
+    # Extract the sets from the favorites relation
+    favorite_flashcard_sets = [fav.set for fav in favorites]
 
-    # Separate flashcard sets into favorites and non-favorites
-    favorite_flashcard_sets = all_sets.filter(set_id__in=favorite_set_ids)
-    non_favorite_sets = all_sets.exclude(set_id__in=favorite_set_ids)
+    # Get a set of favorited set IDs for easy lookup in the template
+    favorite_set_ids = {fav.set.set_id for fav in favorites}
 
-    # Count totals
+    # Count totals for sets and favorite sets
     set_count = all_sets.count()
-    favorite_count = favorite_flashcard_sets.count()
+    favorite_count = len(favorite_flashcard_sets)
 
-    # Get recent sets from session
+    # Get recent sets from session (for user's own sets)
     recent_ids = request.session.get("recent_sets", [])
     recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
     recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
-    for s in all_sets:
-        print(f"Set: {s.title} | Owner: {s.user.username} | Current user: {request.user.username}")
-
-
     return render(request, 'library.html', {
-        'flashcard_sets': non_favorite_sets,  # Updated here
-        'favorites': favorites,
-        'favorite_set_ids': favorite_set_ids,
-        'favorite_flashcard_sets': favorite_flashcard_sets,
+        'flashcard_sets': all_sets,  # Pass all sets owned by the user to the "All Sets" section
+        'favorite_flashcard_sets': favorite_flashcard_sets,  # Pass all sets the user has favorited
+        'favorite_set_ids': favorite_set_ids,  # Pass the set IDs for easy lookup in the template
         'set_count': set_count,
         'favorite_count': favorite_count,
         'recent_sets': recent_sets
     })
+
 
 
 @login_required  # About Us page
@@ -1308,14 +1303,17 @@ def search_results(request):
     })
 
 def world_sets(request):
-    # Fetch public flashcard sets
-    public_sets = FlashcardSet.objects.filter(is_shared=True)
+    # Fetch all public flashcard sets
+    flashcard_sets = FlashcardSet.objects.filter(is_shared=True)
     
-    # Debugging: Print the number of public sets
-    print("=== World Sets Debug ===")
-    print(f"Public Flashcard Sets found: {public_sets.count()}")
-    
-    # Pass the fetched sets to the template
+    # Get the sets that the user has favorited
+    if request.user.is_authenticated:
+        favorite_sets = FavoriteSet.objects.filter(user=request.user)
+        favorite_set_ids = favorite_sets.values_list('set_id', flat=True)
+    else:
+        favorite_set_ids = []
+
     return render(request, 'world_sets.html', {
-        'flashcard_sets': public_sets
+        'flashcard_sets': flashcard_sets,
+        'favorite_set_ids': favorite_set_ids
     })

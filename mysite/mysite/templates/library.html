@@ -103,7 +103,6 @@
         <!-- All Sets Section -->
         <div id="all-sets-section" class="tab-section active-tab">
             <div class="flashcard-sets-list">
-                <!-- Your existing loop for all flashcard_sets here -->
                 {% for flashcard_set in flashcard_sets %}
                 <div class="flashcard-set" 
                     data-title="{{ flashcard_set.title|lower }}"
@@ -144,41 +143,41 @@
         </div>
 
         <!-- Favorite Sets Section -->
-        <div id="favorites-section" class="tab-section {% if favorite_flashcard_sets %}active-tab{% endif %}">
+        <div id="favorites-section" class="tab-section">
             <div class="flashcard-sets-list">
                 {% for flashcard_set in favorite_flashcard_sets %}
-                    <div class="flashcard-set"
-                        data-title="{{ flashcard_set.title|lower }}"
-                        data-description="{{ flashcard_set.description|lower }}"
-                        data-category="{{ flashcard_set.category.name|lower }}">
-                        <p class="truncate-text">{{ flashcard_set.title }}</p>
-                        <p class="truncate-text">{{ flashcard_set.description }}</p>
-                        <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
-
-                        <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
-                        <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
-
-                        <div>
-                            <!-- Favorite Button -->
-                            <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
-                                {% if flashcard_set.set_id in favorite_set_ids %}
-                                    ❤️  <!-- Filled heart if favorited -->
-                                {% else %}
-                                    ♡  <!-- Empty heart if not favorited -->
-                                {% endif %}
+                <div class="flashcard-set"
+                    data-title="{{ flashcard_set.title|lower }}"
+                    data-description="{{ flashcard_set.description|lower }}"
+                    data-category="{{ flashcard_set.category.name|lower }}">
+                    <p class="truncate-text">{{ flashcard_set.title }}</p>
+                    <p class="truncate-text">{{ flashcard_set.description }}</p>
+                    <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
+        
+                    <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                    <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+        
+                    <div>
+                        <!-- Favorite Button -->
+                        <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                            {% if flashcard_set.set_id in favorite_set_ids %}
+                                ❤️  <!-- Filled heart if favorited -->
+                            {% else %}
+                                ♡  <!-- Empty heart if not favorited -->
+                            {% endif %}
+                        </button>
+        
+                        <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+        
+                        <!-- Delete Flashcard Set Form -->
+                        <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">
+                                <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
                             </button>
-
-                            <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
-
-                            <!-- Delete Flashcard Set Form -->
-                            <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="delete-button">
-                                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
-                                </button>
-                            </form>
-                        </div>
+                        </form>
                     </div>
+                </div>
                 {% empty %}
                 <p>No favorite flashcard sets yet.</p>
                 {% endfor %}
