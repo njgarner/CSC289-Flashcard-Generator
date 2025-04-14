@@ -29,7 +29,8 @@
         <!-- Export to Excel Button -->
         <form action="{% url 'export_card_set' %}" method="POST" style="margin-top: 10px;">
             {% csrf_token %}
-            <button type="submit" class="export-button">Export All Sets to Excel</button>
+            <input type="hidden" name="card_set" value="{{ flashcard_set.set_id }}">
+            <button type="submit" class="export-button">Export to Excel</button>
         </form>
         
         <div class="flashcard-sets-list">
