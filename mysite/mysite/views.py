@@ -401,7 +401,7 @@ def get_daily_quote():
     # Get the day of the year (1 to 365)
     day_of_year = datetime.datetime.now().timetuple().tm_yday
     # Rotate the quotes based on the day of the year
-    return quotes[day_of_year % len(quotes)]
+    return quotes[day_of_year % len(quotes)] if quotes else "Stay motivated and keep going!"
 
 def login_view(request):
     daily_quote = get_daily_quote()  # Call the function to get the quote
