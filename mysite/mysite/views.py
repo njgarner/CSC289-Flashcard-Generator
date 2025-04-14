@@ -398,27 +398,11 @@ def get_daily_quote():
     ]
     day_of_year = datetime.datetime.now().timetuple().tm_yday
     return quotes[day_of_year % len(quotes)]
-
+    
 def login_view(request):
     daily_quote = get_daily_quote()
-
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
-            return redirect("home")  # or wherever
-        else:
-            messages.error(request, "Invalid username or password.")
-            return render(request, "login.html", {
-                "username": username,
-                "daily_quote": daily_quote
-            })
-
-    return render(request, "login.html", {
-        "daily_quote": daily_quote
-    })
+    print("Login view called. Daily Quote:", daily_quote)  # Debugging
+    return render(request, 'login.html', {'daily_quote': daily_quote})
 
 # ======================== Flashcard set Management ======================== #
 
