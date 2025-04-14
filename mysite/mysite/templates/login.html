@@ -14,10 +14,6 @@
 
     <h1 id="auth-heading">Login</h1>
 
-    <!-- Display Daily Motivational Quote -->
-    <p id="daily-quote" style="font-style: italic; margin-bottom: 20px;">
-        "{{ daily_quote }}"
-    </p>
 
     <!-- Display Messages -->
     {% if messages %}
@@ -52,6 +48,12 @@
     <!-- Links -->
     <a href="{% url 'signup_user' %}">Don't have an account? Sign Up Here!</a><br><br>
     <a href="{% url 'password_reset' %}">Forgot your password? Reset it Here!</a>
+
+    <!-- Motivational Quote -->
+    <p id="daily-quote" style="font-style: italic; text-align: center; margin-top: 20px;">
+        "{{ daily_quote }}"
+    </p>
+    
 </div>
 </body>
 </html>
