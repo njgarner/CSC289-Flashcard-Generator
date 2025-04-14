@@ -73,5 +73,6 @@ urlpatterns = [
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
     path('export-card-set/', views.export_card_set, name='export_card_set'),
+    path('login/', views.login_view, name='user_login'),
 ]
 
