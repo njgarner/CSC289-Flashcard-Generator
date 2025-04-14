@@ -24,9 +24,8 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("guest-login/", views.guest_login, name="guest_login"),
-    path('login_user', views.login_user, name="login_user"),
+    path('login/', views.login_view, name='login'),
     path('signup_user', views.signup_user, name="signup_user"),
-    path("user_login/", views.user_login, name="user_login"),
     path('create_set/', views.create_set, name='create_set'),
     path('account_delete', views.account_delete, name="account_delete"),
     path('delete_account', views.delete_account, name="delete_account"),
@@ -73,5 +72,6 @@ urlpatterns = [
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
     path('export-card-set/', views.export_card_set, name='export_card_set'),
+    path('login/', views.login_view, name='user_login'),
 ]
 
