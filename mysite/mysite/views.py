@@ -384,9 +384,6 @@ def delete_account(request):
     return render(request, 'account_delete.html')
 
 def get_daily_quote():
-    """
-    Returns a motivational quote based on the day of the year.
-    """
     quotes = [
         "Believe you can and you're halfway there.",
         "Your limitation—it's only your imagination.",
@@ -399,14 +396,29 @@ def get_daily_quote():
         "Don’t stop when you’re tired. Stop when you’re done.",
         "Wake up with determination. Go to bed with satisfaction."
     ]
-    # Get the day of the year (1 to 365)
     day_of_year = datetime.datetime.now().timetuple().tm_yday
-    # Rotate the quotes based on the day of the year
-    return quotes[day_of_year % len(quotes)] if quotes else "Stay motivated and keep going!"
+    return quotes[day_of_year % len(quotes)]
 
 def login_view(request):
-    daily_quote = get_daily_quote()  # Call the function to get the quote
-    return render(request, 'login.html', {'daily_quote': daily_quote})
+    daily_quote = get_daily_quote()
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect("home")  # or wherever
+        else:
+            messages.error(request, "Invalid username or password.")
+            return render(request, "login.html", {
+                "username": username,
+                "daily_quote": daily_quote
+            })
+
+    return render(request, "login.html", {
+        "daily_quote": daily_quote
+    })
 
 # ======================== Flashcard set Management ======================== #
 
