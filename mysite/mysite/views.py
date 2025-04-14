@@ -127,6 +127,10 @@ def library_view(request):
     recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
     recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
+    for s in all_sets:
+        print(f"Set: {s.title} | Owner: {s.user.username} | Current user: {request.user.username}")
+
+
     return render(request, 'library.html', {
         'flashcard_sets': non_favorite_sets,  # Updated here
         'favorites': favorites,
@@ -137,9 +141,6 @@ def library_view(request):
         'recent_sets': recent_sets
     })
 
-@login_required
-def world_sets(request):
-    return render(request, 'world_sets.html')
 
 @login_required  # About Us page
 def about(request):
@@ -547,6 +548,9 @@ def create_set(request):
         category_name = request.POST.get('category').strip()
         description = request.POST.get('description', '').strip()
 
+        # Get the 'is_shared' value from the form
+        is_shared = request.POST.get('is_shared') == 'on'
+
         # Validate if title and category are provided
         if title and category_name:
             # Check if a set with the same title already exists for this user
@@ -557,12 +561,13 @@ def create_set(request):
             # Create or get the Category object
             category, created = Category.objects.get_or_create(name=category_name)
 
-            # Create a new FlashcardSet
+            # Create a new FlashcardSet with the 'is_shared' value
             FlashcardSet.objects.create(
                 title=title, 
                 category=category, 
                 description=description, 
-                user=request.user
+                user=request.user,
+                is_shared=is_shared  # Save the 'is_shared' value
             )
 
             messages.success(request, "Flashcard set successfully created!")
@@ -572,33 +577,65 @@ def create_set(request):
         messages.error(request, "Please fill in all required fields.")
 
     return render(request, 'create_set.html', {
-    'recent_sets': recent_sets # Pass recent sets to the template
+        'recent_sets': recent_sets  # Pass recent sets to the template
     })
 
-@login_required  # View flashcard set details
+@login_required
 def view_flashcard_set(request, set_id):
+    print("=== In the view_flashcard_set view ===")
+
     # Track recently viewed sets
     recent = request.session.get('recent_sets', [])
     if set_id in recent:
         recent.remove(set_id)
-    recent.insert(0, set_id)  # Add to front
-    recent = recent[:3]  # Keep only 3
+    recent.insert(0, set_id)
+    recent = recent[:3]
     request.session['recent_sets'] = recent
 
+    # Get the flashcard set
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
 
-    # Calculate time until next review for each flashcard
+    # Handle visibility (is_shared) toggle
+    if request.method == 'POST':
+        if flashcard_set.user == request.user:
+            is_shared = request.POST.get('is_shared') == 'on'
+            flashcard_set.is_shared = is_shared
+            flashcard_set.save()
+            print("Visibility updated:", is_shared)
+            messages.success(request, "Visibility updated successfully.")
+            return redirect('view_flashcard_set', set_id=set_id)
+        else:
+            messages.error(request, "You do not have permission to update this set.")
+
+    # Calculate time until next review
     for flashcard in flashcards:
         if flashcard.next_review_date:
-            time_remaining = flashcard.next_review_date - date.today()  # Time difference
-            flashcard.time_until_next_review = time_remaining
+            flashcard.time_until_next_review = flashcard.next_review_date - date.today()
 
-    return render(
-        request,
-        'flashcard_set_detail.html',
-        {'flashcard_set': flashcard_set, 'flashcards': flashcards}
-    )
+    # Debug info
+    print("=== Flashcard Set Debug Info ===")
+    print(f"Flashcard Set ID: {flashcard_set.set_id}")
+    print(f"Owner (user): {flashcard_set.user} (ID: {flashcard_set.user.id})")
+    print(f"Current User: {request.user} (ID: {request.user.id})")
+    print("User is owner:", flashcard_set.user == request.user)
+    print("=================================")
+
+    # Decide which template to render
+    if flashcard_set.user == request.user:
+        template = 'flashcard_set_detail.html'
+        print("Rendering owner's template")
+    else:
+        template = 'flashcard_set_detail_world.html'
+        print("Rendering world sets template")
+
+    return render(request, template, {
+        'flashcard_set': flashcard_set,
+        'flashcards': flashcards,
+        'card_count': flashcards.count()
+    })
+
+
 
 def flashcard_details_json(request, set_id):
     """API view to return flashcard set details in JSON format."""
@@ -621,9 +658,9 @@ def flashcard_details_json(request, set_id):
 
     return JsonResponse(data)
 
-@login_required # Edit a set
+@login_required
 def edit_set(request, set_id):
-    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user) 
 
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -631,7 +668,6 @@ def edit_set(request, set_id):
         description = request.POST.get('description', '').strip()
 
         if title and category_name:
-            # Check if another set by the same user already has this title
             duplicate = FlashcardSet.objects.filter(user=request.user, title=title).exclude(set_id=set_id).exists()
             if duplicate:
                 messages.error(request, "A flashcard set with this title already exists.")
@@ -752,23 +788,6 @@ def create_flashcard(request, set_id):
         'recent_sets': recent_sets, # Pass recent sets to the template
         'flashcard_set' : flashcard_set,
     })
-
-@login_required  # View flashcard set details
-def view_flashcard_set(request, set_id):
-    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
-    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-    card_count = flashcards.count()
-
-    if request.method == 'POST':
-        # Handle the visibility update (shared / not shared)
-        is_shared = request.POST.get('is_shared') == 'on'
-        flashcard_set.is_shared = is_shared
-        flashcard_set.save()
-
-        # After saving, redirect back to the same page to reflect the changes
-        return redirect('view_flashcard_set', set_id=set_id)
-
-    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards, 'card_count': card_count})
 
 @login_required  # Delete a flashcard
 def delete_flashcard(request, card_id):
@@ -1291,7 +1310,12 @@ def search_results(request):
 def world_sets(request):
     # Fetch public flashcard sets
     public_sets = FlashcardSet.objects.filter(is_shared=True)
-
+    
+    # Debugging: Print the number of public sets
+    print("=== World Sets Debug ===")
+    print(f"Public Flashcard Sets found: {public_sets.count()}")
+    
+    # Pass the fetched sets to the template
     return render(request, 'world_sets.html', {
         'flashcard_sets': public_sets
     })

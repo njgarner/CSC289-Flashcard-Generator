@@ -79,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'flashcard_db',
-        'USER': 'flashcarduser',
-        'PASSWORD': 'Group1!!',
+        'USER': 'root',
+        'PASSWORD': 'aa349!',
         'HOST': 'localhost',
         'PORT': '3306',
     }
