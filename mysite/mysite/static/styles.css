@@ -41,14 +41,23 @@
 
 /* Body styles */
 body {
-    padding-top: 50px; /* Adds space at the top to avoid overlap with the top bar */
-    font-family: 'Varela Round', sans-serif; /* Body font */
-    margin: 0; /* Remove default body margin */
-    display: flex; /* Using flexbox for centering */
-    align-items: flex-start; /* Align the content to the top */
-    height: 100vh; /* Take up full viewport height */
-    flex-direction: column; /* Stack content vertically */
-    justify-content: flex-start; /* Start content from the top */
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #b5c6e0, #a1c4fd, #c2e59c, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+    margin: 0;
+    padding: 0;
+    font-family: 'Varela Round', sans-serif; /* Ensure the font matches your theme */
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Main content container styles */
