@@ -39,10 +39,13 @@
             </button>
 
             {% for flashcard_set in flashcard_sets %}
-                <div class="flashcard-set rainbow-color-{{ forloop.counter|add:"-1"|divisibleby:7|add:"1" }}">
+                <div class="flashcard-set fade-in {% cycle 'rainbow-color-0' 'rainbow-color-1' 'rainbow-color-2' 'rainbow-color-3' 'rainbow-color-4' 'rainbow-color-5' 'rainbow-color-6' %}"
+                     style="animation-delay: {{ forloop.counter0|add:"0"|divisibleby:1 }}s;">
                     <p>{{ flashcard_set.title }}</p>
                     <p>{{ flashcard_set.description }}</p>
                     <p>Category: {{ flashcard_set.category.name }}</p>
+                </div>
+            {% endfor %}
 
                     <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
                     <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
