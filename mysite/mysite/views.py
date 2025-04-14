@@ -604,18 +604,26 @@ def export_card_set(request):
     Handle request to export a card set to Excel.
     """
     if request.method == "POST":
-        card_set = request.POST.get('card_set')
-
-        if not card_set:
+        # Get the set_id from the form
+        set_id = request.POST.get('card_set')  
+        if not set_id:
             return JsonResponse({"error": "No card set data provided"}, status=400)
 
         try:
+            # Retrieve the flashcard set and its cards
+            flashcard_set = FlashcardSet.objects.get(set_id=set_id, user=request.user)
+            cards = Flashcard.objects.filter(flashcard_set=flashcard_set)
+
+            # Convert the cards to a list of dictionaries for export
+            card_set = [{"Question": card.question, "Answer": card.answer} for card in cards]
+
             # Local import to avoid circular dependency
             from .export_utils import export_card_set_to_excel
 
-            card_set = json.loads(card_set)
+            # Export the card set to Excel
             file_name = export_card_set_to_excel(card_set)
 
+            # Return the generated file
             with open(file_name, 'rb') as excel_file:
                 response = HttpResponse(
                     excel_file.read(),
@@ -623,6 +631,8 @@ def export_card_set(request):
                 )
                 response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_name)}"'
                 return response
+        except FlashcardSet.DoesNotExist:
+            return JsonResponse({"error": "Flashcard set not found"}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     else:
