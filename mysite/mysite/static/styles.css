@@ -635,7 +635,7 @@ hr {
 
 /* Container for the flashcard sets list */
 .flashcard-sets-list {
-    display: grid;
+    display: flex;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjusts to your existing size */
     gap: 20px; /* Space between the cards */
     padding: 20px;
@@ -645,7 +645,7 @@ hr {
 /* Style for each flashcard set (buttons) */
 .flashcard-set {
     width: 200px;
-    height: 200px;
+    height: 250px;
     background-color: #84F3DA; /* Green background */
     color: black; /* Black text color */
     font-size: 15px; /* Font size for the content */
