@@ -59,7 +59,7 @@
     <button id="nav-toggle" class="nav-toggle">☰</button>
 
     <!-- Vertical Navigation Bar -->
-    <div class="nav-bar" id="sidebar">
+    <div class="nav-bar" id="sidebar" style="overflow: visible;">
         <a href="{% url 'home' %}">
             <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon" class="icon"> Study Time
         </a>
@@ -73,7 +73,7 @@
             <button class="dropbtn">
                 <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Recent Sets
             </button>
-            <div class="dropdown-content">
+            <div class="dropdown-content" style="left: 99%; top: 0px;">
               {% for recent in recent_sets %}
                 <a href="{% url 'study_view' recent.set_id %}" class="truncate-nav" title="{{ recent.title }}">
                   {{ recent.title|truncatechars:25 }}
