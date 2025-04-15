@@ -6,7 +6,7 @@
 
 {% load static %}
 
-<h2 class="page-title">Create Flashcard</h2>
+<h2 class="page-title">Create Flashcard for {{ flashcard_set.title }}</h2>
 
 <!-- Tutorial Button -->
 <button class="tutorial-btn" data-set-id="create-tutorial">?</button>
@@ -22,10 +22,10 @@
         {% endfor %}
     </div>
     {% endif %}
+    <a id="back-button" href="{% url 'view_flashcard_set' flashcard_set.set_id %}" style="margin-left: 20px;">&#8592; Back to {{ flashcard_set.title}} Details </a>
 
 
     <div class="form-content">
-        <h2>Flashcard Set: {{ flashcard_set.title }}</h2>
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
@@ -36,7 +36,6 @@
 
             <button type="submit">Create Flashcard</button>
         </form>
-        <a id="back-button" href="{% url 'view_flashcard_set' flashcard_set.set_id %}" style="width: fit-content;">Back to {{ flashcard_set.title}} Details </a>
     </div>
 
     <footer class="footer">

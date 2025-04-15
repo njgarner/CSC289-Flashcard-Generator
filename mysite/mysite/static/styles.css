@@ -567,6 +567,7 @@ body {
     cursor: pointer;          /* Change cursor to pointer */
     transition: background-color 0.3s ease; /* Smooth background transition */
     text-decoration: none;
+    width: fit-content;
 }
 
 /* Hover effect for back buttons */
@@ -884,28 +885,6 @@ hr {
     border-color: #008B5C; /* Darker border on hover */
 }
 
-/* Style for back buttons */
-#back-button {
-    padding: 10px;
-    font-family: 'Varela Round', sans-serif; /* Font family */
-    font-size: 20px;           /* Font size */
-    color: black;              /* Text color */
-    background-color: #9ebfe9; /* Background color */
-    border: 2px solid #354c99; /* Border color */
-    margin-bottom: 20px;       /* Space between buttons */
-    border-radius: 5px;        /* Rounded corners */
-    cursor: pointer;          /* Change cursor to pointer */
-    transition: background-color 0.3s ease; /* Smooth background transition */
-    text-decoration: none;
-    width: fit-content;
-}
-
-/* Hover effect for back buttons */
-#back-button:hover {
-    background-color: #5e8dcc; /* Darker background on hover */
-    color: white; /* Text color changes to white */
-    border-color: #31478f; /* Darker border on hover */
-}
 
 /* Social media link container */
 .social-media-links {
