@@ -1,0 +1,360 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <title>{{ flashcard_set.title }} - Details</title>
+    <!-- Internal CSS -->
+	<style>
+        .search-form-wrapper {
+            margin: 10px 0;
+        }
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+        #flashcard-search {
+            width: 100%;
+            padding: 8px 8px 8px 36px; /* left padding to fit the icon */
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .flashcards_list {
+            list-style-type: disc; /* or 'circle' or 'square' if you prefer */
+            padding-left: 20px; /* add indentation to show bullets clearly */
+        }
+        .flashcards_list li {
+            margin-bottom: 15px;
+            list-style-position: inside; /* or 'outside' depending on your preference */
+        }
+        #message-container {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .flashcard-text {
+            display: block;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+            font-size: 16px;
+            padding: 5px 0;
+        }
+        .title-container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 10px;
+        }      
+        .flashcard_set_title {
+            font-size: 32px;
+            text-align: center;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: break-word; /* <-- This is the fix */
+            max-width: 100%;
+            margin: 20px auto;
+        } 
+        .set_content {
+          max-width: 90%;
+          margin: 0 auto;
+          padding: 10px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          line-height: 1.6;
+        }
+        .set_content p {
+          font-size: 18px;
+          margin: 8px 0;
+        }
+        #editForm{
+          display: none;
+          margin-top: 10px;
+        }
+        .styled-button {
+          padding: 10px;
+          font-family: 'Varela Round', sans-serif;
+          font-size: 20px;
+          color: black;
+          background-color: #84F3DA;
+          border: 2px solid #00A682;
+          margin-bottom: 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }  
+        .styled-button:hover {
+          background-color: #00A682;
+          color: white;
+          border-color: #008B5C;
+        }
+    </style>
+</head>
+<body>
+    <a id="back-button" href="{% url 'world_sets' %}" style="margin-left: 10px;">&#8592; Back to Worlds</a>
+    <div class="title-container">
+        <h1 class="flashcard_set_title">{{ flashcard_set.title }} </h1>
+    </div>
+    <div class="set_content">
+        <p><strong>Description:</strong> {{ flashcard_set.description }}</p>
+        <p><strong>Category:</strong> {{ flashcard_set.category.name }}</p>
+        <p><strong>Created on:</strong> {{ flashcard_set.created_at }}</p>
+        <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
+        <p>Owner: {{ flashcard_set.user.username }}</p>  <!-- This is the creator of the set -->
+    </div>
+
+    <!-- Card Count -->
+    <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/500</h2>
+
+    <!-- Search Flashcards -->
+    <div class="search-form-wrapper">
+        <div class="search-input-wrapper">
+            <img src="{% static 'magnify.png' %}" alt="Search Icon" class="search-icon">
+            <input type="text" id="flashcard-search" placeholder="Search flashcards...">
+        </div>
+    </div>
+    
+    <!-- Flashcard List -->
+<ul class="flashcards_list">
+    {% if messages %}
+        <div id="message-container">
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% for flashcard in flashcards %}
+        <li>
+            <strong>Question:</strong>
+            <div class="flashcard-text">{{ flashcard.question }}</div>
+            <strong>Answer:</strong>
+            <div class="flashcard-text">{{ flashcard.answer }}</div>
+            {% if not is_guest %}
+                <!-- Display the learned status of the flashcard -->
+                {% if flashcard.is_learned %}
+                    <strong>Time Until Next Review:</strong> 
+                    <span class="time-until-next-review" data-review-date="{{ flashcard.next_review_date|date:'c' }}">
+                        <!-- Time will be calculated and displayed here by JavaScript -->
+                    </span><br>
+
+                    <!-- Debugging: Display raw review date and calculated time -->
+                    <strong>Next Review Date:</strong> {{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}<br>
+                    <strong>Calculated Time:</strong> <span class="calculated-time">{{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}</span><br>
+                {% else %}
+                    <strong>Not yet learned</strong><br>
+                {% endif %}
+            {% endif %}
+            <br>
+        </li>
+    {% empty %}
+        <p>No flashcards available in this set.</p>
+    {% endfor %}
+</ul>
+
+<!-- JavaScript -->
+<script>
+    function timeUntilNextReview(nextReviewDate) {
+        const reviewDate = new Date(nextReviewDate);
+        const now = new Date();
+        const diff = reviewDate - now;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const remainingMinutes = minutes % 60;
+        const remainingHours = hours % 24;
+        let timeString = '';
+
+        if (days > 0) timeString += days + " day" + (days > 1 ? 's' : '') + " ";
+        if (remainingHours > 0) timeString += remainingHours + " hour" + (remainingHours > 1 ? 's' : '') + " ";
+        if (remainingMinutes > 0) timeString += remainingMinutes + " minute" + (remainingMinutes > 1 ? 's' : '');
+
+        if (diff <= 0) {
+            timeString = `-${Math.abs(minutes)} minutes`;
+        }
+
+        return timeString || "Less than a minute";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Update review times
+        document.querySelectorAll('.time-until-next-review').forEach(element => {
+            const reviewDate = element.getAttribute('data-review-date');
+            const timeRemaining = timeUntilNextReview(reviewDate);
+            element.textContent = timeRemaining;
+        });
+
+        document.querySelectorAll('.calculated-time').forEach(element => {
+            const reviewDate = element.textContent;
+            console.log("Calculated time:", reviewDate, "->", timeUntilNextReview(reviewDate));
+        });
+
+        // Toggle edit form
+        const toggleBtn = document.getElementById("toggleEditSetForm");
+        if (toggleBtn) {
+            toggleBtn.addEventListener("click", function () {
+                const form = document.getElementById("editSetForm");
+                if (form) {
+                    form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+                }
+            });
+        }
+
+        document.querySelectorAll('.showFormButton').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const editForm = this.nextElementSibling;
+                const isHidden = (editForm.style.display === 'none' || editForm.style.display === '');
+                editForm.style.display = isHidden ? 'block' : 'none';
+                this.innerHTML = `
+                    <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> 
+                    ${isHidden ? 'Hide Edit Form' : 'Edit'}
+                `;
+            });
+        });
+
+        // Flashcard search
+        const searchInput = document.getElementById('flashcard-search');
+        const flashcardItems = document.querySelectorAll('.flashcards_list li');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase();
+                flashcardItems.forEach(item => {
+                    const questionDiv = item.querySelectorAll('.flashcard-text')[0];
+                    const answerDiv = item.querySelectorAll('.flashcard-text')[1];
+                    const question = questionDiv ? questionDiv.textContent.toLowerCase() : '';
+                    const answer = answerDiv ? answerDiv.textContent.toLowerCase() : '';
+                    const match = question.includes(query) || answer.includes(query);
+                    item.style.display = match ? 'list-item' : 'none';
+                });
+            });
+        }
+
+        // Auto-hide messages
+        const messageContainer = document.getElementById("message-container");
+        if (messageContainer) {
+            setTimeout(() => {
+                messageContainer.style.display = "none";
+            }, 3000);
+        }
+    });
+
+    let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
+    
+        function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+        
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+        
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();  // Reset the inactivity timer
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
+</script>
+</body>
+</html>
