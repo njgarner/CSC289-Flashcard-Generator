@@ -6,7 +6,13 @@
 
 {% load static %}
 
-<h2 class="page-title">Create Flashcard</h2>
+<h2 class="page-title">Create Flashcard for
+{% if flashcard_set.title|length > 15 %}
+    {{ flashcard_set.title|slice:":15" }}...
+{% else %}
+    {{ flashcard_set.title }}
+{% endif %} 
+</h2>
 
 <!-- Tutorial Button -->
 <button class="tutorial-btn" data-set-id="create-tutorial">?</button>
@@ -22,6 +28,16 @@
         {% endfor %}
     </div>
     {% endif %}
+    <!-- Back Button -->
+    <a id="back-button" href="{% url 'view_flashcard_set' flashcard_set.set_id %}" style="width: fit-content;">
+        &#8592; Back to 
+        {% if flashcard_set.title|length > 15 %}
+            {{ flashcard_set.title|slice:":15" }}...
+        {% else %}
+            {{ flashcard_set.title }}
+        {% endif %}
+        Details
+    </a>
 
     <div class="form-content">
         <form method="POST">
@@ -35,10 +51,6 @@
             <button type="submit">Create Flashcard</button>
         </form>
     </div>
-
-    <footer class="footer">
-        <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-    </footer>
 </div>
 
 <!-- JavaScript for live character counters -->
@@ -51,9 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const answerCounter = document.getElementById('answer-counter');
 
     function updateCounter(input, counter, label) {
-        const remaining = 200 - input.value.length;
+    const remaining = 200 - input.value.length;
+    const strongEl = counter.querySelector('strong');
+    if (strongEl) {
+        strongEl.textContent = `${label}:`;
+        counter.lastChild.nodeValue = ` ${remaining} characters remaining`;
+    } else {
         counter.textContent = `${label}: ${remaining} characters remaining`;
     }
+}
 
     if (questionInput) {
         questionInput.addEventListener('input', () => updateCounter(questionInput, questionCounter, 'Question'));
