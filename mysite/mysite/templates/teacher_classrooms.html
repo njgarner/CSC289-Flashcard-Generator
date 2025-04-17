@@ -1,63 +1,12 @@
-<!DOCTYPE HTML>
-<html lang="en">
-    {% load static %}
-    <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Classrooms - Flashlite</title>
-    
-        <!-- Correct static paths -->
-        <link rel="stylesheet" href="{% static 'styles.css' %}">
-    </head>
-    
-<body>
-    <header>
-        <div class="top-bar">
-            <a href="{% url 'home' %}" class="flashlite-title">FlashLite</a>
-            <a href="{% url 'home' %}"><img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo"></a>
-            <div class="login-content">
-                {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'logout_user' %}">
-                        {% csrf_token %}
-                        <button class="button" type="submit">Logout</button>
-                    </form>
-                {% else %}
-                    <button class="button" onclick="window.location.href='{% url 'login_user' %}'">Login</button>
-                    <button class="button" onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
-                {% endif %}
-            </div>
-        </div>
-    </header>
+{% extends 'base.html' %}
 
-    <div class="nav-bar">
-        <a href="{% url 'home' %}">Study Time</a>
-        <a href="{% url 'create_flashcard' %}">Create Flashcards</a>
-        <a href="{% url 'library_view' %}">Library</a>
-        <a href="{% url 'classrooms' %}">Classrooms</a>
-        <a href="{% url 'settings' %}">Settings</a>
+{% block title %}Classrooms - Flashlite{% endblock title %}
 
-        <!-- Favorite Decks Dropdown -->
-        <div class="dropdown">
-            <button class="dropbtn">Favorite Decks</button>
-            <div class="dropdown-content">
-                {% for favorite_deck in favorite_decks %}
-                    <a href="{% url 'study_view' favorite_deck.id %}">{{ favorite_deck.name }}</a>
-                {% empty %}
-                    <p>No favorite decks.</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+{% block main %}
 
-    <h1 class="page-title">Classrooms</h1>
+{% load static %}
+
+<h1 class="page-title">Classrooms</h1>
 
     <div class="content">
         <div class="flashcard-sets-list">  <!-- Changed from classroom-list to match library.html -->
@@ -81,9 +30,5 @@
                 <p>No classrooms created yet.</p>
             {% endfor %}
         </div>
-        <footer class="footer">
-            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-        </footer>
     </div>
-</body>
-</html>
+{% endblock main %}
