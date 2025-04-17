@@ -25,6 +25,8 @@
 
     <!-- Flex container for selector + shuffle -->
     <div class="selector-shuffle-bar">
+        {% if not is_guest %}
+        <!-- Set Selector for logged-in users only -->
         <div class="set-selector-dropdown">
             <button id="set-selector" class="set-selector-btn">
                 {% if last_viewed_set %}
@@ -45,8 +47,9 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
-        <!-- Shuffle Button -->
+        <!-- Shuffle Button (shown to everyone) -->
         <div class="shuffle-container">
             <button class="rand-button" id="rand-button">
                 <img src="{% static 'shuffle.png' %}" alt="Shuffle Icon" class="icon"> Shuffle
@@ -77,165 +80,118 @@
 
     <!-- Learn, Flip, and Review Buttons -->
     <div class="bottom-buttons">
-        <form action="{% url 'learn_view' %}" method="get">
-            <input type="hidden" name="set_id" value="{{ last_viewed_set.set_id }}">
-            <button type="submit" id="learn-button">Learn
-                {% if remaining_cards > 0 %}
-                    <span class="card-count">({{ remaining_cards }} left)</span>
-                {% else %}
-                    <span class="card-count">(No unlearned cards)</span>
-                {% endif %}
-            </button>
-        </form>
+        {% if is_guest %}
+            <div class="guest-warning-wrapper">
+                <p class="guest-warning">You're studying as a guest. <a href="{% url 'user_login' %}">Log in</a> to save progress.</p>
+            </div>
+        {% endif %}
 
-        <!-- Flip card button -->
+        {% if not is_guest %}
+            <form action="{% url 'learn_view' %}" method="get">
+                <input type="hidden" name="set_id" value="{{ last_viewed_set.set_id }}">
+                <button type="submit" id="learn-button">Learn
+                    {% if remaining_cards > 0 %}
+                        <span class="card-count">({{ remaining_cards }} left)</span>
+                    {% else %}
+                        <span class="card-count">(No unlearned cards)</span>
+                    {% endif %}
+                </button>
+            </form>
+        {% endif %}
+
+        <!-- Flip card button (available to all) -->
         <button id="flip-button">
             <img src="{% static 'flip.png' %}" alt="Flip Icon" class="icon"> Flip
         </button>
 
-        <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get">
+        {% if not is_guest %}
             {% if last_viewed_set %}
-                <button type="submit" id="review-button">Review
-                    {% if reviewable_cards_count > 0 %}
-                        <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
-                    {% else %}
-                        <span class="card-count">(No reviews available)</span>
-                    {% endif %}
-                </button>
+                <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get">
+                    <button type="submit" id="review-button">Review
+                        {% if reviewable_cards_count > 0 %}
+                            <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
+                        {% else %}
+                            <span class="card-count">(No reviews available)</span>
+                        {% endif %}
+                    </button>
+                </form>
             {% else %}
-                <button type="button" id="review-button" disabled>Review</button>
+                <button type="button" id="review-button" onclick="alert('Please select a flashcard set to review.')">
+                    Review
+                </button>
             {% endif %}
-        </form>
-        
+        {% endif %}
     </div>
-
-    <!-- Terms and Conditions -->
-    <footer class="footer">
-        <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-    </footer>
 
 </div>
     
     <!-- JavaScript to handle set selection, flashcard flipping, and navigation -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            let setSelector = document.getElementById("set-selector");
-            let setSelectorContent = document.getElementById("set-selector-content");
-            setSelectorContent.style.display = "none";
-    
-            // If there is a last viewed set, auto-select it and update the button text
-            {% if last_viewed_set %}
-                setSelector.innerText = "{{ last_viewed_set.title }}" + " ▼"; // Update button text
-            {% endif %}
-    
-            setSelector.addEventListener("click", function () {
-                setSelectorContent.style.display = setSelectorContent.style.display === "block" ? "none" : "block";
-            });
-    
-            document.querySelectorAll("#set-selector-content a").forEach(link => {
-                link.addEventListener("click", function (event) {
-                    event.preventDefault(); // Prevent immediate navigation
-    
-                    let selectedSetTitle = this.innerText;
-                    let selectedSetId = this.getAttribute("data-set-id");
-                    let selectedSetUrl = this.getAttribute("href");
-    
-                    // Update the set selector button text immediately before redirect
-                    setSelector.innerText = selectedSetTitle + " ▼";
-    
-                    // Send an AJAX request to update the last viewed set in the session
-                    fetch("{% url 'update_last_viewed_set' %}", {
-                        method: 'POST',
-                        body: JSON.stringify({ set_id: selectedSetId }),
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
-                        }
-                    }).then(function(response) {
-                        // After the request is done, redirect to the selected set's study page
-                        window.location.href = selectedSetUrl;
-                    });
+            const selectorBtn = document.getElementById("set-selector");
+            const selectorContent = document.getElementById("set-selector-content");
+        
+            if (selectorBtn && selectorContent) {
+                selectorBtn.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    selectorContent.classList.toggle("visible");
                 });
-            });
+        
+                document.addEventListener("click", function () {
+                    selectorContent.classList.remove("visible");
+                });
+        
+                selectorContent.addEventListener("click", function (e) {
+                    e.stopPropagation(); // Don't close when clicking inside
+                });
+            }
+        });
 
-            // Flashcard navigation logic
-            let flashcards = [
-                {% for flashcard in flashcards %}
-                    { 
-                        id: {{ flashcard.card_id }},  // 👈 Make sure we send the correct ID
-                        question: "{{ flashcard.question|escapejs }}", 
-                        answer: "{{ flashcard.answer|escapejs }}"
-                    },
-                {% endfor %}
-            ];
-
+        const isGuest = {{ is_guest|yesno:"true,false" }};
+        const flashcards = [
+            {% for flashcard in flashcards %}
+                { 
+                    id: {{ flashcard.card_id }},
+                    question: "{{ flashcard.question|escapejs }}",
+                    answer: "{{ flashcard.answer|escapejs }}"
+                },
+            {% endfor %}
+        ];
+    
+        document.addEventListener("DOMContentLoaded", function () {
             let currentIndex = 0;
             let showingQuestion = true;
-    
             let timeStart = null;  // To track when the flashcard was first viewed
             let totalTime = 0;     // Track total time spent on the flashcard
             
-            let pageStartTime = Date.now(); // Total time on page
-            let flashcardsViewed = new Set(); // Unique flashcards seen/flipped
-
-            function trackFlashcardView(id) {
-                flashcardsViewed.add(id); // Record that this flashcard was viewed
+            // For guest users, flashcards are not filtered by `is_learned`, so we just use the provided flashcards
+            if (isGuest) {
+                // You can handle special guest-specific logic here if needed
             }
-
+    
             function updateCardContent() {
                 if (flashcards.length > 0) {
                     let cardContent = document.getElementById("card-content");
                     cardContent.innerText = flashcards[currentIndex].question;
-                    trackFlashcardView(flashcards[currentIndex].id);
                     showingQuestion = true; // Reset to question
                     timeStart = Date.now(); // Start tracking time when flashcard is viewed
                 }
             }
-
+    
             document.getElementById("flip-button").addEventListener("click", function () {
                 if (flashcards.length > 0) {
                     let cardContent = document.getElementById("card-content");
-
+    
                     showingQuestion = !showingQuestion;
                     cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
                 }
             });
-
+    
             document.getElementById("next").addEventListener("click", function () {
                 if (flashcards.length > 0) {
                     let timeSpent = Math.floor((Date.now() - timeStart) / 1000); // Time spent in seconds
                     totalTime += timeSpent;  // Add time spent on this flashcard to the total time
-
-                    // Send the time spent to the backend via AJAX
-                    fetch("{% url 'track_time_spent' %}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": '{{ csrf_token }}',
-                        },
-                        body: JSON.stringify({
-                            flashcard_id: flashcards[currentIndex].id,  // ✅ must match view logic
-                            time_spent: timeSpent
-                        })
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            console.log("Time spent on flashcard tracked.");
-                        } else {
-                            console.error("Failed to track time.");
-                        }
-                    });
-
-                    currentIndex = (currentIndex + 1) % flashcards.length;
-                    updateCardContent();
-                }
-            });
-
-            document.getElementById("previous").addEventListener("click", function () {
-                if (flashcards.length > 0) {
-                    let timeSpent = Math.floor((Date.now() - timeStart) / 1000); // Time spent in seconds
-                    totalTime += timeSpent;  // Add time spent on this flashcard to the total time
-
+    
                     // Send the time spent to the backend via AJAX
                     fetch("{% url 'track_time_spent' %}", {
                         method: "POST",
@@ -255,12 +211,44 @@
                             console.error("Failed to track time.");
                         }
                     });
-
+    
+                    // Move to the next flashcard
+                    currentIndex = (currentIndex + 1) % flashcards.length;
+                    updateCardContent();
+                }
+            });
+    
+            document.getElementById("previous").addEventListener("click", function () {
+                if (flashcards.length > 0) {
+                    let timeSpent = Math.floor((Date.now() - timeStart) / 1000); // Time spent in seconds
+                    totalTime += timeSpent;  // Add time spent on this flashcard to the total time
+    
+                    // Send the time spent to the backend via AJAX
+                    fetch("{% url 'track_time_spent' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({
+                            flashcard_id: flashcards[currentIndex].id,
+                            time_spent: timeSpent
+                        })
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            console.log("Time spent on flashcard tracked.");
+                        } else {
+                            console.error("Failed to track time.");
+                        }
+                    });
+    
+                    // Move to the previous flashcard
                     currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
                     updateCardContent();
                 }
             });
-
+    
             document.getElementById("rand-button").addEventListener("click", function () {
                 if (flashcards.length > 1) {
                     let newIndex;
@@ -271,12 +259,12 @@
                     updateCardContent();
                 }
             });
-
+    
             updateCardContent();  // Initialize the card content
-
+    
             window.addEventListener("beforeunload", function () {
                 const timeSpent = Math.floor((Date.now() - pageStartTime) / 1000); // seconds
-
+    
                 // Use Beacon API so it still sends if user closes the page
                 navigator.sendBeacon(
                     "{% url 'update_user_activity' %}",
