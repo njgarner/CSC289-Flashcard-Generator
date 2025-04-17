@@ -63,39 +63,56 @@
         <a href="{% url 'home' %}">
             <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon" class="icon"> Study Time
         </a>
+    
         <a href="{% url 'world_sets' %}">
             <img src="{% static 'globe.png' %}" alt="Globe Icon" class="icon"> World Sets
         </a>
+    
+        {% if not is_guest %}
         <a href="{% url 'library_view' %}">
             <img src="{% static 'stackofbooks.png' %}" alt="Stack of Books Icon" class="icon"> Library
         </a>
-        <div class="dropdown">
-            <button class="dropbtn">
-                <img src="{% static 'star.png' %}" alt="Star Icon" class="icon"> Recent Sets
+    
+        <!-- Recent Sets Widget -->
+        <div id="recentSetsWidget" class="recent-widget">
+            <button id="toggleRecentSets" class="recent-btn w-full">
+                <img src="{% static 'star.png' %}" alt="Star Icon" class="icon w-4 h-4">
+                <span>Recent Sets</span>
             </button>
-            <div class="dropdown-content">
-              {% for recent in recent_sets %}
-                <a href="{% url 'study_view' recent.set_id %}" class="truncate-nav" title="{{ recent.title }}">
-                  {{ recent.title|truncatechars:25 }}
-                </a>
-            {% empty %}
-            <p>No recent sets.</p>
-            {% endfor %}
+        
+            <!-- Dropdown hidden/shown via display:none/block -->
+            <div id="recentSetsDropdown" class="recent-dropdown" style="display: none;">
+                {% if recent_sets %}
+                    <div class="flex flex-col items-center space-y-2 text-center">
+                        {% for recent in recent_sets %}
+                            <a href="{% url 'study_view' recent.set_id %}" class="recent-link" title="{{ recent.title }}">
+                                {{ recent.title|truncatechars:25 }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="recent-empty">No recent sets.</p>
+                {% endif %}
             </div>
         </div>
+    
         <a href="{% url 'schedule' %}">
             <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Schedule
         </a>
+    
         <a href="{% url 'classrooms' %}">
             <img src="{% static 'classroomIcon.png' %}" alt="Classroom Icon" class="icon"> Classrooms
         </a>
+    
         <a href="{% url 'settings' %}">
             <img src="{% static 'gears.png' %}" alt="Gear Icon" class="icon"> Settings
         </a>
+        {% endif %}
+    
         <!-- Text-to-Speech (TTS) Widget -->
         <div id="ttsWidget" style="position: relative;">
-            <button id="toggleTTSWidget" class="btn btn-light" style="margin-bottom: 5px;">🔊 TTS</button>
-
+            <button id="toggleTTSWidget" class="btn btn-light" style="margin-bottom: 5px;">🔊 Page Reader</button>
+    
             <div id="ttsControls" style="display: none;">
                 <div class="form-group mb-2">
                     <label for="languageSelect">Language:</label>
@@ -108,6 +125,7 @@
                 <button id="ttsBtn" class="btn btn-primary btn-sm w-100">🔊 Read</button>
             </div>
         </div>
+    
         <!-- About Us Page -->
         <div class="contact">
             <a href="{% url 'about' %}">
@@ -168,9 +186,14 @@
         }, 3000); // Hide messages after 3 seconds
     
         function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
             clearTimeout(inactivityTimeout);
             clearTimeout(logoutWarningTimeout);
-    
+        
             // Start tracking inactivity again
             inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
         }
@@ -181,7 +204,7 @@
             if (existingWarning) {
                 existingWarning.remove();
             }
-    
+        
             let warningBox = document.createElement("div");
             warningBox.id = "logoutWarning";
             warningBox.innerHTML = `
@@ -189,10 +212,11 @@
                     <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
                     <button onclick="extendSession()">Yes, Keep Me Logged In</button>
                     <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
                 </div>
             `;
             document.body.appendChild(warningBox);
-    
+        
             // Auto-logout after 1 minute if no response
             logoutWarningTimeout = setTimeout(logout, 60 * 1000);
         }
@@ -202,7 +226,7 @@
             if (warningBox) {
                 warningBox.remove();
             }
-            resetTimer();
+            resetTimer();  // Reset the inactivity timer
         }
     
         function logout() {
@@ -269,6 +293,22 @@
         document.getElementById("toggleTTSWidget").addEventListener("click", () => {
             const controls = document.getElementById("ttsControls");
             controls.style.display = controls.style.display === "none" ? "block" : "none";
+        });
+
+        // Recent Sets Dropdown Toggle
+        const toggleBtn = document.getElementById("toggleRecentSets");
+        const dropdown = document.getElementById("recentSetsDropdown");
+        
+        // Initialize dropdown visibility
+        toggleBtn.addEventListener("click", function () {
+            dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+        });
+
+        // Optional: close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!document.getElementById("recentSetsWidget").contains(event.target)) {
+                dropdown.style.display = "none";
+            }
         });
         
         // TTS API
