@@ -4,63 +4,101 @@
 
 {% block main %}
 
-    {% load static %}
+{% load static %}
 
-    <!-- Main Content Section -->
-    <h1 class="page-title"><u>Settings</u></h1>
-    <div class="content">
-        
-        <!-- UserName -->
-        <div class="setting-item">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="{{ user|safe }}" readonly>
-        </div>
+<style>
+    .section-divider {
+        margin-top: 30px;
+        margin-bottom: 15px;
+        border-top: 2px solid #ccc;
+        padding-top: 15px;
+    }
 
-        <!-- Email -->
-        <div class="setting-item">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
-        </div>
+    .large-icon {
+        width: 64px;
+        height: 64px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
 
-         <!-- Role -->
-        <div class="setting-item">
-            <label for="role">Role</label>
-            <input type="text" id="role" name="role" value="{{ user.role|safe }}" readonly>
-        </div>
+    .setting-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
-        <hr>
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+</style>
 
-        <!-- Customize -->
-        <div class="setting-item">
-            <button class="button" onclick="window.location.href='{% url 'customize' %}'">Customize</button>
-        </div>
+<!-- Main Content Section -->
+<h1 class="page-title">Settings</h1>
+<div class="content">
+    
+    <hr>
+    <!-- Section 1: User Info -->
+    <div class="section-title">User Info</div>
+    <div class="setting-item">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" value="{{ user|safe }}" readonly>
+    </div>
 
-        <!--Activity Report-->
-        <div class="setting-item">
-            <button class="button" onclick="window.location.href='{% url 'activity_dashboard' %}'">View Activity Reports</button>
-        </div>
-        
-        <!-- Change Password -->
-        <div class="setting-item">
-            <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
-        </div>
-        
-        <!-- Reset Password -->
-        <div class="setting-item">
-            <button class="button" onclick="window.location.href='{% url 'password_reset' %}'">Reset Password</button>
-        </div>
+    <div class="setting-item">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
+    </div>
 
-        <!-- Delete Account -->
-        <div class="setting-item">
-            <button class="delete-button" onclick="window.location.href='{% url 'account_delete' %}'">
-                <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon"> Delete Account
-            </button>
-        </div>
+    <div class="setting-item">
+        <label for="role">Role</label>
+        <input type="text" id="role" name="role" value="{{ user.userprofile.role|safe|upper }}" readonly>
+    </div>
 
-        <!-- Terms and Conditions -->
-        <br><br><br><br>
-        <footer class="footer">
-            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-        </footer>
+    <!-- Section 2: User Tools -->
+    <div class="section-divider">
+        <div class="section-title">User Tools</div>
+        <div class="setting-actions">
+            <div class="setting-item">
+                <img src="{% static 'editIcon.png' %}" alt="Brush Icon" class="large-icon">
+                <button class="button" onclick="window.location.href='{% url 'customize' %}'">Customize</button>
+            </div>
+
+            <div class="setting-item">
+                <img src="{% static 'report.png' %}" alt="Report Icon" class="large-icon">
+                <button class="button" onclick="window.location.href='{% url 'activity_dashboard' %}'">View Activity Reports</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Account Management -->
+    <div class="section-divider">
+        <div class="section-title">Account Management</div>
+        <div class="setting-actions">
+
+           <!-- Password Buttons Row -->
+           <div class="setting-item" style="display: flex; align-items: center; justify-content: flex-start; gap: 20px;">
+                <!-- Change Password -->
+                <div>
+                    <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
+                </div>
+
+                <!-- Vertical Divider -->
+                <div style="height: 32px; border-left: 2px solid #00A682;"></div>
+
+                <!-- Reset Password -->
+                <div>
+                    <button class="button" onclick="window.location.href='{% url 'password_reset' %}'">Reset Password</button>
+                </div>
+            </div>
+
+            <!-- Delete Account -->
+            <div class="setting-item">
+                <button class="delete-button" onclick="window.location.href='{% url 'account_delete' %}'">
+                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon"> Delete Account
+                </button>
+            </div>
+        </div>
     </div>
 {% endblock main %}
