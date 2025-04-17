@@ -1,12 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Classroom - Flashlite{% endblock title %}
+
+{% block main %}
+
 {% load static %}
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <title>Create Classroom</title>
-</head>
-<body>
+
+<div class="content">
+
     <h1>Create Classroom</h1>
+
     <form method="post">
         {% csrf_token %}
         <label for="name">Classroom Name:</label>
@@ -17,5 +20,5 @@
 
         <button type="submit">Create</button>
     </form>
-</body>
-</html>
+</div>
+{% endblock main %}
