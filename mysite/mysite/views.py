@@ -20,8 +20,10 @@ from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 from django.db import transaction
 import json
+from collections import defaultdict
 
 # ======================= Python files ======================= #
 
@@ -31,7 +33,8 @@ from .forms import FlashcardForm, ChangePasswordForm
 # ======================= Time Management ======================= #
 
 from django.utils import timezone
-from datetime import timedelta, date
+from django.utils.timezone import is_naive, make_aware, now
+from datetime import timedelta
 
 # ======================== Main Pages ======================== #
 
@@ -105,56 +108,55 @@ def update_last_viewed_set(request):
 
 @login_required
 def library_view(request):
-    # Get all sets created by the user
-    all_sets = FlashcardSet.objects.filter(user=request.user)
+    # All sets from the user
+    all_sets = FlashcardSet.objects.filter(user=request.user).select_related('category')
 
-    # Get all favorites (with related 'set' to avoid extra queries)
+    # Get favorite IDs
     favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
+    favorite_set_ids = set(fav.set.set_id for fav in favorites)
 
-    # Get a set of favorited set IDs for easy lookup
-    favorite_set_ids = set(favorite.set.set_id for favorite in favorites)
+    # Combine and group by category
+    categorized_sets = defaultdict(list)
+    for flashcard_set in all_sets:
+        category = flashcard_set.category.name if flashcard_set.category else "Uncategorized"
+        categorized_sets[category].append(flashcard_set)
 
-    # Separate flashcard sets into favorites and non-favorites
-    favorite_flashcard_sets = all_sets.filter(set_id__in=favorite_set_ids)
-    non_favorite_sets = all_sets.exclude(set_id__in=favorite_set_ids)
-
-    # Count totals
-    set_count = all_sets.count()
-    favorite_count = favorite_flashcard_sets.count()
-
-    # Get recent sets from session
+    # Recent sets
     recent_ids = request.session.get("recent_sets", [])
     recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
     recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
+    for s in all_sets:
+        print(f"Set: {s.title} | Owner: {s.user.username} | Current user: {request.user.username}")
+
     return render(request, 'library.html', {
-        'flashcard_sets': non_favorite_sets,  # Updated here
+        'flashcard_sets': all_sets,
         'favorites': favorites,
         'favorite_set_ids': favorite_set_ids,
-        'favorite_flashcard_sets': favorite_flashcard_sets,
-        'set_count': set_count,
-        'favorite_count': favorite_count,
+        'favorite_flashcard_sets': all_sets.filter(set_id__in=favorite_set_ids),
+        'categorized_sets': categorized_sets,
+        'set_count': all_sets.count(),
+        'favorite_count': len(favorite_set_ids),
         'recent_sets': recent_sets
     })
 
-@login_required
-def world_sets(request):
-    return render(request, 'world_sets.html')
-
-@login_required  # About Us page
+# About Us Page
 def about(request):
-    # Get recent sets from session
-    recent_ids = request.session.get("recent_sets", [])
-    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+    is_guest = not request.user.is_authenticated
 
-    # Sort them in the order stored in session
-    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+    # Get recent sets only if the user is logged in
+    recent_sets = []
+    if request.user.is_authenticated:
+        recent_ids = request.session.get("recent_sets", [])
+        recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+        recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
     return render(request, 'about_us.html', {
-    'recent_sets': recent_sets # Pass recent sets to the template
+        'recent_sets': recent_sets,
+        'is_guest': is_guest,
     })
 
-@login_required  # Terms and conditions page
+# Terms and conditions page
 def terms(request):
     return render(request, 'terms.html')
 
@@ -547,6 +549,9 @@ def create_set(request):
         category_name = request.POST.get('category').strip()
         description = request.POST.get('description', '').strip()
 
+        # Get the 'is_shared' value from the form
+        is_shared = request.POST.get('is_shared') == 'on'
+
         # Validate if title and category are provided
         if title and category_name:
             # Check if a set with the same title already exists for this user
@@ -562,7 +567,8 @@ def create_set(request):
                 title=title, 
                 category=category, 
                 description=description, 
-                user=request.user
+                user=request.user,
+                is_shared=is_shared  # Save the 'is_shared' value
             )
 
             messages.success(request, "Flashcard set successfully created!")
@@ -574,31 +580,6 @@ def create_set(request):
     return render(request, 'create_set.html', {
     'recent_sets': recent_sets # Pass recent sets to the template
     })
-
-@login_required  # View flashcard set details
-def view_flashcard_set(request, set_id):
-    # Track recently viewed sets
-    recent = request.session.get('recent_sets', [])
-    if set_id in recent:
-        recent.remove(set_id)
-    recent.insert(0, set_id)  # Add to front
-    recent = recent[:3]  # Keep only 3
-    request.session['recent_sets'] = recent
-
-    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
-    flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
-
-    # Calculate time until next review for each flashcard
-    for flashcard in flashcards:
-        if flashcard.next_review_date:
-            time_remaining = flashcard.next_review_date - date.today()  # Time difference
-            flashcard.time_until_next_review = time_remaining
-
-    return render(
-        request,
-        'flashcard_set_detail.html',
-        {'flashcard_set': flashcard_set, 'flashcards': flashcards}
-    )
 
 def flashcard_details_json(request, set_id):
     """API view to return flashcard set details in JSON format."""
@@ -623,7 +604,7 @@ def flashcard_details_json(request, set_id):
 
 @login_required # Edit a set
 def edit_set(request, set_id):
-    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)  # Ensure the set belongs to the user
 
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -707,7 +688,7 @@ def favorite_sets(request):
 # ======================== Flashcard Management ======================== #
 
 @login_required  # Create a flashcard
-def create_flashcard(request):
+def create_flashcard(request, set_id):
     form = FlashcardForm(request.POST or None)
 
     # Get recent sets from session
@@ -717,17 +698,17 @@ def create_flashcard(request):
     # Sort them in the order stored in session
     recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
-    if request.method == 'POST':
-        selected_set_id = request.POST.get('flashcard_set')  # The Selected Set from the Set Select Field
-        selected_set = get_object_or_404(FlashcardSet, set_id=selected_set_id)  # Get the selected set
-        card_count = Flashcard.objects.filter(flashcard_set=selected_set).count()  # Get the number of cards in the selected set
+    # Sets the flashcard_set to the set from which the user click the create_flashcard button in
+    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
 
-        print(f'Set ID= {selected_set_id} Card Count: {card_count}')  # Debugging statement to check the card count
+    if request.method == 'POST':
+        card_count = Flashcard.objects.filter(flashcard_set=flashcard_set).count()  # Get the number of cards in the selected set
+
+        print(f'Set ID= {flashcard_set.set_id} Card Count: {card_count}')  # Debugging statement to check the card count
 
         if card_count >= 500:  # Max number of cards a user can have in one set
             messages.error(request, "Maximum number of flashcards reached for this set. Please delete an existing flashcard before creating a new one.")
         elif form.is_valid():
-            flashcard_set = form.cleaned_data['flashcard_set']
             question = form.cleaned_data['question'].strip()
             answer = form.cleaned_data['answer'].strip()
 
@@ -737,38 +718,80 @@ def create_flashcard(request):
                 if Flashcard.objects.filter(flashcard_set=flashcard_set, question__iexact=question, answer__iexact=answer).exists():
                     messages.error(request, "A flashcard with the same question and answer already exists in this set.")
                 else:
+                    form.save(commit=False).flashcard_set = flashcard_set # Fills out the flashcard_set field
                     form.save()
                     messages.success(request, "Flashcard created successfully!")
-                    return redirect('create_flashcard')
+                    return redirect('create_flashcard', set_id=set_id)
             else:
                 messages.error(request, "You do not have permission to add flashcards to this set.")
         else:
             messages.error(request, "Failed to create flashcard. Please check your input.")
 
-    form.fields['flashcard_set'].queryset = FlashcardSet.objects.filter(user=request.user)
 
     return render(request, 'create_flashcard.html', {
         'form': form,
-        'recent_sets': recent_sets # Pass recent sets to the template
+        'recent_sets': recent_sets, # Pass recent sets to the template
+        'flashcard_set' : flashcard_set,
     })
 
-@login_required  # View flashcard set details
 def view_flashcard_set(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+
+    # Restrict access to private sets for non-owners or guest users
+    if not flashcard_set.is_shared and (not request.user.is_authenticated or request.user != flashcard_set.user):
+        messages.error(request, "This flashcard set is private.")
+        return redirect('home')
+
+    # Track recently viewed sets (only for authenticated users)
+    if request.user.is_authenticated:
+        recent = request.session.get('recent_sets', [])
+        if set_id in recent:
+            recent.remove(set_id)
+        recent.insert(0, set_id)
+        request.session['recent_sets'] = recent[:3]
+
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
     card_count = flashcards.count()
 
+    # Handle visibility update (only owner can change)
     if request.method == 'POST':
-        # Handle the visibility update (shared / not shared)
-        is_shared = request.POST.get('is_shared') == 'on'
-        flashcard_set.is_shared = is_shared
-        flashcard_set.save()
+        if request.user.is_authenticated and flashcard_set.user == request.user:
+            is_shared = request.POST.get('is_shared') == 'on'
+            flashcard_set.is_shared = is_shared
+            flashcard_set.save()
+            print("Visibility updated:", is_shared)
+            messages.success(request, "Visibility updated successfully.")
+            return redirect('view_flashcard_set', set_id=set_id)
+        else:
+            messages.error(request, "You do not have permission to update this set.")
 
-        # After saving, redirect back to the same page to reflect the changes
-        return redirect('view_flashcard_set', set_id=set_id)
+    # Calculate time until next review
+    for flashcard in flashcards:
+        if flashcard.next_review_date:
+            next_review = flashcard.next_review_date
+            now_time = now()
+            if is_naive(next_review):
+                next_review = make_aware(next_review)
 
-    return render(request, 'flashcard_set_detail.html', {'flashcard_set': flashcard_set, 'flashcards': flashcards, 'card_count': card_count})
+            time_remaining = next_review - now_time
+            if time_remaining.total_seconds() <= 0:
+                flashcard.time_until_next_review = "Overdue"
+            else:
+                days = time_remaining.days
+                hours = time_remaining.seconds // 3600
+                flashcard.time_until_next_review = f"{days}d {hours}h"
 
+    # Pick template based on ownership
+    is_owner = request.user.is_authenticated and request.user == flashcard_set.user
+    template = 'flashcard_set_detail.html' if is_owner else 'flashcard_set_detail_world.html'
+
+    return render(request, template, {
+        'flashcard_set': flashcard_set,
+        'flashcards': flashcards,
+        'card_count': card_count,
+        'is_guest': not request.user.is_authenticated,
+        'is_owner': is_owner
+    })
 @login_required  # Delete a flashcard
 def delete_flashcard(request, card_id):
     flashcard = get_object_or_404(Flashcard, card_id=card_id)
@@ -832,43 +855,50 @@ def get_flashcard_set_details(request, set_id):
 
 # ======================== Study Mode ======================== #
 
-@login_required  # Study flashcards in a set
 def study_view(request, set_id):
-    flashcard_sets = FlashcardSet.objects.filter(user=request.user)
-    flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
+    if request.user.is_authenticated:
+        flashcard_set = get_object_or_404(
+            FlashcardSet,
+            Q(set_id=set_id) & (Q(is_shared=True) | Q(user=request.user))
+        )
+    else:
+        flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, is_shared=True)
+
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set)
 
-    # Update session with most recent set BEFORE reading it
-    recent = request.session.get('recent_sets', [])
-    if set_id in recent:
-        recent.remove(set_id)
-    recent.insert(0, set_id)
-    recent = recent[:3]
-    request.session['recent_sets'] = recent
+    # Authenticated user logic
+    if request.user.is_authenticated:
+        flashcard_sets = FlashcardSet.objects.filter(user=request.user)
+        recent = request.session.get('recent_sets', [])
+        if set_id in recent:
+            recent.remove(set_id)
+        recent.insert(0, set_id)
+        recent = recent[:3]
+        request.session['recent_sets'] = recent
 
-    # Now that session is updated, load and sort actual recent sets
-    recent_ids = request.session.get("recent_sets", [])
-    recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
-    recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+        recent_ids = request.session.get("recent_sets", [])
+        recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+        recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
-    # Favorite sets
-    favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
-
-    # Remaining cards
-    remaining_cards = flashcards.filter(is_learned=False).count()
-
-    # Set last viewed set
-    request.session['last_viewed_set_id'] = set_id
-    last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=set_id).first()
+        favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
+        last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=set_id).first()
+        remaining_cards = flashcards.filter(is_learned=False).count()
+    else:
+        flashcard_sets = []
+        recent_sets = []
+        favorite_sets = []
+        last_viewed_set = None
+        remaining_cards = 0
 
     return render(request, 'home.html', {
         "flashcard_set": flashcard_set,
         "flashcards": flashcards,
         "favorite_sets": favorite_sets,
         "flashcard_sets": flashcard_sets,
-        "recent_sets": recent_sets,  # ✅ Don't forget to pass this!
+        "recent_sets": recent_sets,
         "last_viewed_set": last_viewed_set,
         "remaining_cards": remaining_cards,
+        "is_guest": not request.user.is_authenticated,
     })
 
 def learn_view(request):
@@ -923,23 +953,26 @@ def update_learned_flashcards(request):
 def review_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id, user=request.user)
 
-    # Debugging: Print the flashcard_set details
-    print(f"Flashcard Set: {flashcard_set.title}, ID: {flashcard_set.set_id}")
-
     # Fetch all flashcards for the set that are marked as learned
     flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set, is_learned=True)
 
-    # Debugging: Log each learned flashcard and its next_review_date
-    for flashcard in flashcards:
-        print(f"Flashcard ID: {flashcard.card_id}, Next Review Date: {flashcard.next_review_date}")
+    # If the set has no flashcards at all
+    if not Flashcard.objects.filter(flashcard_set=flashcard_set).exists():
+        messages.error(request, "This set has no flashcards. Add some to begin reviewing.")
+        return redirect('library_view')
+
+    # If no learned flashcards exist
+    if not flashcards.exists():
+        messages.info(request, "You haven't learned any cards from this set yet.")
+        return redirect('study_view', set_id=set_id)
 
     # Filter flashcards that are due for review (next_review_date <= now)
     reviewable_cards = flashcards.filter(next_review_date__lte=timezone.now())
 
-    # If there are no reviewable flashcards, notify the user and redirect to the home page
+    # If there are no reviewable flashcards yet
     if not reviewable_cards.exists():
         messages.info(request, "There are no flashcards to review at this time.")
-        return redirect('home')  # Redirect to the home page
+        return redirect('study_view', set_id=set_id)
 
     return render(request, "review.html", {"flashcards": reviewable_cards})
 
@@ -1288,9 +1321,21 @@ def search_results(request):
     })
 
 def world_sets(request):
-    # Fetch public flashcard sets
-    public_sets = FlashcardSet.objects.filter(is_shared=True)
+    # Determine if the user is authenticated
+    is_guest = not request.user.is_authenticated
+
+    # Get recent sets only if the user is logged in
+    recent_sets = []
+    if request.user.is_authenticated:
+        recent_ids = request.session.get("recent_sets", [])
+        recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
+        recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
+
+    # Only public, shared sets with user and category info
+    public_sets = FlashcardSet.objects.filter(is_shared=True).select_related('user', 'category')
 
     return render(request, 'world_sets.html', {
-        'flashcard_sets': public_sets
+        'flashcard_sets': public_sets,
+        'recent_sets': recent_sets,
+        'is_guest': is_guest,
     })
