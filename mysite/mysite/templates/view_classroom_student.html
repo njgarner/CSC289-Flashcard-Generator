@@ -1,13 +1,12 @@
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Classroom - Flashlite</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body>
-    <h1 class="page-title">View Classroom - {{ classroom.name }}</h1>
+{% extends 'base.html' %}
+
+{% block title %}View Classroom - Flashlite{% endblock title %}
+
+{% block main %}
+
+{% load static %}
+
+<h1 class="page-title">View Classroom - {{ classroom.name }}</h1>
 
     <div class="classroom-details">
         <h2>Classroom Information</h2>
@@ -25,5 +24,4 @@
             {% endfor %}
         </ul>
     </div>
-</body>
-</html>
+{% endblock main %}
