@@ -6,35 +6,6 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <title>{{ flashcard_set.title }} - Details</title>
-    <!-- JavaScript-->
-    <script>
-        // Function to calculate time until next review
-        function timeUntilNextReview(nextReviewDate) {
-            const reviewDate = new Date(nextReviewDate);
-            const now = new Date();
-            const diff = reviewDate - now; // Difference in milliseconds
-
-            // If the review date is in the past, show the difference in minutes, hours, or days
-            const minutes = Math.floor(diff / 60000);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
-
-            const remainingMinutes = minutes % 60;
-            const remainingHours = hours % 24;
-
-            let timeString = '';
-
-            if (days > 0) timeString += days + " day" + (days > 1 ? 's' : '') + " ";
-            if (remainingHours > 0) timeString += remainingHours + " hour" + (remainingHours > 1 ? 's' : '') + " ";
-            if (remainingMinutes > 0) timeString += remainingMinutes + " minute" + (remainingMinutes > 1 ? 's' : '');
-
-            if (diff <= 0) {
-                timeString = `-${Math.abs(minutes)} minutes`; // If review is overdue, show how many minutes ago
-            }
-
-            return timeString || "Less than a minute";  // For cases with less than a minute difference
-        }
-    </script>
     <!-- Internal CSS -->
 	<style>
         .search-form-wrapper {
@@ -149,7 +120,7 @@
     </style>
 </head>
 <body>
-    <a id="back-button" href="{% url 'library_view' %}" style="margin-left: 10px;">Back to Library</a>
+    <a id="back-button" href="{% url 'library_view' %}" style="margin-left: 10px;">&#8592; Back to Library</a>
     <div class="title-container">
         <h1 class="flashcard_set_title">{{ flashcard_set.title }}</h1>
     </div>
@@ -189,7 +160,7 @@
     <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/500</h2>
 
     <!-- Create Flashcard Button -->
-    <button class="styled-button" onclick="window.location.href='{% url 'create_flashcard' %}'">
+    <button class="styled-button" onclick="window.location.href='{% url 'create_flashcard' flashcard_set.set_id %}'">
         <img src="{% static 'anvil.png' %}" alt="Anvil Icon" class="icon"> Create Flashcards
     </button>
 
@@ -223,13 +194,12 @@
             <!-- Display the learned status of the flashcard -->
             {% if flashcard.is_learned %}
             <strong>Time Until Next Review:</strong> 
-            <span class="time-until-next-review" data-review-date="{{ flashcard.next_review_date|date:'c' }}">
-                <!-- Time will be calculated and displayed here by JavaScript -->
+            <span id="review-time-{{ flashcard.id }}" data-review-date="{{ flashcard.next_review_date|date:'c' }}">
+                <!-- JS will populate this -->
             </span><br>
 
-            <!-- Debugging: Display raw review date and calculated time -->
+            <!-- Display review date -->
             <strong>Next Review Date:</strong> {{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}<br>
-            <strong>Calculated Time:</strong> <span class="calculated-time">{{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}</span><br>
         {% else %}
             <strong>Not yet learned</strong><br>
         {% endif %}
@@ -263,81 +233,171 @@
 
 <!-- JavaScript -->
 <script>
-    // This script calculates and updates the time until next review for each flashcard.
+    function timeUntilNextReview(nextReviewDate) {
+        const reviewDate = new Date(nextReviewDate);
+        const now = new Date();
+        const diff = reviewDate - now;
+
+        if (diff <= 0) {
+            return "Overdue";
+        }
+
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const remainingMinutes = minutes % 60;
+        const remainingHours = hours % 24;
+
+        let timeString = '';
+        if (days > 0) timeString += days + " day" + (days > 1 ? "s" : "") + " ";
+        if (remainingHours > 0) timeString += remainingHours + " hour" + (remainingHours > 1 ? "s" : "") + " ";
+        if (remainingMinutes > 0) timeString += remainingMinutes + " minute" + (remainingMinutes > 1 ? "s" : "");
+
+        return timeString || "Less than a minute";
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll('.time-until-next-review').forEach(element => {
-            const reviewDate = element.getAttribute('data-review-date');
-            const timeRemaining = timeUntilNextReview(reviewDate);
-            element.textContent = timeRemaining;
-
-            // Debugging: Log calculated times for each flashcard to the console
-            console.log(`Flashcard review: ${reviewDate} -> ${timeRemaining}`);
+        // Set review time for each flashcard
+        document.querySelectorAll('[id^="review-time-"]').forEach(span => {
+            const rawDate = span.getAttribute("data-review-date");
+            if (rawDate) {
+                span.textContent = timeUntilNextReview(rawDate);
+            }
         });
 
-        // Debugging: Log calculated times for each flashcard
-        document.querySelectorAll('.calculated-time').forEach(element => {
-            const reviewDate = element.textContent;
-            console.log("Calculated time for next review:", reviewDate, "->", timeUntilNextReview(reviewDate));
+        // Toggle Edit Set form
+        document.getElementById("toggleEditSetForm").addEventListener("click", function () {
+            var form = document.getElementById("editSetForm");
+            form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+        });
+
+        // Toggle individual flashcard edit form
+        document.querySelectorAll('.showFormButton').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var editForm = this.nextElementSibling;
+                var isHidden = (editForm.style.display === 'none' || editForm.style.display === '');
+                editForm.style.display = isHidden ? 'block' : 'none';
+                this.innerHTML = `
+                    <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> 
+                    ${isHidden ? 'Hide Edit Form' : 'Edit'}
+                `;
+            });
+        });
+
+        // Hide messages after a delay
+        setTimeout(function () {
+            var messageContainer = document.getElementById("message-container");
+            if (messageContainer) {
+                messageContainer.style.display = "none";
+            }
+        }, 3000);
+
+        // Live search functionality
+        const searchInput = document.getElementById('flashcard-search');
+        const flashcardItems = document.querySelectorAll('.flashcards_list li');
+        searchInput.addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            flashcardItems.forEach(item => {
+                const question = item.querySelectorAll('.flashcard-text')[0]?.textContent.toLowerCase() || '';
+                const answer = item.querySelectorAll('.flashcard-text')[1]?.textContent.toLowerCase() || '';
+                item.style.display = (question.includes(query) || answer.includes(query)) ? 'list-item' : 'none';
+            });
         });
     });
-    // Toggle edit form visibility for the set
-    document.getElementById("toggleEditSetForm").addEventListener("click", function() {
-        var form = document.getElementById("editSetForm");
-        form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
-    });
 
-    document.querySelectorAll('.showFormButton').forEach(function(button) {
-        button.addEventListener('click', function() {
-            var editForm = this.nextElementSibling;
-            var isHidden = (editForm.style.display === 'none' || editForm.style.display === '');
-    
-            editForm.style.display = isHidden ? 'block' : 'none';
-    
-            // Update button text while keeping the icon
-            this.innerHTML = `
-                <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> 
-                ${isHidden ? 'Hide Edit Form' : 'Edit'}
-            `;
-        });
-    });
-
-    // Show delete confirmation popup
     function confirmDelete(event) {
-        var confirmation = confirm("Are you sure you want to delete this flashcard?");
-        if (!confirmation) {
-            event.preventDefault(); // Stop form submission if canceled
+        if (!confirm("Are you sure you want to delete this flashcard?")) {
+            event.preventDefault();
             return false;
         }
         return true;
     }
 
-    // Auto-hide messages after 3 seconds
-    setTimeout(function () {
-        var messageContainer = document.getElementById("message-container");
-        if (messageContainer) {
-            messageContainer.style.display = "none";
-        }
-    }, 3000);
+    let inactivityTimeout;
+        let logoutWarningTimeout;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const searchInput = document.getElementById('flashcard-search');
-        const flashcardItems = document.querySelectorAll('.flashcards_list li');
-
-        searchInput.addEventListener('input', function () {
-          const query = this.value.toLowerCase();
-
-            flashcardItems.forEach(item => {
-                const questionDiv = item.querySelectorAll('.flashcard-text')[0];
-                const answerDiv = item.querySelectorAll('.flashcard-text')[1];
-
-                const question = questionDiv ? questionDiv.textContent.toLowerCase() : '';
-                const answer = answerDiv ? answerDiv.textContent.toLowerCase() : '';
-
-                const match = question.includes(query) || answer.includes(query);
-                item.style.display = match ? 'list-item' : 'none';
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
             });
-        });
-    });
+        }, 3000); // Hide messages after 3 seconds
+    
+        function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+        
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+        
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();  // Reset the inactivity timer
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
 </script>
 </body>
 </html>
