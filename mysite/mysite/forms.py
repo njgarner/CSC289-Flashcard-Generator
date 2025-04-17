@@ -5,7 +5,7 @@ from .models import Flashcard, FlashcardSet, User
 class FlashcardForm(forms.ModelForm):
     class Meta:
         model = Flashcard
-        fields = ['flashcard_set', 'question', 'answer'] 
+        fields = ['question', 'answer'] 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
