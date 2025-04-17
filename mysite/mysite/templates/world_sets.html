@@ -6,29 +6,51 @@
 
 {% load static %}
 <style>
-.world-search-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-.search-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.search-icon {
-    position: absolute;
-    left: 10px;
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-}
-#world-search-input {
-    padding: 0.5rem 0.5rem 0.5rem 2.2rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
+    .world-search-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+    }
+    #world-search-input {
+        padding: 0.5rem 0.5rem 0.5rem 2.2rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .world-tabs {
+        display: flex;
+        margin-bottom: 1rem;
+        gap: 0.5rem;
+    }
+    .tab-button {
+        padding: 8px 16px;
+        border: none;
+        background-color: #ddd;
+        cursor: pointer;
+        border-radius: 8px;
+    }
+    .tab-button.active {
+        background-color: #4285f4;
+        color: white;
+    }
+    .tab-section {
+        display: none;
+    }
+    .tab-section.active-tab {
+        display: block;
+    }
 </style>
 <h2 class="page-title">World Sets</h2>
 
@@ -51,30 +73,39 @@
         </div>
         <br>
 
-    <!-- Display Public Flashcard Sets -->
-    <div class="flashcard-sets-list">
+<!-- Tabs -->
+<div class="world-tabs">
+    <button class="tab-button active" onclick="switchWorldTab('all')">All Sets</button>
+    <button class="tab-button" onclick="switchWorldTab('category')">Category</button>
+    
+</div>
+
+<!-- All Sets Section -->
+<div id="all-sets-section" class="tab-section active-tab">
+    <div class="flashcard-sets-list" id="world-all-sets">
         {% for flashcard_set in flashcard_sets %}
             <div class="flashcard-set"
                 data-title="{{ flashcard_set.title|lower }}"
                 data-description="{{ flashcard_set.description|lower }}"
                 data-category="{{ flashcard_set.category.name|lower }}">
-                <p>{{ flashcard_set.title }}</p>
-                <p>{{ flashcard_set.description }}</p>
-                <p>Category: {{ flashcard_set.category.name }}</p>
+                
+                <p class="truncate-text">{{ flashcard_set.title }}</p>
+                <p class="truncate-text">{{ flashcard_set.description }}</p>
+                <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
 
                 <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
                 <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
 
                 <div>
-                    <!-- Favorite Button -->
-                    <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
-                        {% if flashcard_set.set_id in favorite_set_ids %}
-                            ❤️  <!-- Filled heart if favorited -->
-                        {% else %}
-                            ♡  <!-- Empty heart if not favorited -->
-                        {% endif %}
-                    </button>
-
+                    {% if not is_guest and flashcard_set.user != user %}
+                        <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                            {% if flashcard_set.set_id in favorite_set_ids %}
+                                ❤️
+                            {% else %}
+                                ♡
+                            {% endif %}
+                        </button>
+                    {% endif %}
                     <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
                 </div>
             </div>
@@ -82,12 +113,72 @@
             <p>No public flashcard sets available.</p>
         {% endfor %}
     </div>
-    <footer class="footer">
-        <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-    </footer>
+</div>
+
+<!-- Category Section -->
+<div id="category-section" class="tab-section">
+    {% if flashcard_sets %}
+        {% regroup flashcard_sets by category.name as world_category_groups %}
+
+        {% for group in world_category_groups %}
+            <h3 class="category-header">{{ group.grouper|truncatechars:25 }}</h3>
+            <div class="flashcard-sets-list">
+                {% for flashcard_set in group.list %}
+                    <div class="flashcard-set"
+                        data-title="{{ flashcard_set.title|lower }}"
+                        data-description="{{ flashcard_set.description|lower }}"
+                        data-category="{{ flashcard_set.category.name|lower }}">
+                        
+                        <p class="truncate-text">{{ flashcard_set.title }}</p>
+                        <p class="truncate-text">{{ flashcard_set.description }}</p>
+                        <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
+
+                        <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                        <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+
+                        <div>
+                            {% if not is_guest and flashcard_set.user != user %}
+                                <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                                    {% if flashcard_set.set_id in favorite_set_ids %}
+                                        ❤️
+                                    {% else %}
+                                        ♡
+                                    {% endif %}
+                                </button>
+                            {% endif %}
+                            <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No flashcard sets available.</p>
+    {% endif %}
 </div>
 
 <script>
+    function switchWorldTab(tabName) {
+        const allSection = document.getElementById("all-sets-section");
+        const catSection = document.getElementById("category-section");
+        const buttons = document.querySelectorAll(".tab-button");
+
+        allSection.classList.remove("active-tab");
+        catSection.classList.remove("active-tab");
+
+        if (tabName === 'all') {
+            allSection.classList.add("active-tab");
+        } else if (tabName === 'category') {
+            catSection.classList.add("active-tab");
+        }
+
+        buttons.forEach(btn => btn.classList.remove("active"));
+        const activeBtn = document.querySelector(`.tab-button[onclick="switchWorldTab('${tabName}')"]`);
+        if (activeBtn) {
+            activeBtn.classList.add("active");
+        }
+    }
+
     function searchWorldSets() {
         const input = document.getElementById("world-search-input").value.toLowerCase();
         const filterType = document.getElementById("search-filter").value;
@@ -115,6 +206,28 @@
                 set.style.display = "none";
             }
         });
+
+        // Hide category headers with no visible sets
+        const categorySections = document.querySelectorAll("#category-section > h3");
+        categorySections.forEach(header => {
+            const nextList = header.nextElementSibling; 
+            const sets = nextList.querySelectorAll(".flashcard-set");
+            let hasVisible = false;
+
+            sets.forEach(set => {
+                if (set.style.display !== "none") {
+                    hasVisible = true;
+                }
+            });
+
+            if (hasVisible) {
+                header.style.display = "";
+                nextList.style.display = "";
+            } else {
+                header.style.display = "none";
+                nextList.style.display = "none";
+            }
+        });
     }
     
     function clearWorldSearch() {
@@ -122,6 +235,15 @@
         document.getElementById("search-filter").value = 'all';
         searchWorldSets();
     }
-    </script>
+
+    var static_img1 = "{% static 'study_guide_answers.jpeg' %}";
+    var static_img2 = "{% static 'study_guide.jpeg' %}";
+</script>
+
+<!-- Script for Favorite Function -->
+<script src="{% static 'favorite.js' %}"></script>
+
+<!-- Script for Print Function -->
+<script src="{% static 'print.js' %}"></script>
 
 {% endblock main %}
