@@ -1,0 +1,35 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Classrooms - Flashlite{% endblock title %}
+
+{% block main %}
+
+{% load static %}
+
+<h1 class="page-title">Classrooms</h1>
+
+    <div class="content">
+        <div class="flashcard-sets-list">  <!-- Changed from classroom-list to match library.html -->
+            <button class="add-box">
+                <a href="{% url 'create_classroom' %}">+</a>
+            </button>
+
+            {% for classroom in classrooms %}
+                <div class="flashcard-set"> <!-- Changed from classroom to flashcard-set -->
+                    <p>{{ classroom.name }}</p>
+                    <p>{{ classroom.description }}</p>
+
+                    <a href="{% url 'view_classroom' classroom.id %}" class="view-button">View Classroom</a>
+
+                    <form action="{% url 'delete_classroom' classroom.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+            {% empty %}
+                <p>No classrooms created yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock main %}
