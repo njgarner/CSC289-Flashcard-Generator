@@ -43,7 +43,7 @@ urlpatterns = [
     path('about/', views.about, name="about"),
     path('terms', views.terms, name="terms"),
     path('', include("django.contrib.auth.urls")),
-    path('create_flashcard/', views.create_flashcard, name='create_flashcard'),
+    path('create_flashcard/<int:set_id>/', views.create_flashcard, name='create_flashcard'),
     path("activate/<uidb64>/<token>/", views.activate_account, name="activate_account"),
     path("toggle_favorite/<int:set_id>/", views.toggle_favorite, name="toggle_favorite"),
     path('favorites/', views.favorite_sets, name='favorite_sets'),
