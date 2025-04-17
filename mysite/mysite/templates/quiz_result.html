@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Results</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <h1>Quiz Results</h1>
+
+    {% if already_taken %}
+        <p>You have already taken this quiz.</p>
+    {% endif %}
+
+    <p>You scored {{ score }} out of {{ total }}.</p>
+    <a href="{% url 'view_classroom' classroom.id %}" class="btn btn-primary">Back to Classroom</a>
+</body>
+</html>

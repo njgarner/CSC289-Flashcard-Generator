@@ -70,14 +70,14 @@ urlpatterns = [
     path('classrooms/create/', views.create_classroom, name='create_classroom'),
     path('classrooms/<int:classroom_id>/', views.view_classroom, name='view_classroom'),
     path('classrooms/<int:classroom_id>/delete/', views.delete_classroom, name='delete_classroom'),
-    path('classrooms/', views.classrooms_view, name='classrooms'),  # Combined view for teachers and students
-    # Teacher and student-specific views
-    path('teacher_classrooms/', views.teacher_classrooms, name='teacher_classrooms'),  
-    path('student_classrooms/', views.student_classrooms, name='student_classrooms'),  
-    # Classroom joining
+    path('classrooms/', views.classrooms_view, name='classrooms'),
+    path('teacher_classrooms/', views.teacher_classrooms, name='teacher_classrooms'),
+    path('student_classrooms/', views.student_classrooms, name='student_classrooms'),
     path('join-classroom/', views.join_classroom, name='join_classroom'),
-    # Classroom actions
-    path('classrooms/<int:classroom_id>/assign_flashcard_sets/', views.assign_flashcard_sets, name='assign_flashcard_sets'),  # Path for assigning flashcard sets to classrooms
+    path('classrooms/<int:classroom_id>/assign_flashcard_sets/', views.assign_flashcard_sets, name='assign_flashcard_sets'),
+    path('classrooms/<int:classroom_id>/assign_quiz/', views.assign_quiz, name='assign_quiz'),
+    path('quiz/<int:quiz_id>/start/', views.start_quiz, name='start_quiz'),
+    path('student/scores/<int:student_id>/', views.student_scores, name='student_scores'),
     path('change_password/', views.change_password, name='change_password'),
     path('password_change_done/', views.password_change_done, name='password_change_done'),
     path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'), 

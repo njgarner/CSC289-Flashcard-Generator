@@ -98,12 +98,14 @@
         <div class="library-tabs">
             <button class="tab-button active" onclick="switchTab('all')">All Sets</button>
             <button class="tab-button" onclick="switchTab('favorites')">Favorites</button>
+            {% if assigned_sets %}
+                <button class="tab-button" onclick="switchTab('assigned')">Assigned Sets</button>
+            {% endif %}
         </div>
 
         <!-- All Sets Section -->
         <div id="all-sets-section" class="tab-section active-tab">
             <div class="flashcard-sets-list">
-                <!-- Your existing loop for all flashcard_sets here -->
                 {% for flashcard_set in flashcard_sets %}
                 <div class="flashcard-set" 
                     data-title="{{ flashcard_set.title|lower }}"
@@ -185,6 +187,48 @@
             </div>
         </div>
 
+        <!-- Assigned Sets Section (Only for students) -->
+        <div id="assigned-sets-section" class="tab-section {% if assigned_sets %}active-tab{% endif %}">
+            <div class="flashcard-sets-list">
+                {% for flashcard_set in assigned_sets %}
+                    <div class="flashcard-set"
+                        data-title="{{ flashcard_set.title|lower }}"
+                        data-description="{{ flashcard_set.description|lower }}"
+                        data-category="{{ flashcard_set.category.name|lower }}">
+                        <p class="truncate-text">{{ flashcard_set.title }}</p>
+                        <p class="truncate-text">{{ flashcard_set.description }}</p>
+                        <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
+
+                        <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                        <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+
+                        <div>
+                            <!-- Favorite Button -->
+                            <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                                {% if flashcard_set.set_id in favorite_set_ids %}
+                                    ❤️  <!-- Filled heart if favorited -->
+                                {% else %}
+                                    ♡  <!-- Empty heart if not favorited -->
+                                {% endif %}
+                            </button>
+
+                            <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+
+                            <!-- Delete Flashcard Set Form -->
+                            <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-button">
+                                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                <p>No assigned flashcard sets.</p>
+                {% endfor %}
+            </div>
+        </div>
+
         <footer class="footer">
             <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
         </footer>
@@ -195,14 +239,21 @@
         function switchTab(tabName) {
             const allSection = document.getElementById("all-sets-section");
             const favSection = document.getElementById("favorites-section");
+            const assignedSection = document.getElementById("assigned-sets-section");
             const buttons = document.querySelectorAll(".tab-button");
 
             if (tabName === 'all') {
                 allSection.classList.add("active-tab");
                 favSection.classList.remove("active-tab");
-            } else {
+                assignedSection.classList.remove("active-tab");
+            } else if (tabName === 'favorites') {
                 favSection.classList.add("active-tab");
                 allSection.classList.remove("active-tab");
+                assignedSection.classList.remove("active-tab");
+            } else {
+                assignedSection.classList.add("active-tab");
+                allSection.classList.remove("active-tab");
+                favSection.classList.remove("active-tab");
             }
 
             buttons.forEach(btn => btn.classList.remove("active"));
@@ -218,55 +269,35 @@
                 const title = set.getAttribute("data-title") || "";
                 const description = set.getAttribute("data-description") || "";
                 const category = set.getAttribute("data-category") || "";
-        
-                let textToSearch = "";
-                if (filterType === "title") {
-                    textToSearch = title;
-                } else if (filterType === "description") {
-                    textToSearch = description;
-                } else if (filterType === "category") {
-                    textToSearch = category;
-                } else {
-                    textToSearch = title + " " + description + " " + category;
+
+                let showSet = false;
+
+                if (filterType === "all" || filterType === "title") {
+                    if (title.includes(input)) {
+                        showSet = true;
+                    }
                 }
-        
-                if (textToSearch.includes(input)) {
-                    set.style.display = "";
-                } else {
-                    set.style.display = "none";
+
+                if (filterType === "all" || filterType === "description") {
+                    if (description.includes(input)) {
+                        showSet = true;
+                    }
                 }
+
+                if (filterType === "all" || filterType === "category") {
+                    if (category.includes(input)) {
+                        showSet = true;
+                    }
+                }
+
+                set.style.display = showSet ? "block" : "none";
             });
         }
-            
+
         function clearLibrarySearch() {
-            document.getElementById("library-search-input").value = '';
-            document.getElementById("search-filter").value = 'all';
-            searchLibrarySets(); // Show all
+            document.getElementById("library-search-input").value = "";
+            searchLibrarySets();
         }
-
-
-        function confirmDeleteSet(event) {
-            var confirmation = confirm("Are you sure you want to delete this flashcard set? This action cannot be undone.");
-            if (!confirmation) {
-                event.preventDefault(); // Stop form submission if canceled
-            }
-        }
-    
-        // Attach the confirmation function to all delete set forms
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll("form[action*='delete_set']").forEach(form => {
-                form.addEventListener("submit", confirmDeleteSet);
-            });
-        });
-
-        var static_img1 = "{% static 'study_guide_answers.jpeg' %}";
-        var static_img2 = "{% static 'study_guide.jpeg' %}";
     </script>
 
-    <!-- Script for Print Function -->
-    <script src="{% static 'print.js' %}"></script>
-
-    <!-- Script for Tutorial Function -->
-    <script src="{% static 'tutorial.js' %}"></script>
-
-{% endblock main %}
+{% endblock %}

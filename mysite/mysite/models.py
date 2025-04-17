@@ -79,6 +79,7 @@ class Classroom(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_classrooms")
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name="teaching_classrooms", null=True, blank=True)  # New field for teacher
     code = models.CharField(max_length=10, unique=True, blank=True, null=True)  # Field to store join code
     students = models.ManyToManyField(User, related_name="classrooms", blank=True)  # Many-to-many relationship for students
     flashcard_sets = models.ManyToManyField('FlashcardSet', related_name='classrooms', blank=True)  # Many-to-many relationship for flashcard sets
@@ -99,3 +100,40 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.role}"
     
+class Quiz(models.Model):
+    quiz_id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255)
+    flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.title} - {self.classroom.name}"
+
+class QuizResult(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
+    score = models.IntegerField()
+    total = models.IntegerField()
+    percentage = models.FloatField(null=True, blank=True)
+    date_taken = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'quiz')
+
+    def save(self, *args, **kwargs):
+        if self.total:
+            self.percentage = (self.score / self.total) * 100
+        super().save(*args, **kwargs)
+
+
+class SavedSet(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'flashcard_set')
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.flashcard_set.title}"

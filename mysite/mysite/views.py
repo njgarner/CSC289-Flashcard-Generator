@@ -25,7 +25,7 @@ import json
 
 # ======================= Python files ======================= #
 
-from .models import FlashcardSet, Category, Flashcard, FavoriteSet, UserActivity, Classroom, UserProfile
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet, UserActivity, Classroom, UserProfile, Quiz, QuizResult, SavedSet
 from .forms import FlashcardForm, ChangePasswordForm
 
 # ======================= Time Management ======================= #
@@ -108,11 +108,9 @@ def library_view(request):
     # Get all sets created by the user
     all_sets = FlashcardSet.objects.filter(user=request.user)
 
-    # Get all favorites (with related 'set' to avoid extra queries)
+    # Get all favorites
     favorites = FavoriteSet.objects.filter(user=request.user).select_related('set')
-
-    # Get a set of favorited set IDs for easy lookup
-    favorite_set_ids = set(favorite.set.set_id for favorite in favorites)
+    favorite_set_ids = set(fav.set.set_id for fav in favorites)
 
     # Separate flashcard sets into favorites and non-favorites
     favorite_flashcard_sets = all_sets.filter(set_id__in=favorite_set_ids)
@@ -122,19 +120,35 @@ def library_view(request):
     set_count = all_sets.count()
     favorite_count = favorite_flashcard_sets.count()
 
-    # Get recent sets from session
+    # Recent sets from session
     recent_ids = request.session.get("recent_sets", [])
     recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
     recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
+    # Get classroom-assigned sets (if user is a student)
+    try:
+        profile = request.user.userprofile
+        if profile.role == 'student':
+            # Get all classrooms the student is in
+            classrooms = Classroom.objects.filter(students=request.user)
+            # Gather all flashcard sets assigned through these classrooms
+            assigned_sets = FlashcardSet.objects.filter(classrooms__in=classrooms).distinct()
+            # Remove any the user already owns or has favorited
+            assigned_sets = assigned_sets.exclude(user=request.user).exclude(set_id__in=favorite_set_ids)
+        else:
+            assigned_sets = FlashcardSet.objects.none()
+    except UserProfile.DoesNotExist:
+        assigned_sets = FlashcardSet.objects.none()
+
     return render(request, 'library.html', {
-        'flashcard_sets': non_favorite_sets,  # Updated here
+        'flashcard_sets': non_favorite_sets,
         'favorites': favorites,
         'favorite_set_ids': favorite_set_ids,
         'favorite_flashcard_sets': favorite_flashcard_sets,
         'set_count': set_count,
         'favorite_count': favorite_count,
-        'recent_sets': recent_sets
+        'recent_sets': recent_sets,
+        'assigned_sets': assigned_sets,
     })
 
 @login_required
@@ -1147,7 +1161,6 @@ def reset_user_activity(request):
     return redirect('activity_dashboard')  # If not a POST request, redirect to dashboard
 
 # ======================== Classrooms ======================== #
-
 @login_required
 def classrooms_view(request):
     # Get the user's role from the UserProfile model
@@ -1191,19 +1204,44 @@ def create_classroom(request):
 
     return render(request, 'create_classroom.html')
 
+from django.http import HttpResponseForbidden
+
 @login_required
 def view_classroom(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
+    user_profile = get_object_or_404(UserProfile, user=request.user)
 
-    # Check if the user is either the teacher or a student
-    if request.user == classroom.user:
-        role = 'teacher'  # Teacher
-    elif request.user in classroom.students.all():
-        role = 'student'  # Student
+    # Determine the user's role based on their UserProfile
+    if user_profile.role == 'teacher' and classroom.user == request.user:
+        role = 'teacher'
+    elif user_profile.role == 'student' and request.user in classroom.students.all():
+        role = 'student'
     else:
-        return HttpResponseForbidden("You do not have permission to view this classroom.")
+        return HttpResponseForbidden("Access denied: You do not have permission to view this classroom.")
+    
+    students = None
+    quizzes = Quiz.objects.filter(classroom=classroom).select_related('flashcard_set')
 
-    return render(request, 'view_classroom.html', {'classroom': classroom, 'role': role})
+    # If student, fetch their quiz results and attach to quizzes
+    quiz_results = {}
+    if role == 'student':
+        student_results = QuizResult.objects.filter(student=request.user, quiz__in=quizzes)
+        quiz_results = {result.quiz.quiz_id: result for result in student_results}
+
+        # Attach result to each quiz
+        for quiz in quizzes:
+            quiz.result = quiz_results.get(quiz.quiz_id)
+
+    elif role == 'teacher':
+        students = classroom.students.all()
+
+    context = {
+        'classroom': classroom,
+        'role': role,
+        'students': students,
+        'quizzes': quizzes,
+    }
+    return render(request, 'view_classroom.html', context)
 
 # Delete a classroom
 @login_required
@@ -1239,7 +1277,7 @@ def assign_flashcard_sets(request, classroom_id):
     # Get sets not already assigned
     flashcard_sets = FlashcardSet.objects.exclude(set_id__in=assigned_ids)
 
-    # Debug print
+    # 🔍 Debug print
     print("Flashcard sets available to assign:")
     for s in flashcard_sets:
         print(f"- {s.title} (ID: {s.set_id})")
@@ -1272,6 +1310,109 @@ def assign_flashcard_sets(request, classroom_id):
         'assigned_flashcard_sets': assigned_flashcard_sets,
     })
 
+@login_required
+def assign_quiz(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+
+    # Only allow sets that are already assigned to the classroom
+    flashcard_sets = classroom.flashcard_sets.all()
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        set_id = request.POST.get("set_id")
+        due_date = request.POST.get("due_date")
+
+        if title and set_id:
+            flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+            Quiz.objects.create(
+                title=title,
+                flashcard_set=flashcard_set,
+                classroom=classroom,
+                due_date=due_date or None
+            )
+            messages.success(request, "Quiz successfully assigned.")
+            return redirect("view_classroom", classroom_id=classroom.id)
+
+    return render(request, "assign_quiz.html", {
+        "classroom": classroom,
+        "flashcard_sets": flashcard_sets,
+    })
+
+@login_required
+def start_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
+    classroom = quiz.classroom
+
+    if request.user not in classroom.students.all():
+        return HttpResponseForbidden("You are not assigned to this quiz.")
+
+    # Check if the user has already taken the quiz
+    existing_result = QuizResult.objects.filter(student=request.user, quiz=quiz).first()
+    if existing_result:
+        return render(request, 'quiz_result.html', {
+            'score': existing_result.score,
+            'total': existing_result.total,
+            'classroom': classroom,
+            'already_taken': True
+        })
+
+    flashcard_set = quiz.flashcard_set
+    flashcards = flashcard_set.flashcard_set.all()
+
+    if request.method == 'POST':
+        score = 0
+        for flashcard in flashcards:
+            user_answer = request.POST.get(f'flashcard_{flashcard.card_id}')
+            if user_answer and user_answer.lower() == flashcard.answer.lower():
+                score += 1
+
+        # Save the quiz result
+        QuizResult.objects.create(
+            student=request.user,
+            quiz=quiz,
+            score=score,
+            total=len(flashcards)
+        )
+
+        return render(request, 'quiz_result.html', {
+            'score': score,
+            'total': len(flashcards),
+            'classroom': classroom
+        })
+
+    return render(request, 'start_quiz.html', {
+        'quiz': quiz,
+        'flashcards': flashcards,
+        'classroom': classroom
+    })
+
+@login_required
+def student_scores(request, student_id):
+    # Fetch the student using the provided student_id
+    student = get_object_or_404(User, id=student_id)
+    
+    # Get all quizzes assigned to the classroom the student is enrolled in
+    enrolled_classrooms = Classroom.objects.filter(students=student)
+    
+    # Fetch quizzes that have been assigned to any of the classrooms the student is in
+    quizzes = Quiz.objects.filter(classroom__in=enrolled_classrooms)
+    
+    # Get quiz results for the student, if any
+    quiz_results = QuizResult.objects.filter(student=student, quiz__in=quizzes)
+    
+    # Create a dictionary of quiz results for easy access in the template
+    quiz_results_dict = {result.quiz.quiz_id: result for result in quiz_results}
+    
+    # Add quiz results to each quiz object
+    for quiz in quizzes:
+        quiz.result = quiz_results_dict.get(quiz.quiz_id)
+    
+    context = {
+        'student': student,
+        'quizzes': quizzes,
+    }
+    
+    return render(request, 'student_scores.html', context)
 # ======================== Search & World Sets ======================== #
 
 def search_results(request):

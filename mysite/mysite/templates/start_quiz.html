@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ quiz.title }} - Quiz</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <h1>{{ quiz.title }}</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {% for flashcard in flashcards %}
+            <div class="flashcard">
+                <p>{{ flashcard.question }}</p>
+                <input type="text" name="flashcard_{{ flashcard.card_id }}" placeholder="Your answer">
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success">Submit Quiz</button>
+    </form>
+</body>
+</html>

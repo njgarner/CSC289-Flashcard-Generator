@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -12,7 +14,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ classroom.name }} - Flashlite</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
@@ -48,28 +49,99 @@
             <h2>Classroom Description</h2>
             <p>{{ classroom.description }}</p>
             <p><strong>Classroom Code:</strong> {{ classroom.code }}</p>
-            
+
             {% if role == 'teacher' %}
-                <!-- Teacher-specific content -->
-                <h3>Teacher's Actions</h3>
-                <p>Here you can assign flashcard sets to your students, manage your classroom, etc.</p>
-                <a href="{% url 'assign_flashcard_sets' classroom.id %}" class="btn btn-primary">Assign Flashcard Sets</a>
-                <a href="{% url 'delete_classroom' classroom.id %}" class="btn btn-danger">Delete Classroom</a>
-            {% elif role == 'student' %}
-                <!-- Student-specific content -->
-                <h3>Students Section</h3>
-                <p>You are currently enrolled in this classroom. You can review flashcards assigned to this classroom.</p>
-                <h4>Assigned Flashcard Sets:</h4>
-                <ul>
-                    {% for set in classroom.flashcard_sets.all %}
-                        <li>{{ set.title }} - {{ set.description }}</li>
-                    {% empty %}
-                        <p>No flashcard sets assigned yet.</p>
+                <h3>Teacher's Dashboard</h3>
+                <p>Manage students, assign flashcard sets and quizzes, or delete this classroom.</p>
+
+                <hr>
+                <h4>Enrolled Students</h4>
+                {% if students %}
+                <ul class="list-group mb-3">
+                    {% for student in students %}
+                        <li class="list-group-item">
+                            <a href="{% url 'student_scores' student.id %}">{{ student.username }}</a> 
+                            ({{ student.email }})
+                        </li>
                     {% endfor %}
                 </ul>
-                <a href="{% url 'library_view' %}" class="btn btn-info">Start Reviewing Flashcards</a>
             {% else %}
-                <p>You do not have permission to view this classroom.</p>
+                <p>No students have joined this classroom yet.</p>
+            {% endif %}            
+
+                <hr>
+                <h4>Assigned Quizzes</h4>
+                {% if classroom.quiz_set.exists %}
+                    <ul class="list-group mb-3">
+                        {% for quiz in classroom.quiz_set.all %}
+                            <li class="list-group-item">
+                                <strong>{{ quiz.title }}</strong> – {{ quiz.flashcard_set.title }}<br>
+                                <small>Due: {{ quiz.due_date|date:"M d, Y H:i" }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No quizzes assigned yet.</p>
+                {% endif %}
+                <a href="{% url 'assign_quiz' classroom.id %}" class="btn btn-secondary mb-3">Assign a Quiz</a>
+
+                <hr>
+                <h4>Assigned Flashcard Sets</h4>
+                {% if classroom.flashcard_sets.exists %}
+                    <ul class="list-group mb-3">
+                        {% for set in classroom.flashcard_sets.all %}
+                            <li class="list-group-item">{{ set.title }} – {{ set.description }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No flashcard sets assigned yet.</p>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'assign_flashcard_sets' classroom.id %}" class="btn btn-primary mr-2">Assign Flashcard Sets</a>
+                    <a href="{% url 'delete_classroom' classroom.id %}" class="btn btn-danger">Delete Classroom</a>
+                </div>
+
+            {% elif role == 'student' %}
+                <h3>Student Dashboard</h3>
+                <p>You are enrolled in this classroom. Review flashcards or complete assigned quizzes below.</p>
+
+                <hr>
+                <h4>Assigned Flashcard Sets</h4>
+                {% if classroom.flashcard_sets.exists %}
+                    <ul class="list-group mb-3">
+                        {% for set in classroom.flashcard_sets.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ set.title }}</strong> – {{ set.description }}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{% url 'library_view' %}" class="btn btn-info">Start Reviewing Flashcards</a>
+                {% else %}
+                    <p>No flashcard sets assigned yet.</p>
+                {% endif %}
+
+                <hr>
+                <h4>Assigned Quizzes</h4>
+                {% if quizzes %}
+                    <ul class="list-group">
+                        {% for quiz in quizzes %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ quiz.title }}</strong> – Due: {{ quiz.due_date|date:"M d, Y H:i" }}
+                                    {% if quiz.result %}
+                                        <br><small>Score: {{ quiz.result.percentage|floatformat:2 }}%</small>
+                                    {% else %}
+                                        <br><a href="{% url 'start_quiz' quiz.quiz_id %}">Take Quiz</a>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No quizzes assigned yet.</p>
+                {% endif %}
             {% endif %}
         </div>
     </div>
