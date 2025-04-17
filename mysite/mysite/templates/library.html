@@ -88,7 +88,7 @@
         <p>Sets: {{ set_count }}/100</p>
         <p>Favorite Sets: <span id="favorite-count">{{ favorite_count }}</span>/100</p>
 
-        <div class="flashcard-sets-list">
+        <div class="flashcard-sets-list" id="all-sets-list">
             <button class="add-box">
                 <a href="{% url 'create_set' %}">+</a>
             </button>
@@ -98,14 +98,15 @@
         <div class="library-tabs">
             <button class="tab-button active" onclick="switchTab('all')">All Sets</button>
             <button class="tab-button" onclick="switchTab('favorites')">Favorites</button>
+            <button class="tab-button" onclick="switchTab('category')">Category</button>
         </div>
 
         <!-- All Sets Section -->
         <div id="all-sets-section" class="tab-section active-tab">
-            <div class="flashcard-sets-list">
+            <div class="flashcard-sets-list" id="all-sets-list">
                 <!-- Your existing loop for all flashcard_sets here -->
                 {% for flashcard_set in flashcard_sets %}
-                <div class="flashcard-set" 
+                <div class="flashcard-set" id="set-{{ flashcard_set.set_id }}"  
                     data-title="{{ flashcard_set.title|lower }}"
                     data-description="{{ flashcard_set.description|lower }}"
                     data-category="{{ flashcard_set.category.name|lower }}">
@@ -145,9 +146,9 @@
 
         <!-- Favorite Sets Section -->
         <div id="favorites-section" class="tab-section {% if favorite_flashcard_sets %}active-tab{% endif %}">
-            <div class="flashcard-sets-list">
+            <div class="flashcard-sets-list" id="favorites-sets-list">
                 {% for flashcard_set in favorite_flashcard_sets %}
-                    <div class="flashcard-set"
+                    <div class="flashcard-set" id="set-{{ flashcard_set.set_id }}"
                         data-title="{{ flashcard_set.title|lower }}"
                         data-description="{{ flashcard_set.description|lower }}"
                         data-category="{{ flashcard_set.category.name|lower }}">
@@ -185,40 +186,96 @@
             </div>
         </div>
 
-        <footer class="footer">
-            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-        </footer>
+        <!-- Category Section -->
+        <div id="category-section" class="tab-section">
+            {% if flashcard_sets %}
+                {% regroup flashcard_sets by category.name as category_groups %}
+        
+                {% for group in category_groups %}
+                    <h3 class="category-header">{{ group.grouper|truncatechars:25 }}</h3>
+                    <div class="flashcard-sets-list">
+                        {% for flashcard_set in group.list %}
+                            <div class="flashcard-set" id="set-{{ flashcard_set.set_id }}"
+                                data-title="{{ flashcard_set.title|lower }}"
+                                data-description="{{ flashcard_set.description|lower }}"
+                                data-category="{{ flashcard_set.category.name|lower }}">
+                                
+                                <p class="truncate-text">{{ flashcard_set.title }}</p>
+                                <p class="truncate-text">{{ flashcard_set.description }}</p>
+                                <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
+        
+                                <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                                <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+        
+                                <div>
+                                    <!-- Favorite Button -->
+                                    <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                                        {% if flashcard_set.set_id in favorite_set_ids %}
+                                            ❤️
+                                        {% else %}
+                                            ♡
+                                        {% endif %}
+                                    </button>
+        
+                                    <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+        
+                                    <!-- Delete Flashcard Set Form -->
+                                    <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="delete-button">
+                                            <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No flashcard sets available.</p>
+            {% endif %}
+        </div>
     </div>
 
-    <!-- JavaScript + Variables for Print Function -->
     <script>
         function switchTab(tabName) {
             const allSection = document.getElementById("all-sets-section");
             const favSection = document.getElementById("favorites-section");
+            const catSection = document.getElementById("category-section");
             const buttons = document.querySelectorAll(".tab-button");
-
+    
+            // Hide all
+            allSection.classList.remove("active-tab");
+            favSection.classList.remove("active-tab");
+            catSection.classList.remove("active-tab");
+    
+            // Show selected
             if (tabName === 'all') {
                 allSection.classList.add("active-tab");
-                favSection.classList.remove("active-tab");
-            } else {
+            } else if (tabName === 'favorites') {
                 favSection.classList.add("active-tab");
-                allSection.classList.remove("active-tab");
+            } else if (tabName === 'category') {
+                catSection.classList.add("active-tab");
             }
-
+    
+            // Update tab button states
             buttons.forEach(btn => btn.classList.remove("active"));
-            document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`).classList.add("active");
+            const activeBtn = document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add("active");
+            }
         }
-
+    
         function searchLibrarySets() {
             const input = document.getElementById("library-search-input").value.toLowerCase();
             const filterType = document.getElementById("search-filter").value;
             const sets = document.getElementsByClassName("flashcard-set");
-        
+    
             Array.from(sets).forEach(set => {
                 const title = set.getAttribute("data-title") || "";
                 const description = set.getAttribute("data-description") || "";
                 const category = set.getAttribute("data-category") || "";
-        
+    
                 let textToSearch = "";
                 if (filterType === "title") {
                     textToSearch = title;
@@ -229,39 +286,62 @@
                 } else {
                     textToSearch = title + " " + description + " " + category;
                 }
-        
+    
                 if (textToSearch.includes(input)) {
                     set.style.display = "";
                 } else {
                     set.style.display = "none";
                 }
             });
+    
+            // Hide category headers with no visible sets
+            const categorySections = document.querySelectorAll("#category-section > h3");
+            categorySections.forEach(header => {
+                const nextList = header.nextElementSibling; 
+                const sets = nextList.querySelectorAll(".flashcard-set");
+                let hasVisible = false;
+    
+                sets.forEach(set => {
+                    if (set.style.display !== "none") {
+                        hasVisible = true;
+                    }
+                });
+    
+                if (hasVisible) {
+                    header.style.display = "";
+                    nextList.style.display = "";
+                } else {
+                    header.style.display = "none";
+                    nextList.style.display = "none";
+                }
+            });
         }
-            
+    
         function clearLibrarySearch() {
             document.getElementById("library-search-input").value = '';
             document.getElementById("search-filter").value = 'all';
-            searchLibrarySets(); // Show all
+            searchLibrarySets(); 
         }
-
-
+    
         function confirmDeleteSet(event) {
             var confirmation = confirm("Are you sure you want to delete this flashcard set? This action cannot be undone.");
             if (!confirmation) {
-                event.preventDefault(); // Stop form submission if canceled
+                event.preventDefault();
             }
         }
     
-        // Attach the confirmation function to all delete set forms
         document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll("form[action*='delete_set']").forEach(form => {
                 form.addEventListener("submit", confirmDeleteSet);
             });
         });
-
+    
         var static_img1 = "{% static 'study_guide_answers.jpeg' %}";
         var static_img2 = "{% static 'study_guide.jpeg' %}";
     </script>
+
+    <!-- Script for Favorite Function -->
+    <script src="{% static 'favorite.js' %}"></script>
 
     <!-- Script for Print Function -->
     <script src="{% static 'print.js' %}"></script>
