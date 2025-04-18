@@ -385,7 +385,7 @@ def delete_account(request):
 
 
 @login_required
-def update_profile(request):
+def update_profile_picture(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
