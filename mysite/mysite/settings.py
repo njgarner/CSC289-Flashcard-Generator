@@ -144,3 +144,5 @@ LOGOUT_REDIRECT_URL = 'login_user'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+OPENAI_API_KEY = "your-api-key-here"
