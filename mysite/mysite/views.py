@@ -22,6 +22,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import os
 import datetime
+import openai
+from django.conf import settings
 
 # ======================= Python files ======================= #
 
@@ -936,3 +938,40 @@ def update_flashcard_review(request, card_id):
 
             return JsonResponse({"status": "success", "next_review_date": flashcard.next_review_date})
         return JsonResponse({"status": "error", "message": "Flashcard not found."}, status=404)
+
+openai.api_key = settings.OPENAI_API_KEY
+
+def generate_ai_question(content):
+    prompt = f"Generate a quiz question based on this content: {content}"
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            max_tokens=50
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        print(f"Error generating AI question: {e}")
+        return None
+
+from django.http import JsonResponse
+from .models import Flashcard
+
+def quiz_question(request):
+    flashcard = Flashcard.objects.order_by('?').first()  # Get a random flashcard
+    if flashcard:
+        question = generate_ai_question(flashcard.question)
+        return JsonResponse({"question": question, "flashcard_id": flashcard.id})
+    return JsonResponse({"error": "No flashcards available"}, status=404)
+
+def validate_answer(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user_answer = data.get("answer", "").strip().lower()
+        flashcard_id = data.get("flashcard_id")
+        flashcard = Flashcard.objects.filter(id=flashcard_id).first()
+
+        if flashcard and user_answer == flashcard.answer.strip().lower():
+            return JsonResponse({"correct": True})
+        return JsonResponse({"correct": False, "correct_answer": flashcard.answer})
+    return JsonResponse({"error": "Invalid request"}, status=400)
