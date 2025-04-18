@@ -1083,10 +1083,31 @@ hr {
 .rainbow-color-7 { background-color: violet; }
 
 
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f8f9fa; /* Optional: Set a background color */
+}
+
+/* Style for the user section containing profile picture and username */
+.user-section {
+    display: flex;
+    align-items: center;
+}
+
+/* Style for the profile picture */
 .top-bar-profile-pic {
     width: 40px; /* Adjust size as needed */
     height: 40px;
-    border-radius: 50%; /* Make it circular */
-    margin-right: 10px; /* Space between picture and username */
-    vertical-align: middle; /* Align with the username text */
+    border-radius: 50%; /* Make the image circular */
+    margin-right: 10px; /* Add spacing between picture and username */
+}
+
+/* Style for the username */
+.name-title {
+    font-size: 16px;
+    color: #000; /* Adjust text color as needed */
+    text-decoration: none;
 }
