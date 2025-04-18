@@ -35,6 +35,13 @@
             <button class="button" onclick="window.location.href='{% url 'customize' %}'">Customize</button>
         </div>
         
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="profile_picture">Upload Profile Picture:</label>
+            <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+            <button type="submit">Save</button>
+        </form>
+        
         <!-- Change Password -->
         <div class="setting-item">
             <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
