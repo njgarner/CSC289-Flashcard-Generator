@@ -141,3 +141,6 @@ EMAIL_HOST_PASSWORD = "slhs iewn sxzw huyk"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 LOGOUT_REDIRECT_URL = 'login_user'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

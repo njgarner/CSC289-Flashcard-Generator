@@ -1081,3 +1081,12 @@ hr {
 .rainbow-color-5 { background-color: blue; }
 .rainbow-color-6 { background-color: indigo; }
 .rainbow-color-7 { background-color: violet; }
+
+
+.top-bar-profile-pic {
+    width: 40px; /* Adjust size as needed */
+    height: 40px;
+    border-radius: 50%; /* Make it circular */
+    margin-right: 10px; /* Space between picture and username */
+    vertical-align: middle; /* Align with the username text */
+}

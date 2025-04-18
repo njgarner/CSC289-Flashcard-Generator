@@ -31,6 +31,17 @@
     <header>
         <div class="top-bar">
             <a href="{% url 'settings' %}" style="color:black" class="name-title">{{ user|safe }}</a>
+            <div class="top-bar">
+        {% if user.is_authenticated %}
+            {% if user.profile.profile_picture %}
+                <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="top-bar-profile-pic">
+            {% endif %}
+            <a href="{% url 'settings' %}" style="color:black" class="name-title">{{ user.username|safe }}</a>
+        {% else %}
+            <a href="{% url 'login_user' %}" class="login-link">Login</a>
+        {% endif %}
+        <!-- Other elements like the logo, login/logout buttons, etc. -->
+            </div>
             <!-- Google Translate Plugin -->
             <div id="google_translate_element" class="translate-container"></div>
     

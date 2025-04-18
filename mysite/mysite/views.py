@@ -383,6 +383,19 @@ def delete_account(request):
     
     return render(request, 'account_delete.html')
 
+
+@login_required
+def update_profile_picture(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            return redirect('settings')  # Redirect to settings or profile page
+    else:
+        form = ProfileForm(instance=request.user.profile)
+    return render(request, 'settings.html', {'form': form})
+    
+
 def get_daily_quote():
     quotes = [
         "Believe you can and you're halfway there.",

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm, PasswordResetForm
-from .models import Flashcard, FlashcardSet, User
+from .models import Flashcard, FlashcardSet, User, Profile
 
 class FlashcardForm(forms.ModelForm):
     class Meta:
@@ -20,3 +20,9 @@ class ResetPasswordForm(PasswordResetForm):
     class Meta:
         model = User
         fields = ['', '', '']
+        
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['profile_picture']
