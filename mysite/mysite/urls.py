@@ -24,8 +24,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -79,4 +77,7 @@ urlpatterns = [
     ), name='password_reset_complete'),
     path('export-card-set/', views.export_card_set, name='export_card_set'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
