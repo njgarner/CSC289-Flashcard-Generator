@@ -76,6 +76,8 @@ urlpatterns = [
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
     path('export-card-set/', views.export_card_set, name='export_card_set'),
+    path('quiz-question/', views.quiz_question, name='quiz_question'),
+    path('validate-answer/', views.validate_answer, name='validate_answer'),
 ]
 
 if settings.DEBUG:
