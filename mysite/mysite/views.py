@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -23,7 +24,7 @@ import json
 import os
 import datetime
 import openai
-from django.conf import settings
+
 
 # ======================= Python files ======================= #
 
