@@ -145,4 +145,4 @@ LOGOUT_REDIRECT_URL = 'login_user'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-OPENAI_API_KEY = "your-api-key-here"
+OPENAI_API_KEY = os.getenv("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")
