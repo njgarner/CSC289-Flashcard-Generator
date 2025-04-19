@@ -6,24 +6,42 @@
 
 {% load static %}
 
-
 <h1 class="page-title">Join a Classroom</h1>
 
     <div class="content">
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Classroom Join Section -->
         <div class="join-classroom">
             <h2>Enter Classroom Code</h2>
             <form method="POST" action="{% url 'join_classroom' %}">
                 {% csrf_token %}
                 <label for="classroom_code">Classroom Code:</label>
-                <input type="text" id="classroom_code" name="classroom_code" required placeholder="Enter code">
-                <button type="submit" class="btn btn-primary">Join Classroom</button>
+                <input type="text" id="classroom_code" name="classroom_code" maxlength="10" required placeholder="Enter code"
+                       {% if student_class_count >= 50 %}disabled{% endif %}>
+                <button type="submit" class="btn btn-primary"
+                        {% if student_class_count >= 50 %}disabled{% endif %}>
+                    Join Classroom
+                </button>
+                {% if student_class_count >= 50 %}
+                    <p class="text-danger mt-2">You’ve reached the limit of 50 classrooms. Leave one to join another.</p>
+                {% endif %}
             </form>
         </div>
 
         <!-- List of Classrooms the Student is in -->
         <div class="student-classrooms-list mt-4">
             <h2>Your Classrooms</h2>
+            <p>Classrooms: {{ student_class_count }}/50</p>
             {% for classroom in classrooms %}
                 <div class="classroom-item mb-4 p-3 border rounded bg-light">
                     <h4>{{ classroom.name }}</h4>
