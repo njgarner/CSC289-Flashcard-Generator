@@ -5,45 +5,92 @@
 {% block main %}
 
 {% load static %}
+<style>
+    .truncated-heading {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    
+    .truncate-text {
+        display: inline-block;
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+    }
+</style>
 
-    <h1 class="page-title">Assign Flashcard Sets to {{ classroom.name }}</h1>
+<div class="content">
 
-    <div class="content">
-        <div class="assign-flashcard-sets">
-            <h2>Choose Flashcard Sets to Assign</h2>
-            <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}">
-                {% csrf_token %}
-                <div class="set-selection">
-                    <label for="sets">Available Flashcard Sets:</label>
-                    <select id="sets" name="sets" multiple class="form-control">
-                        {% for set in flashcard_sets %}
-                            <option value="{{ set.set_id }}">{{ set.title }} - {{ set.description }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Assign Sets</button>
-            </form>            
-        </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
 
-        <div class="assigned-flashcard-sets">
-            <h2>Currently Assigned Flashcard Sets</h2>
-            {% if assigned_flashcard_sets %}
-                <ul>
-                    {% for set in assigned_flashcard_sets %}
-                        <li>
-                            {{ set.title }} - {{ set.description }}
-                            <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" name="remove_set" value="{{ set.set_id }}" class="btn btn-danger btn-sm ml-2">
-                                    Remove
-                                </button>
-                            </form>
-                        </li>
+    <a href="{% url 'view_classroom' classroom.id %}" class="btn btn-outline-secondary mb-4">&larr; Back to Classroom</a>
+
+    <h2 class="truncated-heading" title="{{ classroom.name }}">
+        Assign Flashcard Sets to {{ classroom.name }}
+    </h2>
+
+    <div class="assign-flashcard-sets">
+        <h3>Choose Flashcard Sets to Assign</h3>
+
+        <!-- Search input -->
+        <input type="text" id="search-input" class="form-control mb-3" placeholder="Search sets...">
+
+        <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}">
+            {% csrf_token %}
+            <div class="set-selection">
+                <label for="sets">Available Flashcard Sets:</label>
+                <select id="sets" name="sets" multiple class="form-control">
+                    {% for set in flashcard_sets %}
+                        <option value="{{ set.set_id }}">
+                            {{ set.title|truncatechars:25 }} - {{ set.description|default:"No description"|truncatechars:25 }}
+                        </option>
                     {% endfor %}
-                </ul>
-            {% else %}
-                <p>No flashcard sets assigned yet.</p>
-            {% endif %}
-        </div>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Assign Sets</button>
+        </form>            
     </div>
+
+    <div class="assigned-flashcard-sets mt-5">
+        <h2>Currently Assigned Flashcard Sets</h2>
+        {% if assigned_flashcard_sets %}
+            <ul class="list-group">
+                {% for set in assigned_flashcard_sets %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ set.title|truncatechars:25 }}</strong> - {{ set.description|default:"No description"|truncatechars:25 }}
+                        </div>
+                        <form method="POST" action="{% url 'assign_flashcard_sets' classroom.id %}">
+                            {% csrf_token %}
+                            <button type="submit" name="remove_set" value="{{ set.set_id }}" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No flashcard sets assigned yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Search Script -->
+<script>
+    document.getElementById('search-input').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        const options = document.querySelectorAll('#sets option');
+        options.forEach(option => {
+            const text = option.textContent.toLowerCase();
+            option.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
+
 {% endblock main %}
