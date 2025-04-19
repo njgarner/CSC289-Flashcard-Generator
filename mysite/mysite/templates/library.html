@@ -71,6 +71,7 @@
             {% endfor %}
         </div>
         {% endif %}
+
         <div class="library-search-bar">
             <div class="search-input-wrapper">
                 <img src="{% static 'magnify.png' %}" alt="Search Icon" class="search-icon">
@@ -99,6 +100,9 @@
             <button class="tab-button active" onclick="switchTab('all')">All Sets</button>
             <button class="tab-button" onclick="switchTab('favorites')">Favorites</button>
             <button class="tab-button" onclick="switchTab('category')">Category</button>
+            {% if assigned_sets %}
+            <button class="tab-button" onclick="switchTab('assigned')">Assigned Sets</button>
+            {% endif %}
         </div>
 
         <!-- All Sets Section -->
@@ -235,6 +239,48 @@
                 <p>No flashcard sets available.</p>
             {% endif %}
         </div>
+
+        <!-- Assigned Sets Section (Only for students) -->
+        <div id="assigned-sets-section" class="tab-section {% if assigned_sets %}active-tab{% endif %}">
+            <div class="flashcard-sets-list">
+                {% for flashcard_set in assigned_sets %}
+                    <div class="flashcard-set"
+                        data-title="{{ flashcard_set.title|lower }}"
+                        data-description="{{ flashcard_set.description|lower }}"
+                        data-category="{{ flashcard_set.category.name|lower }}">
+                        <p class="truncate-text">{{ flashcard_set.title }}</p>
+                        <p class="truncate-text">{{ flashcard_set.description }}</p>
+                        <p class="truncate-text">Category: {{ flashcard_set.category.name }}</p>
+
+                        <a href="{% url 'view_flashcard_set' flashcard_set.set_id %}">View Details</a>
+                        <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
+
+                        <div>
+                            <!-- Favorite Button -->
+                            <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
+                                {% if flashcard_set.set_id in favorite_set_ids %}
+                                    ❤️  <!-- Filled heart if favorited -->
+                                {% else %}
+                                    ♡  <!-- Empty heart if not favorited -->
+                                {% endif %}
+                            </button>
+
+                            <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
+
+                            <!-- Delete Flashcard Set Form -->
+                            <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-button">
+                                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                <p>No assigned flashcard sets.</p>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
     <script>
@@ -242,6 +288,7 @@
             const allSection = document.getElementById("all-sets-section");
             const favSection = document.getElementById("favorites-section");
             const catSection = document.getElementById("category-section");
+            const assignedSection = document.getElementById("assigned-sets-section");
             const buttons = document.querySelectorAll(".tab-button");
     
             // Hide all
@@ -256,6 +303,10 @@
                 favSection.classList.add("active-tab");
             } else if (tabName === 'category') {
                 catSection.classList.add("active-tab");
+            } else {
+                assignedSection.classList.add("active-tab");
+                allSection.classList.remove("active-tab");
+                favSection.classList.remove("active-tab");
             }
     
             // Update tab button states
