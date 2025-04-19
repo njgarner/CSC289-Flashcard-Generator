@@ -27,7 +27,7 @@
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
-<body>
+<body class="{% if request.session.color_background %}color-bg{% endif %}">
     <!-- Top Bar Section -->
     <header>
         <div class="top-bar">
@@ -86,7 +86,7 @@
                     <div class="flex flex-col items-center space-y-2 text-center">
                         {% for recent in recent_sets %}
                             <a href="{% url 'study_view' recent.set_id %}" class="recent-link" title="{{ recent.title }}">
-                                {{ recent.title|truncatechars:25 }}
+                                {{ recent.title|truncatechars:10 }}
                             </a>
                         {% endfor %}
                     </div>
