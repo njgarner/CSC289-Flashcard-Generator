@@ -1,41 +1,197 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ classroom.name }} - Flashlite{% endblock title %}
+{% block title %}Classroom Description - Flashlite{% endblock %}
 
 {% block main %}
 
 {% load static %}
 
-<h1 class="page-title">{{ classroom.name }}</h1>
+<style>
+    .classroom-details h1,
+    .classroom-details p {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+        
+    .classroom-details h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+        
+    .classroom-details p {
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 0.75rem;
+    }
+    .dashboard-header .icon {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        margin-right: 10px;
+    }
+</style>
 
-    <div class="content">
-        <div class="classroom-details">
-            <h2>Classroom Description</h2>
-            <p>{{ classroom.description }}</p>
-            <p><strong>Classroom Code:</strong> {{ classroom.code }}</p>
+<div class="content">
+    <div class="classroom-details">
+
+        {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <a href="{% url 'classrooms' %}" class="btn btn-outline-secondary mb-4">&larr; Back to Classrooms</a>
+        <h1>{{ classroom.name }}</h1>
+        <p>{{ classroom.description }}</p>
+        <p><strong>Classroom Code:</strong> {{ classroom.code }}</p>
+
+        {% if role == 'teacher' %}
+            <div class="dashboard-header d-flex align-items-center mb-2">
+                <img src="{% static 'teacherIcon.png' %}" alt="Teacher Icon" class="icon mr-2">
+                <h3 class="mb-0">Teacher's Dashboard</h3>
+            </div>
+            <p>Manage students, assign flashcard sets and quizzes, or delete this classroom.</p>
+
+            <hr>
             
-            {% if role == 'teacher' %}
-                <!-- Teacher-specific content -->
-                <h3>Teacher's Actions</h3>
-                <p>Here you can assign flashcard sets to your students, manage your classroom, etc.</p>
-                <a href="{% url 'assign_flashcard_sets' classroom.id %}" class="btn btn-primary">Assign Flashcard Sets</a>
-                <a href="{% url 'delete_classroom' classroom.id %}" class="btn btn-danger">Delete Classroom</a>
-            {% elif role == 'student' %}
-                <!-- Student-specific content -->
-                <h3>Students Section</h3>
-                <p>You are currently enrolled in this classroom. You can review flashcards assigned to this classroom.</p>
-                <h4>Assigned Flashcard Sets:</h4>
-                <ul>
+            <h4>Enrolled Students</h4>
+
+            <!-- Search input -->
+            <input type="text" id="studentSearch" class="form-control mb-3" placeholder="Search students by name or email">
+
+            {% if students %}
+                <ul class="list-group mb-3" id="studentList">
+                    {% for student in students %}
+                        <li class="list-group-item">
+                            <a href="{% url 'student_scores' classroom.id student.id %}" class="student-name">{{ student.username }}</a> 
+                            <span class="student-email">({{ student.email }})</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No students have joined this classroom yet.</p>
+            {% endif %}
+
+            <hr>
+            <h4>Assigned Quizzes</h4>
+            {% if quizzes %}
+                <ul class="list-group mb-3">
+                    {% for quiz in quizzes %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="mb-2">
+                                <strong>{{ quiz.title }}</strong> – {{ quiz.flashcard_set.title }}<br>
+                                <small>Due: {{ quiz.due_date|date:"M d, Y H:i" }}</small>
+                            </div>
+                            <div class="btn-group">
+                                <!-- Delete Quiz -->
+                                <form method="POST" action="{% url 'delete_quiz' quiz.quiz_id %}" onsubmit="return confirm('Are you sure you want to delete this quiz?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No quizzes assigned yet.</p>
+            {% endif %}
+            <a href="{% url 'assign_quiz' classroom.id %}" class="btn btn-secondary mb-3">Assign a Quiz</a>
+
+            <hr>
+            <h4>Assigned Flashcard Sets</h4>
+            {% if classroom.flashcard_sets.exists %}
+                <ul class="list-group mb-3">
                     {% for set in classroom.flashcard_sets.all %}
-                        <li>{{ set.title }} - {{ set.description }}</li>
-                    {% empty %}
-                        <p>No flashcard sets assigned yet.</p>
+                        <li class="list-group-item">
+                            <span class="truncate-text"><strong>{{ set.title }}</strong> – {{ set.description }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No flashcard sets assigned yet.</p>
+            {% endif %}
+            <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'assign_flashcard_sets' classroom.id %}" class="btn btn-primary mr-2">Assign Flashcard Sets</a>
+                
+                    <form method="post" action="{% url 'delete_classroom' classroom.id %}" onsubmit="return confirmDeleteClassroom()" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete Classroom</button>
+                    </form>
+                </div>
+                
+        {% elif role == 'student' %}
+            <div class="dashboard-header d-flex align-items-center mb-2">
+                <img src="{% static 'stuIcon.png' %}" alt="Student Icon" class="icon mr-2">
+                <h3 class="mb-0">Student Dashboard</h3>
+            </div>
+            <p>You are enrolled in this classroom. Review flashcards or complete assigned quizzes below.</p>
+
+            <hr>
+            <h4>Assigned Flashcard Sets</h4>
+            {% if classroom.flashcard_sets.exists %}
+                <ul class="list-group mb-3">
+                    {% for set in classroom.flashcard_sets.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="truncate-text">
+                                <strong>{{ set.title }}</strong> – {{ set.description }}
+                            </div>
+                        </li>
                     {% endfor %}
                 </ul>
                 <a href="{% url 'library_view' %}" class="btn btn-info">Start Reviewing Flashcards</a>
             {% else %}
-                <p>You do not have permission to view this classroom.</p>
+                <p>No flashcard sets assigned yet.</p>
             {% endif %}
-        </div>
+
+            <hr>
+            <h4>Assigned Quizzes</h4>
+            {% if quizzes %}
+                <ul class="list-group">
+                    {% for quiz in quizzes %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="truncate-text" title="{{ quiz.title }}">
+                                <strong>{{ quiz.title }}</strong>
+                            </div>
+                            <small>Due: {{ quiz.due_date|date:"M d, Y H:i" }}</small>
+                            {% if quiz.result %}
+                                <br><small>Score: {{ quiz.result.percentage|floatformat:2 }}%</small>
+                            {% else %}
+                                <br><a href="{% url 'start_quiz' quiz.quiz_id %}">Take Quiz</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No quizzes assigned yet.</p>
+            {% endif %}
+        {% endif %}
     </div>
+</div>
+
+<script>
+    function confirmDeleteClassroom() {
+        return confirm("Are you sure you want to delete this classroom? This action cannot be undone.");
+    }
+    document.getElementById('studentSearch').addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        const students = document.querySelectorAll('#studentList .list-group-item');
+
+        students.forEach(item => {
+            const name = item.querySelector('.student-name').textContent.toLowerCase();
+            const email = item.querySelector('.student-email').textContent.toLowerCase();
+            const matches = name.includes(query) || email.includes(query);
+            item.style.display = matches ? 'block' : 'none';
+        });
+    });
+</script>
+
 {% endblock main %}
