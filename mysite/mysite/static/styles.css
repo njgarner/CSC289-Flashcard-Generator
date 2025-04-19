@@ -41,6 +41,8 @@
 
 /* Body styles */
 body {
+    margin: 0;
+    padding: 0;
     padding-top: 50px; /* Adds space at the top to avoid overlap with the top bar */
     font-family: 'Varela Round', sans-serif; /* Body font */
     margin: 0; /* Remove default body margin */
@@ -49,6 +51,22 @@ body {
     height: 100vh; /* Take up full viewport height */
     flex-direction: column; /* Stack content vertically */
     justify-content: flex-start; /* Start content from the top */
+}
+
+html, body {
+    height: 100%;
+}
+
+.color-bg {
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #b5c6e0, #a1c4fd, #c2e59c, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* Main content container styles */
@@ -400,6 +418,13 @@ body {
     margin-left: 5px; /* Add spacing between text and icon */
 }
 
+.large-icon {
+    width: 64px;
+    height: 64px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
 .patrick-hand-regular {
     font-family: 'Patrick Hand', cursive;
     font-weight: 400;
@@ -720,7 +745,6 @@ hr {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 16px;
 }
 
 .truncate-title {
@@ -859,7 +883,6 @@ hr {
     background-color: #C62828; /* Darker red on hover */
     color: white;
 }
-
 /* form-content class style */
 .form-content { /* Centers elements to be in the middle of the page */
     margin-left: auto;
@@ -1116,6 +1139,9 @@ hr {
 /*--------------------------------------------------------- Flashcard Messages ---------------------------------------------------------*/
 
 #message-container {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
     position: fixed; 
     top: 10px;
     left: 50%;
@@ -1172,6 +1198,7 @@ hr {
     word-wrap: break-word; /* Ensure long messages break properly */
     text-align: center;
     white-space: normal; /* Allow wrapping */
+    font-weight: bold;
 }
 
 .error {
@@ -1305,4 +1332,20 @@ hr {
     color: #c00;
     margin-bottom: 10px;
 }
-    
+.styled-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif;
+    font-size: 20px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}  
+.styled-button:hover {
+    background-color: #00A682;
+    color: white;
+    border-color: #008B5C;
+} 
