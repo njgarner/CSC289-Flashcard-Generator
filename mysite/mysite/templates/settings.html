@@ -14,13 +14,6 @@
         padding-top: 15px;
     }
 
-    .large-icon {
-        width: 64px;
-        height: 64px;
-        margin-right: 8px;
-        vertical-align: middle;
-    }
-
     .setting-actions {
         display: flex;
         flex-direction: column;
@@ -31,6 +24,42 @@
         font-size: 1.25rem;
         font-weight: bold;
         margin-bottom: 10px;
+    }
+    /* Toggle switch styling */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0;
+        right: 0; bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px; width: 18px;
+        left: 3px; bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: #00A682;
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
     }
 </style>
 
@@ -69,6 +98,12 @@
                 <img src="{% static 'report.png' %}" alt="Report Icon" class="large-icon">
                 <button class="button" onclick="window.location.href='{% url 'activity_dashboard' %}'">View Activity Reports</button>
             </div>
+
+            <label for="bg-toggle">Color Background</label>
+            <label class="switch">
+                <input type="checkbox" id="bg-toggle" {% if request.session.color_background %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
         </div>
     </div>
 
@@ -101,4 +136,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const bgToggle = document.getElementById('bg-toggle');
+        bgToggle.addEventListener('change', function () {
+            const isEnabled = this.checked;
+    
+            // Instantly update background visually
+            document.body.classList.toggle('color-bg', isEnabled);
+    
+            // Persist in session via backend
+            fetch("{% url 'toggle_background' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ enabled: isEnabled })
+            }).then(response => {
+                if (!response.ok) {
+                    alert("Failed to update background setting.");
+                }
+            });
+        });
+    </script>
 {% endblock main %}
