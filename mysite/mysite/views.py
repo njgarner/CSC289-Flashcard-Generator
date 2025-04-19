@@ -8,7 +8,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
@@ -20,18 +20,22 @@ from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.core.exceptions import *
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
 from django.db import transaction
-import json
 from collections import defaultdict
+from django.db.models import Q
+import pandas as pd
+import tempfile
+import json
+import os
 
 # ======================= Python files ======================= #
 
-from .models import FlashcardSet, Category, Flashcard, FavoriteSet, UserActivity, Classroom, UserProfile
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet, UserActivity, Classroom, UserProfile, Quiz, QuizResult, SavedSet
 from .forms import FlashcardForm, ChangePasswordForm
 
 # ======================= Time Management ======================= #
 
+import datetime
 from django.utils import timezone
 from django.utils.timezone import is_naive, make_aware, now
 from datetime import timedelta
@@ -105,7 +109,7 @@ def update_last_viewed_set(request):
         request.session['last_viewed_set_id'] = set_id
 
         return JsonResponse({"status": "success"})
-
+    
 @login_required
 def library_view(request):
     # All sets from the user
@@ -126,8 +130,20 @@ def library_view(request):
     recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
     recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
-    for s in all_sets:
-        print(f"Set: {s.title} | Owner: {s.user.username} | Current user: {request.user.username}")
+    # Get classroom-assigned sets (if user is a student)
+    try:
+        profile = request.user.userprofile
+        if profile.role == 'student':
+            # Get all classrooms the student is in
+            classrooms = Classroom.objects.filter(students=request.user)
+            # Gather all flashcard sets assigned through these classrooms
+            assigned_sets = FlashcardSet.objects.filter(classrooms__in=classrooms).distinct()
+            # Remove any the user already owns or has favorited
+            assigned_sets = assigned_sets.exclude(user=request.user).exclude(set_id__in=favorite_set_ids)
+        else:
+            assigned_sets = FlashcardSet.objects.none()
+    except UserProfile.DoesNotExist:
+        assigned_sets = FlashcardSet.objects.none()
 
     return render(request, 'library.html', {
         'flashcard_sets': all_sets,
@@ -137,7 +153,8 @@ def library_view(request):
         'categorized_sets': categorized_sets,
         'set_count': all_sets.count(),
         'favorite_count': len(favorite_set_ids),
-        'recent_sets': recent_sets
+        'recent_sets': recent_sets,
+        'assigned_sets': assigned_sets,
     })
 
 # About Us Page
@@ -172,6 +189,15 @@ def settings(request):
     return render(request, 'settings.html', {
     'recent_sets': recent_sets # Pass recent sets to the template
     })
+
+@csrf_exempt
+def toggle_background(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        request.session["color_background"] = data.get("enabled", False)
+        request.session.modified = True
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 @login_required  # Schedule study time page
 def schedule(request):
@@ -211,6 +237,22 @@ def account_delete(request):
     return render(request, 'account_delete.html', {
     'recent_sets': recent_sets # Pass recent sets to the template
     })
+
+def get_daily_quote():
+    quotes = [
+        "Believe you can and you're halfway there.",
+        "Your limitation—it's only your imagination.",
+        "Push yourself, because no one else is going to do it for you.",
+        "Great things never come from comfort zones.",
+        "Dream it. Wish it. Do it.",
+        "Success doesn’t just find you. You have to go out and get it.",
+        "The harder you work for something, the greater you’ll feel when you achieve it.",
+        "Dream bigger. Do bigger.",
+        "Don’t stop when you’re tired. Stop when you’re done.",
+        "Wake up with determination. Go to bed with satisfaction."
+    ]
+    day_of_year = datetime.datetime.now().timetuple().tm_yday
+    return quotes[day_of_year % len(quotes)]
 
 def send_reminder_email(request):
     if request.method == "POST":
@@ -322,9 +364,12 @@ def guest_login(request):
     return redirect("home")  # Redirect to homepage or another allowed page
 
 def login_user(request):  # Login page
+    daily_quote = get_daily_quote()
+    print("Login view called. Daily Quote:", daily_quote)  # Debugging
+
     if request.user.is_authenticated:
         return redirect('home')
-    return render(request, 'login.html')
+    return render(request, 'login.html', {'daily_quote': daily_quote})
 
 def custom_logout(request):  # Logs out the user
     if request.user.is_authenticated:
@@ -1183,19 +1228,22 @@ def reset_user_activity(request):
 
 @login_required
 def classrooms_view(request):
-    # Get the user's role from the UserProfile model
     user_profile = request.user.userprofile
-    
-    # If the user is a teacher, show teacher-specific classrooms
+
     if user_profile.role == 'teacher':
-        print("TEACHER")
         classrooms = Classroom.objects.filter(user=request.user)
-        return render(request, 'teacher_classrooms.html', {'classrooms': classrooms})
+        class_count = classrooms.count()
+        return render(request, 'teacher_classrooms.html', {
+            'classrooms': classrooms,
+            'class_count': class_count
+        })
     else:
-        # If the user is a student, show student-specific classrooms
-        print("STUDENT")
         classrooms = Classroom.objects.filter(students=request.user)
-        return render(request, 'student_classrooms.html', {'classrooms': classrooms})
+        student_class_count = classrooms.count()
+        return render(request, 'student_classrooms.html', {
+            'classrooms': classrooms,
+            'student_class_count': student_class_count
+        })
 
 # Teacher-specific classrooms view
 @login_required
@@ -1211,99 +1259,284 @@ def student_classrooms(request):
     classrooms = Classroom.objects.filter(students=request.user)
     return render(request, 'student_classrooms.html', {'classrooms': classrooms})
 
-# Create a new classroom
 @login_required
 def create_classroom(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        description = request.POST.get('description')
+    # Count the number of classrooms the user already has
+    current_count = Classroom.objects.filter(user=request.user).count()
+    if current_count >= 50:
+        messages.error(request, "You have reached the maximum of 50 classrooms. Please delete one to create a new one.")
+        return redirect('classrooms')
 
-        if name:
-            Classroom.objects.create(name=name, description=description, user=request.user)
-            return redirect('classrooms')
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+
+        if not name:
+            messages.error(request, "Classroom name is required.")
+            return render(request, 'create_classroom.html')
+
+        # Check for duplicate classroom name for the same teacher
+        if Classroom.objects.filter(user=request.user, name__iexact=name).exists():
+            messages.error(request, "You already have a classroom with that name.")
+            return render(request, 'create_classroom.html')
+
+        # Create the classroom
+        Classroom.objects.create(name=name, description=description, user=request.user)
+        messages.success(request, "Classroom created successfully.")
+        return redirect('classrooms')
 
     return render(request, 'create_classroom.html')
 
 @login_required
 def view_classroom(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
+    user_profile = get_object_or_404(UserProfile, user=request.user)
 
-    # Check if the user is either the teacher or a student
-    if request.user == classroom.user:
-        role = 'teacher'  # Teacher
-    elif request.user in classroom.students.all():
-        role = 'student'  # Student
+    # Determine the user's role based on their UserProfile
+    if user_profile.role == 'teacher' and classroom.user == request.user:
+        role = 'teacher'
+    elif user_profile.role == 'student' and request.user in classroom.students.all():
+        role = 'student'
     else:
-        return HttpResponseForbidden("You do not have permission to view this classroom.")
+        return HttpResponseForbidden("Access denied: You do not have permission to view this classroom.")
+    
+    students = None
+    quizzes = Quiz.objects.filter(classroom=classroom).select_related('flashcard_set')
 
-    return render(request, 'view_classroom.html', {'classroom': classroom, 'role': role})
+    # If student, fetch their quiz results and attach to quizzes
+    quiz_results = {}
+    if role == 'student':
+        student_results = QuizResult.objects.filter(student=request.user, quiz__in=quizzes)
+        quiz_results = {result.quiz.quiz_id: result for result in student_results}
+
+        # Attach result to each quiz
+        for quiz in quizzes:
+            quiz.result = quiz_results.get(quiz.quiz_id)
+
+    elif role == 'teacher':
+        students = classroom.students.all()
+
+    context = {
+        'classroom': classroom,
+        'role': role,
+        'students': students,
+        'quizzes': quizzes,
+    }
+    return render(request, 'view_classroom.html', context)
 
 # Delete a classroom
 @login_required
 def delete_classroom(request, classroom_id):
-    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
-    classroom.delete()
+    try:
+        classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+        classroom.delete()
+        messages.success(request, "Classroom deleted successfully.")
+    except Exception as e:
+        messages.error(request, "Failed to delete classroom. Please try again.")
+        print(f"Error deleting classroom: {e}")
     return redirect('classrooms')
+
+def delete_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    classroom_id = quiz.classroom.id
+    quiz.delete()
+    messages.success(request, "Quiz deleted successfully.")
+    return redirect('view_classroom', classroom_id=classroom_id)
 
 # Join a classroom as a student
 @login_required
 def join_classroom(request):
     if request.method == "POST":
+        student = request.user
+        current_classroom_count = Classroom.objects.filter(students=student).count()
+
+        if current_classroom_count >= 50:
+            messages.error(request, "You have reached the maximum of 50 classrooms. Leave one to join another.")
+            return redirect('student_classrooms')
+
         classroom_code = request.POST['classroom_code']
         try:
-            classroom = Classroom.objects.get(code=classroom_code)  # Assuming you have a 'code' field in Classroom
-            # Add logic to enroll the student in the classroom
-            classroom.students.add(request.user)  # Assuming 'students' is a ManyToMany field
-            messages.success(request, "You have successfully joined the classroom!")
-            return redirect('student_classrooms')  # Redirect to the classroom list
+            classroom = Classroom.objects.get(code=classroom_code)
+
+            # Optional: prevent rejoining same class
+            if classroom.students.filter(id=student.id).exists():
+                messages.info(request, "You are already enrolled in this classroom.")
+            else:
+                classroom.students.add(student)
+                messages.success(request, "You have successfully joined the classroom!")
+
         except Classroom.DoesNotExist:
             messages.error(request, "Invalid classroom code. Please try again.")
-            return redirect('student_classrooms')
-    
+
+        return redirect('student_classrooms')
+
     return redirect('student_classrooms')
 
 @login_required
 def assign_flashcard_sets(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
-
-    # Get IDs of already assigned sets
     assigned_ids = classroom.flashcard_sets.values_list('set_id', flat=True)
-
-    # Get sets not already assigned
     flashcard_sets = FlashcardSet.objects.exclude(set_id__in=assigned_ids)
-
-    # Debug print
-    print("Flashcard sets available to assign:")
-    for s in flashcard_sets:
-        print(f"- {s.title} (ID: {s.set_id})")
 
     if request.method == 'POST':
         if 'remove_set' in request.POST:
             remove_id = request.POST.get('remove_set')
             flashcard_set = get_object_or_404(FlashcardSet, set_id=remove_id)
             classroom.flashcard_sets.remove(flashcard_set)
+            messages.success(request, f"Removed '{flashcard_set.title}' from the classroom.")
             return redirect('assign_flashcard_sets', classroom_id=classroom.id)
 
+        selected_set_ids = request.POST.getlist('sets')
+        if not selected_set_ids:
+            messages.error(request, "Please select at least one flashcard set to assign.")
         else:
-            selected_set_ids = request.POST.getlist('sets')
-            if not selected_set_ids:
-                messages.error(request, "Please select at least one flashcard set.")
-            else:
-                for set_id in selected_set_ids:
-                    flashcard_set = FlashcardSet.objects.get(set_id=set_id)
-                    classroom.flashcard_sets.add(flashcard_set)
-                return redirect('assign_flashcard_sets', classroom_id=classroom.id)
+            for set_id in selected_set_ids:
+                flashcard_set = FlashcardSet.objects.get(set_id=set_id)
+                classroom.flashcard_sets.add(flashcard_set)
+            messages.success(request, "Selected flashcard sets have been assigned successfully.")
+        return redirect('assign_flashcard_sets', classroom_id=classroom.id)
 
-    # Recalculate assigned/unassigned sets after modifications
-    assigned_ids = classroom.flashcard_sets.values_list('set_id', flat=True)
-    flashcard_sets = FlashcardSet.objects.exclude(set_id__in=assigned_ids)
     assigned_flashcard_sets = classroom.flashcard_sets.all()
-
     return render(request, 'assign_flashcard_sets.html', {
         'classroom': classroom,
         'flashcard_sets': flashcard_sets,
         'assigned_flashcard_sets': assigned_flashcard_sets,
     })
+
+@login_required
+def assign_quiz(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+    flashcard_sets = classroom.flashcard_sets.all()
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        set_id = request.POST.get("set_id")
+        due_date = request.POST.get("due_date")
+
+        if not title or not set_id:
+            messages.error(request, "Quiz title and flashcard set are required.")
+        elif Quiz.objects.filter(classroom=classroom, title=title).exists():
+            messages.error(request, "A quiz with this title already exists in this classroom.")
+        else:
+            flashcard_set = get_object_or_404(FlashcardSet, set_id=set_id)
+            Quiz.objects.create(
+                title=title,
+                flashcard_set=flashcard_set,
+                classroom=classroom,
+                due_date=due_date or None
+            )
+            messages.success(request, "Quiz successfully assigned.")
+            return redirect("view_classroom", classroom_id=classroom.id)
+
+    return render(request, "assign_quiz.html", {
+        "classroom": classroom,
+        "flashcard_sets": flashcard_sets,
+    })
+
+@login_required
+def start_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, quiz_id=quiz_id)
+    classroom = quiz.classroom
+
+    if request.user not in classroom.students.all():
+        return HttpResponseForbidden("You are not assigned to this quiz.")
+
+    # Check if the user has already taken the quiz
+    existing_result = QuizResult.objects.filter(student=request.user, quiz=quiz).first()
+    if existing_result:
+        return render(request, 'quiz_result.html', {
+            'score': existing_result.score,
+            'total': existing_result.total,
+            'classroom': classroom,
+            'already_taken': True
+        })
+
+    flashcard_set = quiz.flashcard_set
+    flashcards = flashcard_set.flashcard_set.all()
+
+    if request.method == 'POST':
+        score = 0
+        for flashcard in flashcards:
+            user_answer = request.POST.get(f'flashcard_{flashcard.card_id}')
+            if user_answer and user_answer.lower() == flashcard.answer.lower():
+                score += 1
+
+        # Save the quiz result
+        QuizResult.objects.create(
+            student=request.user,
+            quiz=quiz,
+            score=score,
+            total=len(flashcards)
+        )
+
+        return render(request, 'quiz_result.html', {
+            'score': score,
+            'total': len(flashcards),
+            'classroom': classroom
+        })
+
+    return render(request, 'start_quiz.html', {
+        'quiz': quiz,
+        'flashcards': flashcards,
+        'classroom': classroom
+    })
+
+@login_required
+def student_scores(request, classroom_id, student_id):
+    # Fetch the student using the provided student_id
+    student = get_object_or_404(User, id=student_id)
+
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+    
+    # Get all quizzes assigned to the classroom the student is enrolled in
+    enrolled_classrooms = Classroom.objects.filter(students=student)
+    
+    # Fetch quizzes that have been assigned to any of the classrooms the student is in
+    quizzes = Quiz.objects.filter(classroom__in=enrolled_classrooms)
+    
+    # Get quiz results for the student, if any
+    quiz_results = QuizResult.objects.filter(student=student, quiz__in=quizzes)
+    
+    # Create a dictionary of quiz results for easy access in the template
+    quiz_results_dict = {result.quiz.quiz_id: result for result in quiz_results}
+    
+    # Add quiz results to each quiz object
+    for quiz in quizzes:
+        quiz.result = quiz_results_dict.get(quiz.quiz_id)
+    
+    context = {
+        'student': student,
+        'quizzes': quizzes,
+        'classroom': classroom,
+    }
+    
+    return render(request, 'student_scores.html', context)
+
+def toggle_grade_status(request, result_id):
+    result = get_object_or_404(QuizResult, id=result_id)
+
+    if request.method == 'POST':
+        result.graded = not result.graded
+        result.save()
+        status = "marked as graded" if result.graded else "grade removed"
+        messages.success(request, f"Quiz result has been {status}.")
+    else:
+        messages.error(request, "Invalid request method.")
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def unenroll_student(request, classroom_id, student_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id, user=request.user)
+    student = get_object_or_404(User, id=student_id)
+
+    if request.method == 'POST':
+        classroom.students.remove(student)
+        messages.success(request, f"{student.username} has been unenrolled.")
+        return redirect('classroom_detail', classroom_id=classroom.id)
+
+    messages.error(request, "Invalid request method.")
+    return redirect('student_scores', student_id=student.id, classroom_id=classroom.id)
 
 # ======================== Search & World Sets ======================== #
 
@@ -1339,3 +1572,55 @@ def world_sets(request):
         'recent_sets': recent_sets,
         'is_guest': is_guest,
     })
+
+# ======================== Export to Excel ======================== #
+
+def export_card_set(request):
+    """
+    Handle request to export a card set to Excel.
+    """
+    if request.method == "POST":
+        card_set = request.POST.get('card_set')
+
+        # Validate card set
+        if not card_set:
+            return JsonResponse({"error": "No card set data provided"}, status=400)
+        
+        try:
+            # Convert card_set from JSON string to Python object
+            card_set = json.loads(card_set)
+
+            # Export the card set to an Excel file
+            file_name = export_card_set_to_excel(card_set)
+
+            # Read file contents before deletion
+            with open(file_name, 'rb') as excel_file:
+                file_data = excel_file.read()
+
+            # Remove the temporary file
+            os.remove(file_name)
+
+            # Send the response with the file data
+            response = HttpResponse(
+                file_data,
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_name)}"'
+            return response
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+def export_card_set_to_excel(card_set):
+    df = pd.DataFrame(card_set)
+    if 'Question' not in df.columns or 'Answer' not in df.columns:
+        raise ValueError("Each card must have 'Question' and 'Answer' keys.")
+
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+            df.to_excel(tmp.name, index=False, engine="openpyxl")
+            return tmp.name
+    except Exception as e:
+        raise Exception(f"Failed to export card set to Excel: {e}")
