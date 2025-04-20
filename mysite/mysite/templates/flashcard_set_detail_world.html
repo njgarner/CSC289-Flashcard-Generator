@@ -26,42 +26,44 @@
         }
         #flashcard-search {
             width: 100%;
-            padding: 8px 8px 8px 36px; /* left padding to fit the icon */
+            padding: 8px 8px 8px 36px; 
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        .flashcards_list {
-            list-style-type: disc; /* or 'circle' or 'square' if you prefer */
-            padding-left: 20px; /* add indentation to show bullets clearly */
+        .flashcard {
+            display: relative;
+            width: calc(100% - 30px); /* Prevent overflow */
+            margin: 10px 15px; /* Space on all sides */
+            box-sizing: border-box;
+            background-color: white;
+            max-width: 100%%;
+            height: auto; /* allow height to grow */
+            flex-direction: column;
+            align-items: center; /* center horizontally */
+            gap: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            justify-content: flex-start;
+            border-radius: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #ccc #f5f5f5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* optional: subtle shadow */
         }
         .flashcards_list li {
             margin-bottom: 15px;
             list-style-position: inside; /* or 'outside' depending on your preference */
         }
-        #message-container {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .message {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            font-weight: bold;
+        .flashcard-text,
+        .flashcard strong,
+        .flashcard p {
+            margin-bottom: 2px;
             text-align: center;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .flashcard-text {
+            margin: 0;
             display: block;
             max-width: 100%;
             overflow-wrap: break-word;
@@ -69,6 +71,15 @@
             white-space: pre-wrap;
             font-size: 16px;
             padding: 5px 0;
+        }
+        .flashcards_list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+            gap: 40px; /* space between cards */
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
         .title-container {
             max-width: 90%;
@@ -80,7 +91,7 @@
             text-align: center;
             white-space: normal;
             overflow-wrap: break-word;
-            word-break: break-word; /* <-- This is the fix */
+            word-break: break-word; 
             max-width: 100%;
             margin: 20px auto;
         } 
@@ -95,27 +106,6 @@
         .set_content p {
           font-size: 18px;
           margin: 8px 0;
-        }
-        #editForm{
-          display: none;
-          margin-top: 10px;
-        }
-        .styled-button {
-          padding: 10px;
-          font-family: 'Varela Round', sans-serif;
-          font-size: 20px;
-          color: black;
-          background-color: #84F3DA;
-          border: 2px solid #00A682;
-          margin-bottom: 20px;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-        }  
-        .styled-button:hover {
-          background-color: #00A682;
-          color: white;
-          border-color: #008B5C;
         }
     </style>
 </head>
@@ -143,8 +133,11 @@
         </div>
     </div>
     
-    <!-- Flashcard List -->
-<ul class="flashcards_list">
+<!-- Flashcard List -->
+<div class="flashcards_list">
+    <p id="no-results-message" style="display:none; text-align:center; font-size:18px; color: gray;">
+      No flashcards found matching search.
+    </p>
     {% if messages %}
         <div id="message-container">
             {% for message in messages %}
@@ -155,33 +148,28 @@
         </div>
     {% endif %}
 
+    <!-- Flashcard loop -->
     {% for flashcard in flashcards %}
-        <li>
-            <strong>Question:</strong>
-            <div class="flashcard-text">{{ flashcard.question }}</div>
-            <strong>Answer:</strong>
-            <div class="flashcard-text">{{ flashcard.answer }}</div>
-            {% if not is_guest %}
-                <!-- Display the learned status of the flashcard -->
-                {% if flashcard.is_learned %}
-                    <strong>Time Until Next Review:</strong> 
-                    <span class="time-until-next-review" data-review-date="{{ flashcard.next_review_date|date:'c' }}">
-                        <!-- Time will be calculated and displayed here by JavaScript -->
-                    </span><br>
-
-                    <!-- Debugging: Display raw review date and calculated time -->
-                    <strong>Next Review Date:</strong> {{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}<br>
-                    <strong>Calculated Time:</strong> <span class="calculated-time">{{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}</span><br>
-                {% else %}
-                    <strong>Not yet learned</strong><br>
-                {% endif %}
+    <div class="flashcard">
+        <strong>Question:</strong>
+        <div class="flashcard-text">{{ flashcard.question }}</div>
+        <strong>Answer:</strong>
+        <div class="flashcard-text">{{ flashcard.answer }}</div>
+        {% if not is_guest %}
+            {% if flashcard.is_learned %}
+                <strong>Time Until Next Review:</strong> 
+                <span id="review-time-{{ flashcard.id }}" data-review-date="{{ flashcard.next_review_date|date:'c' }}"></span>
+                <strong>Next Review Date:</strong> {{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}
+            {% else %}
+                <strong>Not yet learned</strong>
             {% endif %}
-            <br>
-        </li>
-    {% empty %}
-        <p>No flashcards available in this set.</p>
-    {% endfor %}
-</ul>
+        {% endif %}
+        <br>
+    </div>
+{% empty %}
+    <p>No flashcards available in this set.</p>
+{% endfor %}
+</div>
 
 <!-- JavaScript -->
 <script>
@@ -243,30 +231,39 @@
             });
         });
 
-        // Flashcard search
-        const searchInput = document.getElementById('flashcard-search');
-        const flashcardItems = document.querySelectorAll('.flashcards_list li');
-
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
-                const query = this.value.toLowerCase();
-                flashcardItems.forEach(item => {
-                    const questionDiv = item.querySelectorAll('.flashcard-text')[0];
-                    const answerDiv = item.querySelectorAll('.flashcard-text')[1];
-                    const question = questionDiv ? questionDiv.textContent.toLowerCase() : '';
-                    const answer = answerDiv ? answerDiv.textContent.toLowerCase() : '';
-                    const match = question.includes(query) || answer.includes(query);
-                    item.style.display = match ? 'list-item' : 'none';
-                });
-            });
-        }
-
         // Auto-hide messages
         const messageContainer = document.getElementById("message-container");
         if (messageContainer) {
             setTimeout(() => {
                 messageContainer.style.display = "none";
             }, 3000);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Search flashcards live
+        const searchInput = document.getElementById('flashcard-search');
+        const flashcards = document.querySelectorAll('.flashcard');
+
+        if (searchInput && flashcards.length) {
+            searchInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase();
+                let anyVisible = false;
+
+                flashcards.forEach(card => {
+                    const texts = card.querySelectorAll('.flashcard-text');
+                    const question = texts[0]?.textContent.toLowerCase() ?? '';
+                    const answer = texts[1]?.textContent.toLowerCase() ?? '';
+                    const matches = question.includes(query) || answer.includes(query);
+                    card.style.display = matches ? 'block' : 'none';
+                    if (matches) anyVisible = true;
+                });
+
+                const noResultsMessage = document.getElementById('no-results-message');
+                if (noResultsMessage) {
+                    noResultsMessage.style.display = anyVisible ? 'none' : 'block';
+                }
+            });
         }
     });
 
