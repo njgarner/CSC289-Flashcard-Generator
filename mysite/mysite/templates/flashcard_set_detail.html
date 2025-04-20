@@ -292,7 +292,9 @@
             </div>
         </form>
     </div>
-    {% endfor %}
+{% empty %}
+    <p>No flashcards available in this set.</p>
+{% endfor %}
 </div>
 
 <!-- JavaScript -->
