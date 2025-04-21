@@ -79,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'flashcard_db',
-        'USER': 'root',
-        'PASSWORD': 'waketech',
+        'USER': 'flashcarduser',
+        'PASSWORD': 'Group1!!',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -141,7 +141,6 @@ EMAIL_HOST_PASSWORD = "slhs iewn sxzw huyk"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 LOGOUT_REDIRECT_URL = 'login_user'
-
 # Celery Configuration
 CELERY_BROKER_URL = 'sqs://'
 CELERY_BROKER_TRANSPORT_OPTIONS = {
