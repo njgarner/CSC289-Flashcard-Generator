@@ -1,0 +1,440 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <!-- External Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Home - Flashcard Generator{% endblock title %}</title>
+    {% load static %}
+    <script>
+        (function applySavedColors() {
+            const colors = {
+                "--setcolor": localStorage.getItem("setcolor") || "#84F3DA",
+                "--cardcolor": localStorage.getItem("cardcolor") || "#F4F4F4",
+                "--bordercolor": localStorage.getItem("bordercolor") || "#84F3DA",
+                "--textcolor": localStorage.getItem("textcolor") || "#333333",
+            };
+
+            for (const [variable, value] of Object.entries(colors)) {
+                document.documentElement.style.setProperty(variable, value);
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.png' %}">
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,es,fr,de,it,pt,zh-CN,ja,ko,ru', // Add languages you want to support
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body class="{% if request.session.color_background %}color-bg{% endif %}">
+    <!-- Top Bar Section -->
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'settings' %}" style="color:black" class="name-title">{{ user|safe }}</a>
+            <!-- Google Translate Plugin -->
+            <div id="google_translate_element" class="translate-container"></div>
+
+            <!-- Centered FlashLite Logo -->
+            <a href="{% url 'home' %}">
+                <img src="{% static 'flashlitelogo.png' %}" alt="FlashLite Logo" class="logo">
+            </a>
+    
+            <!-- Login/Logout Buttons -->
+            <div class="login-content">
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout_user' %}">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                {% else %}
+                    <button onclick="window.location.href='{% url 'login_user' %}'">Login</button>
+                    <button onclick="window.location.href='{% url 'signup_user' %}'">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Toggle Button -->
+    <button id="nav-toggle" class="nav-toggle">☰</button>
+
+    <!-- Vertical Navigation Bar -->
+    <div class="nav-bar" id="sidebar">
+        <a href="{% url 'home' %}">
+            <img src="{% static 'gradcap.png' %}" alt="Gradcap Icon" class="icon"> Study Time
+        </a>
+    
+        <a href="{% url 'world_sets' %}">
+            <img src="{% static 'globe.png' %}" alt="Globe Icon" class="icon"> World Sets
+        </a>
+    
+        {% if not is_guest %}
+        <a href="{% url 'library_view' %}">
+            <img src="{% static 'stackofbooks.png' %}" alt="Stack of Books Icon" class="icon"> Library
+        </a>
+    
+        <!-- Recent Sets Widget -->
+        <div id="recentSetsWidget" class="recent-widget">
+            <button id="toggleRecentSets" class="recent-btn w-full">
+                <img src="{% static 'star.png' %}" alt="Star Icon" class="icon w-4 h-4">
+                <span>Recent Sets</span>
+            </button>
+        
+            <!-- Dropdown hidden/shown via display:none/block -->
+            <div id="recentSetsDropdown" class="recent-dropdown" style="display: none;">
+                {% if recent_sets %}
+                    <div class="flex flex-col items-center space-y-2 text-center">
+                        {% for recent in recent_sets %}
+                            <a href="{% url 'study_view' recent.set_id %}" class="recent-link" title="{{ recent.title }}">
+                                {{ recent.title|truncatechars:10 }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="recent-empty">No recent sets.</p>
+                {% endif %}
+            </div>
+        </div>
+    
+        <a href="{% url 'schedule' %}">
+            <img src="{% static 'schedule.png' %}" alt="Schedule Icon" class="icon"> Schedule
+        </a>
+    
+        <a href="{% url 'classrooms' %}">
+            <img src="{% static 'classroomIcon.png' %}" alt="Classroom Icon" class="icon"> Classrooms
+        </a>
+    
+        <a href="{% url 'settings' %}">
+            <img src="{% static 'gears.png' %}" alt="Gear Icon" class="icon"> Settings
+        </a>
+        {% endif %}
+    
+        <!-- Text-to-Speech (TTS) Widget -->
+        <div id="ttsWidget" style="position: relative;">
+            <button id="toggleTTSWidget" class="btn btn-light" style="margin-bottom: 5px;">🔊 Page Reader</button>
+    
+            <div id="ttsControls" style="display: none;">
+                <div class="form-group mb-2">
+                    <label for="languageSelect">Language:</label>
+                    <select id="languageSelect" class="form-control form-control-sm"></select>
+                </div>
+                <div class="form-group mb-2">
+                    <label for="voiceSelect">Voice:</label>
+                    <select id="voiceSelect" class="form-control form-control-sm"></select>
+                </div>
+                <button id="ttsBtn" class="btn btn-primary btn-sm w-100">🔊 Read</button>
+            </div>
+        </div>
+    
+        <!-- About Us Page -->
+        <div class="contact">
+            <a href="{% url 'about' %}">
+                <img src="{% static 'mail.png' %}" alt="Mail Icon" class="icon"> Contact us!
+            </a>
+        </div>
+    </div>
+
+    <!-- Main content area (this will be populated by other templates) -->
+    <main id="mainContent">
+        {% block main %}
+        {% endblock main %}
+    </main>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" class="toggle-scroll-btn" aria-label="Back to top">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+
+    <!-- Social Media Footer -->
+    <footer id="socialFooter" class="social-footer-custom">
+        <!-- Accordion Toggle Inside Footer -->
+        <button id="footerAccordionToggle" class="footer-accordion-toggle" title="Toggle Footer">
+            <span id="accordionIcon">⬅️</span>
+        </button>
+
+        <div id="socialFooterContent" class="footer-content">
+            <div class="social-icons">
+                <a href="https://www.facebook.com" target="_blank">
+                    <img src="{% static 'facebook.png' %}" alt="Facebook" class="social-icon">
+                </a>
+                <a href="https://www.instagram.com/flashliteteam/" target="_blank">
+                    <img src="{% static 'instagram.png' %}" alt="Instagram" class="social-icon">
+                </a>
+                <a href="https://www.linkedin.com" target="_blank">
+                    <img src="{% static 'linkedin.png' %}" alt="LinkedIn" class="social-icon">
+                </a>
+                <a href="https://www.youtube.com/@FlashLiteTeam" target="_blank">
+                    <img src="{% static 'youtube.png' %}" alt="YouTube" class="social-icon">
+                </a>
+            </div>
+            <div class="rights-text">
+                <a href="{% url 'terms' %}">&copy; 2025 FlashLite.</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
+    
+        function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+        
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+        
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();  // Reset the inactivity timer
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
+
+        document.getElementById("nav-toggle").addEventListener("click", function() {
+               document.getElementById("sidebar").classList.toggle("closed");
+            });
+        
+        // Scroll to Top Button
+        document.getElementById('scrollTopBtn').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        const accordionToggle = document.getElementById('footerAccordionToggle');
+        const footerContent = document.getElementById('socialFooterContent');
+        const accordionIcon = document.getElementById('accordionIcon');
+
+        // Check localStorage on load
+        const isCollapsed = localStorage.getItem('footerCollapsed') === 'true';
+        if (isCollapsed) {
+            socialFooter.classList.add('collapsed-horizontal');
+            accordionIcon.textContent = '➡️';
+        }
+
+        // Toggle logic
+        accordionToggle.addEventListener('click', () => {
+            const isNowCollapsed = socialFooter.classList.toggle('collapsed-horizontal');
+            accordionIcon.textContent = isNowCollapsed ? '➡️' : '⬅️';
+            localStorage.setItem('footerCollapsed', isNowCollapsed);
+        });
+
+        // Toggle visibility of TTS controls
+        document.getElementById("toggleTTSWidget").addEventListener("click", () => {
+            const controls = document.getElementById("ttsControls");
+            controls.style.display = controls.style.display === "none" ? "block" : "none";
+        });
+
+        // Recent Sets Dropdown Toggle
+        const toggleBtn = document.getElementById("toggleRecentSets");
+        const dropdown = document.getElementById("recentSetsDropdown");
+        
+        // Initialize dropdown visibility
+        toggleBtn.addEventListener("click", function () {
+            dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+        });
+
+        // Optional: close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!document.getElementById("recentSetsWidget").contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+        
+        // TTS API
+        let voices = [];
+        let utterance;
+        let isSpeaking = false;
+
+        function populateVoiceList() {
+            voices = speechSynthesis.getVoices();
+
+            if (!voices.length) {
+                // Retry if voices are not loaded yet
+                setTimeout(populateVoiceList, 100);
+                return;
+            }
+
+            const languageSelect = document.getElementById("languageSelect");
+            const voiceSelect = document.getElementById("voiceSelect");
+
+            const supportedLangs = {
+                "en-US": "English",
+                "zh-CN": "Chinese (Simplified)",
+                "fr-FR": "French",
+                "de-DE": "German",
+                "it-IT": "Italian",
+                "ja-JP": "Japanese",
+                "ko-KR": "Korean",
+                "pt-BR": "Portuguese (Brazil)",
+                "ru-RU": "Russian",
+                "es-ES": "Spanish"
+            };
+
+            const availableLangs = voices
+                .map(voice => voice.lang)
+                .filter(lang => Object.keys(supportedLangs).includes(lang));
+
+            const uniqueLangs = [...new Set(availableLangs)];
+
+            languageSelect.innerHTML = '';
+            uniqueLangs.forEach(lang => {
+                const option = document.createElement("option");
+                option.value = lang;
+                option.textContent = supportedLangs[lang];
+                languageSelect.appendChild(option);
+            });
+
+            languageSelect.addEventListener("change", () => {
+                const selectedLang = languageSelect.value;
+                const filteredVoices = voices.filter(voice => voice.lang === selectedLang);
+
+                voiceSelect.innerHTML = '';
+                filteredVoices.forEach(voice => {
+                    const option = document.createElement("option");
+                    option.value = voice.name;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    voiceSelect.appendChild(option);
+                });
+            });
+
+            languageSelect.dispatchEvent(new Event("change"));
+        }
+
+        // Fallback in case `onvoiceschanged` doesn't trigger
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        } else {
+            populateVoiceList();
+        }
+
+        // TTS Play/Stop toggle button
+        document.getElementById("ttsBtn").addEventListener("click", () => {
+            const ttsBtn = document.getElementById("ttsBtn");
+
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                ttsBtn.textContent = "🔊 Read";
+                ttsBtn.classList.remove("btn-danger");
+                ttsBtn.classList.add("btn-primary");
+            } else {
+                const mainContent = document.getElementById("mainContent");
+                if (!mainContent) return alert("Main content not found!");
+
+                utterance = new SpeechSynthesisUtterance(mainContent.innerText.trim());
+                utterance.lang = document.getElementById("languageSelect").value;
+
+                const selectedVoiceName = document.getElementById("voiceSelect").value;
+                const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+                if (selectedVoice) utterance.voice = selectedVoice;
+
+                utterance.rate = 1;
+                utterance.pitch = 1;
+
+                speechSynthesis.speak(utterance);
+                isSpeaking = true;
+                ttsBtn.textContent = "⏹ Stop";
+                ttsBtn.classList.remove("btn-primary");
+                ttsBtn.classList.add("btn-danger");
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    ttsBtn.textContent = "🔊 Read";
+                    ttsBtn.classList.remove("btn-danger");
+                    ttsBtn.classList.add("btn-primary");
+                };
+            }
+        });
+
+        // Stop Button
+        document.getElementById("stopTTSBtn").addEventListener("click", () => {
+            speechSynthesis.cancel();
+        });
+    </script>
+</body>
+</html>

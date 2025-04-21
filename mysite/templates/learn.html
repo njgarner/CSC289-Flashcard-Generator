@@ -1,0 +1,617 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn - Flashlite</title>
+
+    <!-- Load static files library -->
+    {% load static %}
+
+    <script>
+        (function applySavedColors() {
+            const colors = {
+                "--setcolor": localStorage.getItem("setcolor") || "#84F3DA",
+                "--cardcolor": localStorage.getItem("cardcolor") || "#F4F4F4",
+                "--bordercolor": localStorage.getItem("bordercolor") || "#84F3DA",
+                "--textcolor": localStorage.getItem("textcolor") || "#333333",
+            };
+
+            for (const [variable, value] of Object.entries(colors)) {
+                document.documentElement.style.setProperty(variable, value);
+            }
+        })();
+    </script>
+
+    <!-- Link to the external styles.css file -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        /* Body styles */
+        body {
+            margin: 0;
+            font-family: 'Varela Round', sans-serif;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* center vertically */
+            height: 100dvh;
+            overflow: hidden;
+        }
+        .flashcard-display {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            overflow: hidden;
+            font-family: 'Varela Round', sans-serif;
+        }
+        .flashcard-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            justify-content: center;
+        }
+        /* Keep close button in top right corner of page */
+        .close-button {
+            position: fixed; /* <-- fixed instead of absolute */
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: red;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+            z-index: 999;
+        }
+        .close-button:hover {
+            color: darkred; /* Change color when hovered */
+        }
+        /* Container for the boxes with numbers */
+        .number-box-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Space between boxes */
+            margin-bottom: 20px; /* Space between boxes and the flashcard */
+        }
+        /* Style for each small box */
+        .number-box {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f4f4f4;
+            border: 2px solid #00A682;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: black;
+            transition: transform 0.2s; /* Smooth scaling */
+        }
+        /* Hover effect for the boxes */
+        .number-box:hover {
+            background-color: #00A682;
+            color: white;
+        }
+        /* Style for the selected box */
+        .selected-box {
+            transform: scale(1.3); /* Slightly bigger */
+            background-color: #00A682; /* Change the background color */
+            color: white; /* Change text color to white */
+        }
+        /* Flexbox layout: Allow middle section to grow/shrink */
+        .flashcard-navigation,
+        .number-box-container,
+        .quiz-mode,
+        .completion-screen {
+            flex-shrink: 0;
+        }
+        /* Flashcard styles */
+        .flashcard {
+            width: 100%;
+            max-height: 220px;
+            text-align: center;
+            border-radius: 15px;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            overflow: auto;
+            margin: 10px 0;
+        }
+        .flashcard-text {
+            font-size: 20px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        /* Styling for arrow buttons */
+        .arrow-button {
+            background-color: transparent;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: #00A682;
+        }
+        .arrow-button:hover {
+            color: #008B5C;
+        }
+        /* Flashcard navigation container with arrows */
+        .flashcard-navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        /* Quiz */
+        .quiz-mode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .quiz-mode input {
+            font-size: 16px;
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
+        .quiz-mode button {
+            padding: 8px 16px;
+            background-color: #00A682;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .quiz-mode button:hover {
+            background-color: #008B5C;
+        }
+        .result {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        /* Complete message */
+        .complete {
+            font-size: 24px;
+            color: green;
+            margin-top: 20px;
+        }
+        /* completion screen styles */
+        .completion-screen {
+            text-align: center;
+            padding: 8px;
+            background-color: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            overflow-y: auto;
+        }
+        .completion-message {
+            font-size: 20px;
+            color: #333;
+        }
+        .completion-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .completion-button {
+            padding: 10px 20px;
+            background-color: #00A682;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .completion-button:hover {
+            background-color: #008B5C;
+        }
+    </style>
+</head>
+<body>
+    <div class="flashcard-display">
+        {% if error %}
+            <p class="error-message">{{ error }}</p>
+        {% endif %}
+
+        <!-- Close (X) button stays in top right corner -->
+        <a href="{% url 'home' %}" class="close-button">&times;</a>
+
+        <!-- Main centered content -->
+        <div class="flashcard-content">
+            <!-- Numbered boxes -->
+            <div class="number-box-container">
+                <div class="number-box" data-index="0">1</div>
+                <div class="number-box" data-index="1">2</div>
+                <div class="number-box" data-index="2">3</div>
+                <div class="number-box" data-index="3">4</div>
+                <div class="number-box" data-index="4">5</div>
+            </div>
+
+            <!-- Flashcard + arrows -->
+            <div class="flashcard-navigation">
+                <button class="arrow-button" id="previous-arrow">&#8592;</button>
+
+                <div class="flashcard patrick-hand-regular" id="flashcard">
+                    {% if flashcards %}
+                        <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
+                    {% else %}
+                        <p class="flashcard-text">No flashcards available.</p>
+                    {% endif %}
+                </div>
+
+                <button class="arrow-button" id="next-arrow">&#8594;</button>
+            </div>
+
+            <!-- Quiz mode input -->
+            <div class="quiz-mode" id="quiz-mode">
+                <div id="result" class="result"></div>  <!-- Result message will be here -->
+                <input type="text" id="answer-input" maxlength="200" placeholder="Type your answer here...">
+                <button id="submit-answer">Submit</button>
+            </div>
+
+            <!-- Completion screen -->
+            <div id="completion-screen" class="completion-screen" style="display:none;">
+                <p class="completion-message">
+                    Good job! The items you have just finished quizzing on have been moved to your study queue.
+                    What would you like to do now?
+                </p>
+                <div class="completion-buttons">
+                    <button class="completion-button" onclick="window.location.href='{% url 'home' %}'">
+                        Return to Home Page
+                    </button>
+                    <button class="completion-button" onclick="window.location.reload()">Keep Going</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript to handle flashcard display, number box clicks, and quiz mode -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let startTime = Date.now();
+
+            // Filter flashcards to only include those with is_learned = false
+            let flashcards = [
+                {% for flashcard in flashcards %}
+                    { 
+                        card_id: {{ flashcard.card_id }},
+                        question: "{{ flashcard.question|escapejs }}", 
+                        answer: "{{ flashcard.answer|escapejs }}",
+                        is_learned: {{ flashcard.is_learned|yesno:"true,false" }} // Store is_learned status
+                    },
+                {% endfor %}
+            ].filter(flashcard => !flashcard.is_learned); // Only include flashcards that are not learned
+
+            flashcards = flashcards.slice(0, 5); // Limit to 5 flashcards
+
+            let currentIndex = 0;
+            let answeredQuestions = 0;
+            let totalQuestions = flashcards.length;
+            let showingQuestion = true;
+            let isQuizMode = false;
+            let remainingQuestions = Array.from({ length: flashcards.length }, (_, i) => i);
+            let cardContent = document.getElementById("card-content");
+            let flashcardElement = document.getElementById("flashcard");
+
+            // Update the number of boxes based on the number of flashcards
+            function updateNumberBoxes() {
+                const numberBoxContainer = document.querySelector('.number-box-container');
+                numberBoxContainer.innerHTML = ''; // Clear existing number boxes
+    
+                // Create new number boxes for the remaining flashcards
+                flashcards.forEach((_, index) => {
+                    const numberBox = document.createElement('div');
+                    numberBox.classList.add('number-box');
+                    numberBox.setAttribute('data-index', index);
+                    numberBox.innerText = index + 1;
+                    numberBoxContainer.appendChild(numberBox);
+    
+                    // Add event listener to number box
+                    numberBox.addEventListener('click', function () {
+                        currentIndex = index;
+                        showingQuestion = true;
+                        updateCardContent();
+                    });
+                });
+    
+                // After updating the boxes, highlight the selected one (this ensures the first box is highlighted on page load)
+                updateNumberBox();
+            }
+
+            // Function to update the displayed flashcard
+            function updateCardContent() {
+                if (flashcards.length > 0) {
+                    cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
+    
+                    // Highlight the corresponding number box
+                    updateNumberBox();
+                }
+            }
+
+            // Function to update the number box highlighting
+            function updateNumberBox() {
+                document.querySelectorAll('.number-box').forEach(box => box.classList.remove('selected-box'));
+                const selectedBox = document.querySelectorAll('.number-box')[currentIndex];
+                selectedBox.classList.add('selected-box');
+            }
+
+            // Toggle between question and answer on flashcard click (NOT for quiz mode)
+            flashcardElement.addEventListener("click", function () {
+                if (!isQuizMode) {
+                    showingQuestion = !showingQuestion;
+                    updateCardContent();
+                } else {
+                    // If in quiz mode and the card displays "Correct!" or "Incorrect!", move to the next random question
+                    if (flashcardElement.innerText === "Correct!" || flashcardElement.innerText === "Incorrect!") {
+                        // Reset to show the question after result
+                        showingQuestion = true;
+                        updateCardContent(); // Update to show the question
+                        
+                        // Proceed to the next random question
+                        getNextRandomQuestion();
+
+                        // Re-enable the answer input and submit button
+                        document.getElementById("answer-input").disabled = false;
+                        document.getElementById("submit-answer").disabled = false;
+                        document.getElementById("answer-input").value = '';
+                        document.getElementById("result").innerText = '';
+                    }
+                }
+            });
+
+            // Event listeners for the arrow buttons
+            document.getElementById("previous-arrow").addEventListener("click", function () {
+                currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                showingQuestion = true;
+                updateCardContent();
+            });
+    
+            document.getElementById("next-arrow").addEventListener("click", function () {
+                if (currentIndex === flashcards.length - 1) {
+                    document.querySelector('.arrow-button').style.display = 'none'; // Hide arrows
+                    document.getElementById("next-arrow").style.display = 'none'; // Hide next button
+                    document.getElementById("previous-arrow").style.display = 'none'; // Hide previous button
+                    document.querySelector('.number-box-container').style.display = 'none';
+                    document.getElementById("quiz-mode").style.display = 'flex'; // Show quiz mode
+                    isQuizMode = true; // Set quiz mode flag
+                    getNextRandomQuestion();
+                } else {
+                    currentIndex = (currentIndex + 1) % flashcards.length;
+                    showingQuestion = true; // Reset to show question first
+                    updateCardContent();
+                }
+            });
+
+            // Function to get the next random question
+            function getNextRandomQuestion() {
+                if (remainingQuestions.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
+                    currentIndex = remainingQuestions[randomIndex];
+                    showingQuestion = true;
+                    updateCardContent();
+                } else {
+                    document.getElementById("quiz-mode").style.display = 'none';
+                    document.getElementById("completion-screen").style.display = 'block';
+                    markFlashcardsAsLearned();
+                }
+            }
+
+            // Submit the answer in quiz mode
+            document.getElementById("submit-answer").addEventListener("click", function () {
+                const userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
+                const correctAnswer = flashcards[currentIndex].answer.trim().toLowerCase();
+                const resultElement = document.getElementById("result");
+                let is_correct = false;
+
+                // Check if the answer is correct
+                if (userAnswer === correctAnswer) {
+                    resultElement.innerText = "Correct!";
+                    resultElement.style.color = "green";
+                    remainingQuestions.splice(remainingQuestions.indexOf(currentIndex), 1);
+                    is_correct = true;
+                } else {
+                    resultElement.innerText = "Incorrect!";
+                    resultElement.style.color = "red";
+                    is_correct = false;
+                }
+
+                // Disable input and submit button
+                document.getElementById("answer-input").disabled = true;
+                document.getElementById("submit-answer").disabled = true;
+
+                // Automatically move to the next question after a brief delay to allow user to see result
+                setTimeout(() => {
+                    getNextRandomQuestion();  // Move to next question
+                    document.getElementById("answer-input").disabled = false; // Re-enable the input field
+                    document.getElementById("submit-answer").disabled = false; // Re-enable the submit button
+                    document.getElementById("answer-input").value = ''; // Clear the answer input
+                    resultElement.innerText = ''; // Clear the result message after a delay
+                }, 1000);  // Delay before moving to the next question for user to see the result
+
+                if (is_correct) {
+                    answeredQuestions++;
+                }
+
+                // Check if all questions are answered
+                if (answeredQuestions === totalQuestions) {
+                    document.getElementById("quiz-mode").style.display = 'none';
+                    document.getElementById("completion-screen").style.display = 'block';
+                    markFlashcardsAsLearned();
+                }
+            });
+
+            // Function to mark flashcards as learned after quiz completion
+            function markFlashcardsAsLearned() {
+                const flashcardIds = flashcards.map(flashcard => flashcard.card_id);
+
+                fetch("{% url 'update_learned_flashcards' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken")
+                    },
+                    body: JSON.stringify({ flashcard_ids: flashcardIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("Flashcards marked as learned.");
+                    } else {
+                        console.error("Failed to mark flashcards as learned.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+
+            function sendActivityUpdate() {
+                // Calculate the time spent on the quiz (in seconds)
+                let endTime = Date.now();  // End tracking time when the user finishes studying
+                let timeSpent = Math.floor((endTime - startTime) / 1000);  // Time spent in seconds
+    
+                // Send an activity update to the backend to record that the user has completed the quiz
+                fetch("{% url 'update_user_activity' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken")  // CSRF token for security
+                    },
+                    body: JSON.stringify({
+                        activity_type: "quiz_completed",  // Type of activity (could be extended to track more activities)
+                        time_spent: timeSpent,  // Send the actual time spent in seconds
+                        flashcards_completed: flashcards.length  // Number of flashcards completed
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("User activity updated.");
+                    } else {
+                        console.error("Failed to update user activity.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+
+            // Get CSRF token from cookies
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== "") {
+                    const cookies = document.cookie.split(";");
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Initialize the card content
+            updateCardContent();
+            updateNumberBoxes();
+        });
+
+        let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
+    
+        function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+        
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+        
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();  // Reset the inactivity timer
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
+    </script>
+            
+</body>
+</html>

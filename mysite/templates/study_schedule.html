@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+
+{% block title %}Schedule - Flashlite{% endblock %}
+
+{% block main %}
+
+{% load static %}
+     
+    <!-- Internal CSS -->
+	<style>
+	  .reminder-layout {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 40px;
+		flex-wrap: wrap; /* Makes it responsive */
+	  }
+		
+	  .reminder-form {
+		flex: 1;
+		max-width: 400px;
+	  }
+		
+	  .reminder-table {
+		flex: 1;
+		min-width: 300px;
+	  }
+		
+	  .reminder-form label[for="emailReminder"] {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 10px;
+		font-weight: bold;
+	  }
+		
+	  .reminder-form input[type="checkbox"] {
+		margin-right: 8px;
+	  }
+
+	  .reminder-table button {
+		background-color: #f44336;
+		color: white;
+		border-radius: 3px;
+		padding: 5px 10px;
+		cursor: pointer;
+	  }
+	  
+	  .reminder-table button:hover {
+		background-color: #d32f2f;
+	  }
+
+	  .alert {
+		padding: 10px;
+		margin: 10px 0;
+		border-radius: 5px;
+		text-align: center;
+		font-weight: bold;
+	  }
+	  .content {
+		max-width: 1000px; /* Increase max width */
+		margin: 0 auto;    /* Center horizontally */
+		padding: 20px;
+		border-radius: 5px;
+	  }
+	  label, input, button{
+		margin: 10px 0;
+		box-sizing: border-box;
+	  }
+	  input {
+		width: 100%;
+		margin-top: 5px;
+	  }
+	  table {
+        width: 100%;
+		border-collapse: collapse;
+		margin-top: 10px;
+	  }
+	  th, td {
+		padding: 5px;
+		border: 1px solid #ddd;
+		text-align: center;
+	  }
+	  th{
+		background-color: #84F3DA;
+		color: black;
+	  }
+	  button{
+		background-color: #84F3DA;
+		color: black;
+		padding: 5px;
+		border: none;
+	  }
+	  button:hover{
+		background-color: #00A682;
+	  }
+	</style>
+    <!-- Main Content Section -->
+	<div class="content">
+		<br><br><br>
+		<h2 style="text-align: center;">Study Time Reminder</h2>
+		<div id="message-container" style="display: none;"></div>
+		<hr>
+	  
+		<div class="reminder-layout">
+		  <!-- Left: Form section -->
+		  <div class="reminder-form">
+			<label for="title">Title :</label>
+			<input type="text" id="title" maxlength="100" />
+	  
+			<label for="description">Description :</label>
+			<input type="text" id="description" maxlength="200" />
+	  
+			<label for="date">Date :</label>
+			<input type="date" id="date" />
+	  
+			<label for="time">Time :</label>
+			<input type="time" id="time" />
+	  
+			<label for="email">Email Address (optional) :</label>
+			<input type="email" id="email" placeholder="Enter your email" />
+	  
+			<label for="emailReminder">
+			  <input type="checkbox" id="emailReminder"> Send Reminder to Email
+			</label>
+	  
+			<!-- Disclaimer for denied notifications -->
+			<p id="notificationDisclaimer" style="color: red; display: none; text-align: center;">
+			  ⚠️ You have denied notifications. You will not receive a desktop reminder!
+			</p>
+	  
+			<button style="width: 100%;" onclick="scheduleReminder();">
+			  Schedule Study Time
+			</button>
+		  </div>
+	  
+		  <!-- Right: Table section -->
+		  <div class="reminder-table">
+			<h3 style="text-align: center;">Your Reminders</h3>
+			<table border="1">
+			  <thead>
+				<tr>
+				  <th>Title</th>
+				  <th>Description</th>
+				  <th>Date & Time</th>
+				  <th>Email Reminder</th>
+				  <th>Action</th>
+				</tr>
+			  </thead>
+			  <tbody id="reminderTableBody"></tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+
+<audio src="{% static 'mixkit.mp3' %}" id="notificationSound"></audio>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		checkNotificationPermission();
+		loadReminders(); 
+	});
+  
+	function checkNotificationPermission() {
+	  let disclaimer = document.getElementById("notificationDisclaimer");
+  
+	  if (!("Notification" in window)) {
+		alert("This browser does not support desktop notifications.");
+	  } else if (Notification.permission === "granted") {
+		new Notification("Permission has been granted.", {
+		  icon: "{% static 'Flash.png' %}",
+		});
+		disclaimer.style.display = "none"; // Hide disclaimer
+	  } else if (Notification.permission === "denied") {
+		disclaimer.style.display = "block"; // Show disclaimer
+	  } else {
+		Notification.requestPermission().then((permission) => {
+		  disclaimer.style.display = permission === "denied" ? "block" : "none";
+		});
+	  }
+	}
+  
+	var timeoutIds = [];
+  
+	// Show success or error messages
+	function showMessage(message, type = "success") {
+	  let messageContainer = document.getElementById("message-container");
+	  messageContainer.innerHTML = `<div class="alert ${type}">${message}</div>`;
+	  messageContainer.style.display = "block";
+  
+	  // Auto-hide message after 3 seconds
+	  setTimeout(() => {
+		messageContainer.style.display = "none";
+	  }, 3000);
+	}
+  
+	function loadReminders() {
+		fetch("/get-reminders/")
+			.then(response => response.json())
+			.then(reminders => {
+				console.log("Fetched reminders:", reminders); // Add this
+				const tableBody = document.getElementById("reminderTableBody");
+				tableBody.innerHTML = "";
+
+				reminders.forEach(r => {
+				addReminder(
+					r.title,
+					r.description,
+					r.date_time,
+					r.email_reminder,
+					r.email,
+					false
+				);
+				rescheduleNotification(
+					r.title,
+					r.description,
+					r.date_time,
+					r.email_reminder,
+					r.email
+				);
+				});
+		  })
+		  .catch(error => {
+			console.error("Failed to load reminders:", error);
+		  });
+	}
+  
+	function scheduleReminder() {
+	  // Check for existing reminder count
+	  const tableBody = document.getElementById("reminderTableBody");
+	  const currentCount = tableBody.rows.length;
+  
+	  if (currentCount >= 25) {
+		showMessage(
+		  "🚫 You’ve reached the maximum of 25 scheduled reminders. Please delete one to add a new reminder.",
+		  "error"
+		);
+		return; // Stop further execution
+	  }
+  
+	  var title = document.getElementById("title").value;
+	  var description = document.getElementById("description").value;
+	  var date = document.getElementById("date").value;
+	  var time = document.getElementById("time").value;
+	  var email = document.getElementById("email").value;
+	  var emailReminder = document.getElementById("emailReminder").checked;
+  
+	  if (!title || !description || !date || !time) {
+		showMessage("⚠️ Please fill in all fields.", "error");
+		return;
+	  }
+  
+	  // Fix: Combine date and time to create a valid ISO 8601 string
+	  var dateTimeString = date + "T" + time + ":00"; // Example: '2025-04-20T14:30:00'
+	  var scheduledTime = new Date(dateTimeString);
+	  var currentTime = new Date();
+	  var timeDifference = scheduledTime - currentTime;
+  
+	  if (timeDifference > 0) {
+		addReminder(title, description, dateTimeString, emailReminder, email, true);
+		scheduleNotification(title, description, timeDifference, emailReminder, email);
+		showMessage("✅ Reminder scheduled successfully!", "success");
+	  } else {
+		showMessage("⚠️ The scheduled time has already passed.", "error");
+	  }
+	}
+  
+	function addReminder(title, description, dateTimeString, emailReminder, email, saveToStorage) {
+	  var tableBody = document.getElementById("reminderTableBody");
+
+	  var row = tableBody.insertRow();
+	  row.insertCell(0).innerHTML = title;
+	  row.insertCell(1).innerHTML = description;
+	  row.insertCell(2).innerHTML = dateTimeString;
+	  row.insertCell(3).innerHTML = emailReminder ? `✅ (${email})` : "❌";
+	  row.insertCell(4).innerHTML = `<button onclick="deleteReminder(this, '${title}');">Delete</button>`;
+
+	  if (saveToStorage) {
+	    fetch("/api/create-reminder/", {
+	      method: "POST",
+	      headers: {
+	        "Content-Type": "application/json",
+	        "X-CSRFToken": getCSRFToken(),
+	      },
+	      body: JSON.stringify({
+	        title,
+	        description,
+	        date_time: dateTimeString,
+	        email,
+	        emailReminder,
+	      }),
+	    }).then((response) => {
+	      if (response.ok) {
+	        console.log("Reminder saved to backend");
+	      } else {
+	        showMessage("⚠️ Failed to save reminder. Try again later.", "error");
+	      }
+	    });
+	  }
+	}
+  
+	function deleteReminder(button, title) {
+		var row = button.closest("tr");
+		var index = row.rowIndex;
+	  
+		clearTimeout(timeoutIds[index - 1]);
+		timeoutIds.splice(index - 1, 1);
+		row.remove();
+	  
+		// Delete from backend
+		fetch("/delete-reminder/", {
+		  method: "POST",
+		  headers: {
+			"Content-Type": "application/json",
+			"X-CSRFToken": getCSRFToken(),
+		  },
+		  body: JSON.stringify({ title }),
+		}).then((response) => {
+		  if (response.ok) {
+			showMessage("🗑️ Reminder deleted successfully!", "success");
+		  } else {
+			showMessage("⚠️ Failed to delete reminder from server.", "error");
+		  }
+		});
+	}
+  
+	function scheduleNotification(title, description, timeDifference, emailReminder, email) {
+	  var timeoutId = setTimeout(function () {
+		showNotification(title, description);
+		if (emailReminder) {
+		  sendEmailReminder(title, description, email);
+		}
+	  }, timeDifference);
+  
+	  timeoutIds.push(timeoutId);
+	}
+  
+	function rescheduleNotification(title, description, dateTimeString, emailReminder, email) {
+	  var scheduledTime = new Date(dateTimeString);
+	  var currentTime = new Date();
+	  var timeDifference = scheduledTime - currentTime;
+  
+	  if (timeDifference > 0) {
+		scheduleNotification(title, description, timeDifference, emailReminder, email);
+	  }
+	}
+  
+	function showNotification(title, description) {
+	  if (Notification.permission === "granted") {
+		new Notification(title, {
+		  body: description,
+		  requireInteraction: true,
+		  icon: "{% static 'Flash.png' %}",
+		});
+	  } else if (Notification.permission !== "denied") {
+		Notification.requestPermission().then((permission) => {
+		  if (permission === "granted") {
+			new Notification(title, {
+			  body: description,
+			  requireInteraction: true,
+			  icon: "{% static 'Flash.png' %}",
+			});
+		  }
+		});
+	  }
+	}
+  
+	function sendEmailReminder(title, description, email) {
+	  console.log(`Sending email to: ${email}`);
+	  fetch("/send-reminder-email/", {
+		method: "POST",
+		headers: {
+		  "Content-Type": "application/json",
+		  "X-CSRFToken": getCSRFToken(), // Add CSRF Token
+		},
+		body: JSON.stringify({ title, description, email }),
+	  });
+	}
+  
+	// Helper function to get CSRF Token
+	function getCSRFToken() {
+	  return document.cookie
+		.split("; ")
+		.find((row) => row.startsWith("csrftoken"))
+		?.split("=")[1];
+	}
+  </script>
+{% endblock main %}

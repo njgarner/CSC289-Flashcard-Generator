@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms and Conditions - FlashLite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Color palette */
+            --primary-color: #00A682;
+            --primary-light: #84F3DA;
+            --dark-text: #333;
+            --light-text: #555;
+            --background-color: #f9f9f9;
+            --card-background: #fff;
+            --footer-background: #333;
+            --footer-text: #fff;
+        }
+
+        /* General Body Styling */
+        body {
+            font-family: 'Varela Round', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--light-text);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--dark-text);
+            margin-bottom: 20px;
+        }
+
+        h1.page-title {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--dark-text);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        p, ul {
+            margin-bottom: 16px;
+        }
+
+        ul {
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .section-header {
+            font-weight: bold;
+            color: var(--dark-text);
+            margin-top: 32px;
+            font-size: 20px;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #007a60;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: var(--primary-light);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar {
+            font-size: 28px;
+            color: var(--dark-text);
+        }
+
+        .flashlite-title {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        /* Main Content Section Styling */
+        .content {
+            flex-grow: 1;
+            padding: 30px;
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer Styling */
+        .footer {
+            background-color: var(--footer-background);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+                margin: 20px;
+            }
+
+            h1.page-title {
+                font-size: 28px;
+            }
+
+            .section-header {
+                font-size: 18px;
+            }
+
+            body {
+                font-size: 14px;
+            }
+        }
+
+        .logout-popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logout-popup button {
+            margin: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        .logout-progress-bar {
+            height: 6px;
+            background-color: #28a745;
+            width: 100%;
+            border-radius: 4px;
+            animation: countdownBar 60s linear forwards;
+            margin-top: 10px;
+        }
+        
+        @keyframes countdownBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}"><p class="flashlite-title">FlashLite</p></a>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <div class="content">
+        <h1 class="page-title">Terms and Conditions</h1>
+        <p><strong>Last Updated: March 5, 2025</strong></p>
+
+        <p>Welcome to FlashLite, a free-to-use web application designed to enhance your learning experience through interactive flashcards. By using FlashLite, you agree to the following terms and conditions. Please read them carefully.</p>
+
+        <div class="section-header">1. Acceptance of Terms</div>
+        <p>By accessing or using the FlashLite web application ("Service"), you agree to comply with and be bound by these Terms and Conditions and our Privacy Policy. If you do not agree to these terms, please do not use the Service.</p>
+
+        <div class="section-header">2. Use of the Service</div>
+        <p>FlashLite is provided free of charge for personal, educational, and non-commercial use. You are responsible for ensuring that your use of the Service complies with all applicable laws and regulations.</p>
+        <p>You may not:</p>
+        <ul>
+            <li>Use the Service for any illegal or unauthorized purpose.</li>
+            <li>Engage in activities that disrupt, damage, or interfere with the Service.</li>
+            <li>Share or upload any content that is harmful, offensive, or violates the rights of others.</li>
+        </ul>
+
+        <div class="section-header">3. User Account</div>
+        <p>You may be required to create an account to use certain features of the Service. You agree to:</p>
+        <ul>
+            <li>Provide accurate, up-to-date, and complete information when creating an account.</li>
+            <li>Maintain the confidentiality of your login credentials.</li>
+            <li>Notify us immediately of any unauthorized use of your account.</li>
+        </ul>
+
+        <div class="section-header">4. Content Ownership</div>
+        <p>You retain ownership of any content you create or upload to FlashLite, such as flashcards and study decks. By uploading or creating content on FlashLite, you grant FlashLite a non-exclusive, royalty-free, worldwide license to use, display, and distribute your content solely for the purpose of operating and improving the Service.</p>
+        <p>FlashLite is not responsible for any content uploaded by users. You agree not to upload any content that violates the intellectual property rights of others.</p>
+
+        <div class="section-header">5. Privacy</div>
+        <p>Your use of FlashLite is subject to our <a href="PrivacyPolicy.html">Privacy Policy</a>, which explains how we collect, use, and protect your personal information. By using the Service, you consent to the collection and use of your data as described in the Privacy Policy.</p>
+
+        <div class="section-header">6. Modifications to the Service</div>
+        <p>We reserve the right to modify, suspend, or discontinue the Service at any time without prior notice. We may also update or modify these Terms and Conditions from time to time. You are responsible for reviewing these terms periodically to stay informed about any changes.</p>
+
+        <div class="section-header">7. Disclaimer of Warranties</div>
+        <p>FlashLite is provided "as is" and "as available," without any warranties or guarantees. We do not warrant that the Service will be error-free, uninterrupted, or secure. We do not guarantee the accuracy or completeness of any content provided through the Service.</p>
+
+        <div class="section-header">8. Limitation of Liability</div>
+        <p>To the fullest extent permitted by law, FlashLite and its affiliates, partners, and employees are not liable for any damages, losses, or liabilities arising out of your use of the Service, including but not limited to any errors, interruptions, or loss of data.</p>
+
+        <div class="section-header">9. Termination</div>
+        <p>We may suspend or terminate your access to the Service at any time, without notice, if you violate these Terms and Conditions or engage in activities that disrupt the Service. Upon termination, your right to use the Service will immediately cease.</p>
+
+        <div class="section-header">10. Governing Law</div>
+        <p>These Terms and Conditions are governed by and construed in accordance with the laws of the state or country in which FlashLite operates. Any disputes relating to these terms shall be subject to the exclusive jurisdiction of the courts in that jurisdiction.</p>
+
+        <div class="section-header">11. Contact Information</div>
+        <p>If you have any questions or concerns about these Terms and Conditions, please contact us at:</p>
+        <ul>
+            <li><strong>Email:</strong> <a href="mailto:flashliteteam@gmail.com">flashliteteam@gmail.com</a></li>
+        </ul>
+    </div>
+    <script>
+        let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
+    
+        function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+        
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+        
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();  // Reset the inactivity timer
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
+    </script>
+</body>
+</html>

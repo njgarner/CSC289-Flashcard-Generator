@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Flashcard - Flashlite{% endblock title %}
+
+{% block main %}
+
+{% load static %}
+
+<h2 class="page-title">Create Flashcard for
+{% if flashcard_set.title|length > 15 %}
+    {{ flashcard_set.title|slice:":15" }}...
+{% else %}
+    {{ flashcard_set.title }}
+{% endif %} 
+</h2>
+
+<div class="content">
+    <!-- Display Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Back Button -->
+    <a id="back-button" href="{% url 'view_flashcard_set' flashcard_set.set_id %}" style="width: fit-content;">
+        &#8592; Back to 
+        {% if flashcard_set.title|length > 15 %}
+            {{ flashcard_set.title|slice:":15" }}...
+        {% else %}
+            {{ flashcard_set.title }}
+        {% endif %}
+        Details
+    </a>
+
+    <div class="form-content">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <!-- Character Counters -->
+            <p id="question-counter"><strong>Question:</strong> 200 characters remaining</p>
+            <p id="answer-counter"><strong>Answer:</strong> 200 characters remaining</p>
+
+            <button type="submit">Create Flashcard</button>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript for live character counters -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const questionInput = document.querySelector('textarea[name="question"], input[name="question"]');
+    const answerInput = document.querySelector('textarea[name="answer"], input[name="answer"]');
+
+    const questionCounter = document.getElementById('question-counter');
+    const answerCounter = document.getElementById('answer-counter');
+
+    function updateCounter(input, counter, label) {
+    const remaining = 200 - input.value.length;
+    const strongEl = counter.querySelector('strong');
+    if (strongEl) {
+        strongEl.textContent = `${label}:`;
+        counter.lastChild.nodeValue = ` ${remaining} characters remaining`;
+    } else {
+        counter.textContent = `${label}: ${remaining} characters remaining`;
+    }
+}
+
+    if (questionInput) {
+        questionInput.addEventListener('input', () => updateCounter(questionInput, questionCounter, 'Question'));
+    }
+    if (answerInput) {
+        answerInput.addEventListener('input', () => updateCounter(answerInput, answerCounter, 'Answer'));
+    }
+});
+</script>
+
+{% endblock main %}

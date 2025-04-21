@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Flashlite{% endblock %}
+
+{% block main %}
+
+{% load static %}
+
+<!-- Main Content Section -->
+<h1 class="page-title">Study Time!</h1>
+
+<!-- Tutorial Button -->
+<button class="tutorial-btn" data-set-id="study-tutorial">?</button>
+
+<div class="content">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Flex container for selector + shuffle -->
+    <div class="selector-shuffle-bar">
+        {% if not is_guest %}
+        <!-- Set Selector for logged-in users only -->
+        <div class="set-selector-dropdown">
+            <button id="set-selector" class="set-selector-btn">
+                {% if last_viewed_set %}
+                    <span class="selected-set-title" title="{{ last_viewed_set.title }}">
+                        {{ last_viewed_set.title }}
+                    </span> ▼
+                {% else %}
+                    Select a Set ▼
+                {% endif %}
+            </button>
+            <div id="set-selector-content">
+                {% for set in recent_sets %}
+                    <a href="{% url 'study_view' set.set_id %}" data-set-id="{{ set.set_id }}" class="truncate-title" title="{{ set.title }}">
+                        {{ set.title|truncatechars:25 }}
+                    </a>
+                {% empty %}
+                    <p class="dropdown-empty">No recent sets</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Shuffle Button (shown to everyone) -->
+        <div class="shuffle-container">
+            <button class="rand-button" id="rand-button">
+                <img src="{% static 'shuffle.png' %}" alt="Shuffle Icon" class="icon"> Shuffle
+            </button>
+        </div>
+    </div>
+
+    <div class="flashcard-section">
+        <!-- Left Navigation Button -->
+        <button id="previous" class="nav-button">
+            <img src="{% static 'leftarrow.png' %}" alt="Left Arrow" class="icon"> Previous
+        </button>
+
+        <!-- Flashcard Display -->
+        <div class="flashcard patrick-hand-regular" id="flashcard">
+            {% if flashcards %}
+                <p id="card-content" class="flashcard-text">{{ flashcards.0.question }}</p>
+            {% else %}
+                <p class="flashcard-text">No flashcards available. Go to the Library page and make a Set to add Flashcards to.</p>
+            {% endif %}
+        </div>
+
+        <!-- Right Navigation Button -->
+        <button id="next" class="nav-button">
+            Next <img src="{% static 'rightarrow.png' %}" alt="Right Arrow" class="icon">
+        </button>
+    </div>
+
+    <!-- Learn, Flip, and Review Buttons -->
+    <div class="bottom-buttons">
+        {% if is_guest %}
+            <div class="guest-warning-wrapper">
+                <p class="guest-warning">You're studying as a guest. <a href="{% url 'user_login' %}">Log in</a> to save progress.</p>
+            </div>
+        {% endif %}
+
+        {% if not is_guest %}
+            <form action="{% url 'learn_view' %}" method="get">
+                <input type="hidden" name="set_id" value="{{ last_viewed_set.set_id }}">
+                <button type="submit" id="learn-button">Learn
+                    {% if remaining_cards > 0 %}
+                        <span class="card-count">({{ remaining_cards }} left)</span>
+                    {% else %}
+                        <span class="card-count">(No unlearned cards)</span>
+                    {% endif %}
+                </button>
+            </form>
+        {% endif %}
+
+        <!-- Flip card button (available to all) -->
+        <button id="flip-button">
+            <img src="{% static 'flip.png' %}" alt="Flip Icon" class="icon"> Flip
+        </button>
+
+        {% if not is_guest %}
+            {% if last_viewed_set %}
+                <form action="{% if last_viewed_set %}{% url 'review_view' set_id=last_viewed_set.set_id %}{% else %}# {% endif %}" method="get">
+                    <button type="submit" id="review-button">Review
+                        {% if reviewable_cards_count > 0 %}
+                            <span class="card-count">({{ reviewable_cards_count }} reviews available)</span>
+                        {% else %}
+                            <span class="card-count">(No reviews available)</span>
+                        {% endif %}
+                    </button>
+                </form>
+            {% else %}
+                <button type="button" id="review-button" onclick="alert('Please select a flashcard set to review.')">
+                    Review
+                </button>
+            {% endif %}
+        {% endif %}
+    </div>
+
+</div>
+    
+    <!-- JavaScript to handle set selection, flashcard flipping, and navigation -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectorBtn = document.getElementById("set-selector");
+            const selectorContent = document.getElementById("set-selector-content");
+        
+            if (selectorBtn && selectorContent) {
+                selectorBtn.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    selectorContent.classList.toggle("visible");
+                });
+        
+                document.addEventListener("click", function () {
+                    selectorContent.classList.remove("visible");
+                });
+        
+                selectorContent.addEventListener("click", function (e) {
+                    e.stopPropagation(); // Don't close when clicking inside
+                });
+            }
+        });
+
+        const isGuest = {{ is_guest|yesno:"true,false" }};
+        const flashcards = [
+            {% for flashcard in flashcards %}
+                { 
+                    id: {{ flashcard.card_id }},
+                    question: "{{ flashcard.question|escapejs }}",
+                    answer: "{{ flashcard.answer|escapejs }}"
+                },
+            {% endfor %}
+        ];
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            let currentIndex = 0;
+            let showingQuestion = true;
+            let timeStart = null;  // To track when the flashcard was first viewed
+            let totalTime = 0;     // Track total time spent on the flashcard
+            
+            // For guest users, flashcards are not filtered by `is_learned`, so we just use the provided flashcards
+            if (isGuest) {
+                // You can handle special guest-specific logic here if needed
+            }
+    
+            function updateCardContent() {
+                if (flashcards.length > 0) {
+                    let cardContent = document.getElementById("card-content");
+                    cardContent.innerText = flashcards[currentIndex].question;
+                    showingQuestion = true; // Reset to question
+                    timeStart = Date.now(); // Start tracking time when flashcard is viewed
+                }
+            }
+    
+            document.getElementById("flip-button").addEventListener("click", function () {
+                if (flashcards.length > 0) {
+                    let cardContent = document.getElementById("card-content");
+    
+                    showingQuestion = !showingQuestion;
+                    cardContent.innerText = showingQuestion ? flashcards[currentIndex].question : flashcards[currentIndex].answer;
+                }
+            });
+    
+            document.getElementById("next").addEventListener("click", function () {
+                if (flashcards.length > 0) {
+                    let timeSpent = Math.floor((Date.now() - timeStart) / 1000); // Time spent in seconds
+                    totalTime += timeSpent;  // Add time spent on this flashcard to the total time
+    
+                    // Send the time spent to the backend via AJAX
+                    fetch("{% url 'track_time_spent' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({
+                            flashcard_id: flashcards[currentIndex].id,
+                            time_spent: timeSpent
+                        })
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            console.log("Time spent on flashcard tracked.");
+                        } else {
+                            console.error("Failed to track time.");
+                        }
+                    });
+    
+                    // Move to the next flashcard
+                    currentIndex = (currentIndex + 1) % flashcards.length;
+                    updateCardContent();
+                }
+            });
+    
+            document.getElementById("previous").addEventListener("click", function () {
+                if (flashcards.length > 0) {
+                    let timeSpent = Math.floor((Date.now() - timeStart) / 1000); // Time spent in seconds
+                    totalTime += timeSpent;  // Add time spent on this flashcard to the total time
+    
+                    // Send the time spent to the backend via AJAX
+                    fetch("{% url 'track_time_spent' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({
+                            flashcard_id: flashcards[currentIndex].id,
+                            time_spent: timeSpent
+                        })
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            console.log("Time spent on flashcard tracked.");
+                        } else {
+                            console.error("Failed to track time.");
+                        }
+                    });
+    
+                    // Move to the previous flashcard
+                    currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                    updateCardContent();
+                }
+            });
+    
+            document.getElementById("rand-button").addEventListener("click", function () {
+                if (flashcards.length > 1) {
+                    let newIndex;
+                    do {
+                        newIndex = Math.floor(Math.random() * flashcards.length);
+                    } while (newIndex === currentIndex);
+                    currentIndex = newIndex;
+                    updateCardContent();
+                }
+            });
+    
+            updateCardContent();  // Initialize the card content
+    
+            window.addEventListener("beforeunload", function () {
+                const timeSpent = Math.floor((Date.now() - pageStartTime) / 1000); // seconds
+    
+                // Use Beacon API so it still sends if user closes the page
+                navigator.sendBeacon(
+                    "{% url 'update_user_activity' %}",
+                    new Blob([JSON.stringify({
+                        activity_type: "home_study",
+                        time_spent: timeSpent,
+                        flashcards_completed: flashcardsViewed.size
+                    })], {
+                        type: "application/json"
+                    })
+                );
+            });
+        });
+    </script>
+
+    <!-- Script for Tutorial Function -->
+    <script src="{% static 'tutorial.js' %}?v=4"></script>
+
+{% endblock main %}

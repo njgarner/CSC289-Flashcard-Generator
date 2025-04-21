@@ -1,0 +1,1356 @@
+/* Root variables for color customization */
+:root {
+    --setcolor: #84F3DA;
+    --cardcolor: #F4F4F4;
+    --bordercolor: #84F3DA;
+    --textcolor: #333333;
+}
+
+/* Top bar styles */
+.top-bar {
+    background-color: #84F3DA; /* Background color */
+    background-image: url('https://www.pngkey.com/png/full/271-2716327_overlay-pattern-png.png'); /* Path to your image */
+    background-size: cover; /* Make sure the image covers the entire area */
+    background-position: center; /* Center the image */
+    background-blend-mode: overlay; /* Blend the image with the background color */
+    color: black;              /* Text color */
+    display: flex;             /* Flexbox to arrange items */
+    justify-content: space-between; /* Title on the left, buttons on the right */
+    align-items: center;       /* Vertically center the items */
+    padding: 15px 20px;        /* Padding for spacing */
+    position: fixed;           /* Fixed at the top */
+    width: 100%;               /* Full width of the page */
+    top: 0;                    /* Align to the top */
+    left: 0;                   /* Align to the left */
+    z-index: 1000;             /* Ensure it stays above other content */
+    font-size: 25px;           /* Font size for title */
+    font-family: 'Varela Round', sans-serif; /* Font family */
+}
+
+/* Top bar button styles */
+.top-bar .login-content button {
+    padding: 10px 20px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 18px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: white; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for the buttons */
+.top-bar .button:hover {
+    background-color: gray; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Body styles */
+body {
+    margin: 0;
+    padding: 0;
+    padding-top: 50px; /* Adds space at the top to avoid overlap with the top bar */
+    font-family: 'Varela Round', sans-serif; /* Body font */
+    margin: 0; /* Remove default body margin */
+    display: flex; /* Using flexbox for centering */
+    align-items: flex-start; /* Align the content to the top */
+    height: 100vh; /* Take up full viewport height */
+    flex-direction: column; /* Stack content vertically */
+    justify-content: flex-start; /* Start content from the top */
+}
+
+html, body {
+    height: 100%;
+}
+
+.color-bg {
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #b5c6e0, #a1c4fd, #c2e59c, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Main content container styles */
+.content {
+    display: flex;             /* Enable flexbox */
+    flex-direction: column;    /* Stack content vertically */
+    margin-left: 200px;        /* To the right of the nav bar */
+    padding-top: 40px;         /* To give space below the top bar */
+    width: calc(100% - 220px); /* Ensure content area adjusts to the right of the nav bar */
+    height: calc(100vh - 50px); /* Take full height minus top bar space */
+}
+
+/* Main content buttons */
+.button button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for buttons */
+.button button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Left vertical navigation bar */
+.nav-bar {
+    overflow-y: auto;            /* Allow vertical scrolling */
+    overflow-x: hidden;          /* Prevent horizontal scrolling */
+    max-height: calc(100vh - 80px); /* assuming header is 80px tall */
+    scrollbar-width: thin;        /* Thin scrollbar */
+    position: fixed;              /* Fixed position on the left */
+    left: 0;                      /* Start visible */
+    transition: left 0.3s ease-in-out;
+    top: 80px;                    /* Space below the top bar */
+    width: 200px;                 /* Width of the nav bar */
+    background-color: #333;       /* Dark background */
+    color: white;                 /* Text color */
+    padding-top: 20px;            /* Padding at the top */
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    height: calc(100vh - 80px);   /* Full height minus top bar */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;                   /* Keep the nav bar below dropdown */
+}
+
+.nav-bar a {
+    color: white; /* Link color */
+    text-decoration: none; /* Remove underline */
+    transition: 0.3s;
+    display: block;
+    padding: 15px 20px; /* Padding around the links */
+    width: 100%; /* Make links take full width of nav bar */
+    text-align: center; /* Center text inside links */
+    border-bottom: 1px solid #ddd; /* Add a separator between items */
+    font-size: 18px; /* Font size for the links */
+}
+
+.nav-bar .contact {
+    font-family: varela round;
+    margin-top: auto; /* Push the contact link to the bottom */
+}
+
+.nav-bar a:hover {
+    background-color: #555; /* Hover effect */
+}   
+    
+/* Toggle Button */
+.nav-toggle {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 20px;
+    z-index: 1000;
+}
+    
+/* When collapsed */
+.nav-bar.closed {
+    left: -250px; /* Moves it off-screen */
+}
+
+.recent-widget {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Toggle Button */
+.recent-btn {
+    background-color: #333;
+    color: white;
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 16px;
+    gap: 8px;
+    width: 100%;
+}
+
+.recent-btn:hover {
+    background-color: #555;
+}
+
+/* Dropdown Container */
+.recent-dropdown {
+    margin-top: 10px;
+}
+
+/* Link Items */
+.recent-link {
+    background-color: #444;
+    color: white;
+    display: block;
+    margin: 5px 0;
+    padding: 6px 10px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: left;
+}
+
+.recent-link:hover {
+    background-color: #222;
+}
+
+/* Empty State */
+.recent-empty {
+    color: white;
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+/*--------------------------------------------------------- Set Selector ---------------------------------------------------------*/
+
+/* Set Selector Dropdown Style */
+.set-selector-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 220px;
+    padding: 8px 12px;
+    font-family: 'Varela Round', sans-serif;
+    font-size: 20px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Styling for the truncated title */
+.selected-set-title {
+    display: inline-block;
+    max-width: 140px; 
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Hover effect for Set Selector buttons */
+.set-selector-btn:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+#set-selector-content {
+    display: none;
+    background-color: #f4f4f4; /* Background color */
+    min-width: 140px;
+    position: absolute;
+    border: #00A682;
+    border-style: solid;
+    z-index: 1;
+    text-align: center;
+}
+
+#set-selector-content.visible {
+    display: block;
+}
+
+.selector-shuffle-bar {
+    display: flex;
+    flex-direction: column;  /* Stack items vertically */
+    align-items: center;
+    gap: 16px; /* Adjust the space between the set selector and shuffle button */
+    margin-top: 20px; /* Adjust to your layout */
+}
+
+#set-selector-content a {
+    color: rgb(0, 0, 0); /* Text color */
+    text-decoration: none; /* Remove underline */
+    display: block; /* Make links take full width */
+    padding: 12px 16px;
+    border-bottom-color: #00A682;
+    border-bottom-style: solid;
+}
+
+#set-selector-content a:hover {
+    color: rgb(255, 253, 253); /* Text color */
+    background-color: #555;
+}
+
+/* Google Translate plugin */
+.translate-container {
+    margin-right: auto; /* Pushes it to the left */
+}
+
+/* Login/Logout buttons */
+.login-content {
+    display: flex;
+    gap: 15px; /* Space between buttons */
+    margin-left: auto; /* Pushes buttons to the right */
+}
+
+.login-content button {
+    background-color: #555;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+}
+
+.login-content button:hover {
+    background-color: #777;
+}
+
+/*--------------------------------------------------------- Flashcard styles ---------------------------------------------------------*/
+
+.flashcard {
+    background-color: var(--cardcolor);
+    color: var(--textcolor);
+    border: 12px solid var(--bordercolor); /* Combine border style and color */
+    width: 600px;
+    height: 300px;
+    text-align: center;
+    line-height: normal;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.flashcard-display {
+    display: flex;
+    height: calc(100vh - 120px); /* Takes full viewport height minus top bar and some padding */
+    flex-direction: column;  /* Stack the buttons above the flashcard */
+    align-items: center;     /* Center the content horizontally */
+    gap: 10px;               /* Add space between the buttons and flashcard */
+}
+
+.flashcard-display .button {
+    display: flex;
+    justify-content: center; /* Center the button */
+    align-items: center;     /* Vertically center the content */
+    width: 100%;             /* Make the buttons take the full width of the container */
+    max-width: 600px;        /* Set a max-width to match the flashcard width */
+    gap: 10px;     /* Add some padding to the left */
+    gap: 10px;    /* Add some padding to the right */
+}
+
+.flashcard-display .button .previous {
+    align-items: left; /* Align to the left */
+}
+
+.flashcard-display .button .next {
+    align-items: right; /* Align to the right */
+}
+
+/* Contact Link */
+.contact a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.contact a p {
+    margin: 0;
+}
+
+/* Terms Button */
+.terms-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.terms-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.terms-button:hover {
+    background-color: #00A682;
+    color: white;
+}
+
+.name-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    margin: 0;
+    padding-left: 40px;
+}
+
+.logo {
+    width: 150px; /* Adjust as needed */
+    height: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 50px; /* Adjust size if needed */
+}
+
+.icon {
+    width: 20px; /* Adjust as needed */
+    height: auto;
+    margin-left: 5px; /* Add spacing between text and icon */
+}
+
+.large-icon {
+    width: 64px;
+    height: 64px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.patrick-hand-regular {
+    font-family: 'Patrick Hand', cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.flashcard-text {
+    word-break: break-word;        /* Break long words or single-character strings */
+    white-space: pre-wrap;         /* Preserve line breaks but allow wrapping */
+    font-size: clamp(16px, 2vw, 24px); /* Responsive font size between 16px and 24px */
+    max-height: 100%;              /* Prevent overflow */
+    overflow-wrap: break-word;     /* Break long words when needed */
+    text-align: center;            /* Optional: for better presentation */
+    padding: 1rem;
+}
+
+.flashcard-display label { /* Styles the label elements in flashcard-display class elements */
+    font-size: 25px;
+}
+
+.flashcard-display select{ /* Styles the selector element in flashcard-display class elements */
+    height: 50px;
+    width: 200px;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.flashcard-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 3px;
+}
+
+#search-favorite {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.shuffle-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3px;
+}
+
+.rand-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+/* Hover effect for shuffle button */
+.rand-button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+.nav-button {
+    padding: 10px 15px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Hover effect for navigation buttons */
+.nav-button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+.bottom-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+#learn-button, #flip-button, #review-button {
+    padding: 10px 20px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Hover effect for buttons */
+#learn-button:hover, #flip-button:hover, #review-button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/*--------------------------------------------------------- Form styles ---------------------------------------------------------*/
+
+.form-content { /* Centers elements to be in the middle of the page */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.form-content label { /* Styles the labels for the forms */
+    font-family: varela round;
+    font-size: 20px; 
+    display: block; /* Allows the labels to be located above the inputs */
+}
+
+.form-content input, .form-content textarea { /* Styles the input and textarea objects */
+    border-radius: 5px;
+    border-color:#00A682;
+    border-style: solid;
+}
+
+.form-content button { /* Styles the buttons for the form-content class */
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for form buttons */
+.form-content button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Style for back buttons */
+#back-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #9ebfe9; /* Background color */
+    border: 2px solid #354c99; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+    text-decoration: none;
+    width: fit-content;
+}
+
+/* Hover effect for back buttons */
+#back-button:hover {
+    background-color: #5e8dcc; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #31478f; /* Darker border on hover */
+}
+
+/* Style for the Library box container */
+.library-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 60px); /* Allows grid to auto-adjust */
+    gap: 10px; /* Spacing between boxes */
+    padding-left: 10px; /* Space from the left edge */
+}
+
+/* Style for the Add Box button */
+.add-box {
+    width: 200px;
+    height: 200px;
+    background-color: var(--setcolor);
+    color: var(--textcolor);
+    font-size: 50px; /* Large font size for the plus symbol */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    border: none; /* Remove border */
+}
+
+
+/* hover effect */
+.content .add-box:hover {
+    transition: filter 0.3s ease;
+    filter: brightness(80%);
+}
+
+.page-title {
+    text-align: left;
+    font-family: 'Varela Round', sans-serif;
+    font-size: 60px;
+    margin-left: 10px; /* To the right of the nav bar */
+    padding-top: 50px; /* To give space below the top bar */
+    padding-left: 200px;
+}
+
+.setting-item {
+    margin-bottom: 20px; /* Adds space below each setting item */
+    font-family: varela round;
+    font-size: 20px; 
+}
+
+.setting-item button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 10px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 10px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for buttons */
+.setting-item button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+.setting-item .delete-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 10px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: rgb(255, 75, 75); /* Background color */
+    border: 2px solid rgb(124, 0, 0); /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for buttons */
+.setting-item .delete-button:hover {
+    background-color: #740e0e; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #420000; /* Darker border on hover */
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #84F3DA; /* Adds a subtle grey line */
+    margin: 10px 0; /* Adds space above and below the line */
+}
+
+/* Container for the flashcard sets list */
+.flashcard-sets-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjusts to your existing size */
+    gap: 20px; /* Space between the cards */
+    padding: 20px;
+    justify-items: center; /* Centers each flashcard set inside the grid cell */
+}
+
+/* Style for each flashcard set (buttons) */
+.flashcard-set {
+    width: 200px;
+    height: 200px;
+    background-color: var(--setcolor);
+    color: var(--textcolor);
+    font-size: 15px; /* Font size for the content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    border: none; /* No border */
+    flex-direction: column; /* Stacks the content vertically */
+    text-align: center; /* Centers the text */
+    line-height: 1.2; /* Reduce line height to bring lines closer together */
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;           /* Hide the content that exceeds the box */
+    text-overflow: ellipsis;    /* Truncate text with an ellipsis if needed */
+    word-wrap: break-word;      /* Break long words or URLs */
+}
+
+.truncate-text {
+    width: 100%;
+    max-width: 100%;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.truncate-title {
+    display: inline-block;
+    max-width: 180px; /* adjust as needed based on layout */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+/* Hover effect */
+.flashcard-set:hover {
+    transition: filter 0.3s ease;
+    filter: brightness(80%);
+}
+
+/* Add this CSS to ensure the hearts are centered inside the button */
+.favorite-btn {
+    font-size: 24px; /* Adjust the size of the heart */
+    display: inline-flex; /* Allows centering with flex */
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    padding: 10px 20px; /* Adjust padding to suit your design */
+    border: 2px solid #ccc; /* Border styling */
+    border-radius: 5px; /* Optional: rounds the corners of the button */
+    background-color: #fff; /* Button background color */
+    cursor: pointer; /* Makes the button clickable */
+    height: 35px;
+    width: 30px;
+}
+
+.favorite-btn:hover {
+    background-color: #f0f0f0; /* Adds a hover effect */
+}
+/* Style for the Print button */
+.print-btn {
+    padding: 10px 20px;
+    background-color: #42A5F5; /* Blue background */
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 2px solid #1976D2;
+    cursor: pointer;
+    position: relative; /* To position the "print" text */
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for the Print button */
+.print-btn:hover {
+    background-color: #1E88E5; /* Darker blue on hover */
+    color: white;
+}
+
+/* Style for the Delete button */
+.delete-btn {
+    padding: 10px 20px;
+    background-color: #F44336; /* Red background */
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 2px solid #D32F2F;
+    cursor: pointer;
+    position: relative; /* To position the "delete" text */
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for the Delete button */
+.delete-btn:hover {
+    background-color: #C62828; /* Darker red on hover */
+    color: white;
+}
+.flashcard_set_title {
+    background-color: #84F3DA;
+    background-image: url('https://www.pngkey.com/png/full/271-2716327_overlay-pattern-png.png'); /* Path to your image */
+    border: 2px solid #00ffc3;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    top: 0; /* Ensure it's at the very top */
+    left: 0;
+    width: 90%;
+    font-size: 30px;
+    font-family: 'Varela Round', sans-serif;
+    padding: 10px; /* Optional: Adjust padding for spacing */
+}
+
+.set_content {
+    font-family: 'Varela round', sans-serif;
+    font-size: 20px;
+    padding: 10px; /* Optional padding */
+}
+
+.flashcards_set_details {
+    background-color: transparent;
+    border: 3px solid #00ffc3;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    font-size: 25px;
+    font-family: 'Varela Round', sans-serif;
+    padding: 10px; /* Optional: Adjust padding for spacing */
+}
+.flashcards_list {
+    font-size: 20px;
+    font-family: 'Varela Round', sans-serif;
+}
+/* Style for the Delete button */
+.delete-btn-cards {
+    padding: 5px 10px; /* Reduce padding to make the button smaller */
+    background-color: #F44336; /* Red background */
+    color: black;
+    font-size: 20px; /* Keep the font size the same */
+    border-radius: 5px;
+    border: 2px solid #D32F2F;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 30px; /* Smaller height */
+    width: 80px; /* Smaller width */
+    display: flex; /* Use flexbox to center content */
+    align-items: center; /* Vertically center the text */
+    justify-content: center; /* Horizontally center the text */
+}
+
+/* Hover effect for the Delete button */
+.delete-btn-cards:hover {
+    background-color: #C62828; /* Darker red on hover */
+    color: white;
+}
+/* form-content class style */
+.form-content { /* Centers elements to be in the middle of the page */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.form-content label { /* Styles the labels for the forms */
+    font-family: varela round;
+    font-size: 20px; 
+    display: block; /* Allows the labels to be located above the inputs */
+}
+
+.form-content input, .form-content textarea { /* Styles the input and textarea objects */
+    border-radius: 5px;
+    border-color:#00A682;
+    border-style: solid;
+}
+
+.form-content button { /* Styles the buttons for the form-content class */
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif; /* Font family */
+    font-size: 20px;           /* Font size */
+    color: black;              /* Text color */
+    background-color: #84F3DA; /* Background color */
+    border: 2px solid #00A682; /* Border color */
+    margin-bottom: 20px;       /* Space between buttons */
+    border-radius: 5px;        /* Rounded corners */
+    cursor: pointer;          /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+/* Hover effect for form buttons */
+.form-content button:hover {
+    background-color: #00A682; /* Darker background on hover */
+    color: white; /* Text color changes to white */
+    border-color: #008B5C; /* Darker border on hover */
+}
+
+/* Social media link container */
+.social-media-links {
+    display: flex;              /* Use Flexbox to arrange the icons horizontally */
+    justify-content: center;    /* Center the icons */
+    gap: 20px;                  /* Space between icons */
+    padding: 20px 0;            /* Padding for top and bottom */
+    position: fixed;            /* Fixed position at the bottom */
+    left: 0;                    /* Align to the left */
+    bottom: 0;                  /* Align to the bottom */
+    width: 100%;                /* Full width */
+    background-color: #fff;     /* Background color to make sure it is not transparent */
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
+    z-index: 1000;              /* Ensure it stays above other content */
+}
+ 
+/* Individual social media link styles */
+.social-media-links a {
+    font-size: 30px;            /* Size of the icons */
+    color: #333;                /* Default color for icons */
+    text-decoration: none;      /* Remove underlines from links */
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transitions for color and scaling */
+}
+ 
+/* Hover effects for social media links */
+.social-media-links a:hover {
+    color: #00A682;             /* Change color on hover */
+    transform: scale(1.1);      /* Slightly enlarge the icon when hovered */
+}
+ 
+/* border around the icons for visual effect */
+.social-media-links a {
+    border: 2px solid transparent; /* Transparent border */
+    border-radius: 50%;            /* Round border to create circular effect */
+    padding: 10px;                 /* Add padding around the icons */
+    transition: border-color 0.3s ease; /* Smooth border transition */
+}
+ 
+/* Hover effect for border */
+.social-media-links a:hover {
+    border-color: #00A682;      /* Show border color on hover */
+}
+ 
+/* Optional: Add a slight shadow to the icons */
+.social-media-links a {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Small shadow for depth */
+}
+ 
+/* Responsive Design - Adjust social media icon sizes on smaller screens */
+@media (max-width: 768px) {
+    .social-media-links {
+        gap: 15px; /* Reduce the gap between icons on smaller screens */
+    }
+    .social-media-links a {
+        font-size: 25px; /* Reduce the size of icons on smaller screens */
+    }
+}
+
+/* Scroll to top button */
+.toggle-scroll-btn {
+    position: fixed;
+    bottom: 10px;
+    right: 20px;
+    z-index: 1100;
+    padding: 10px;
+    background-color: #00A682;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Accordion toggle inside footer */
+.footer-accordion-toggle {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+/* Content area that gets collapsed */
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    overflow: hidden;
+    max-height: 300px;
+    opacity: 1;
+}
+
+.footer-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Container for the entire bar */
+.social-footer-custom {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    border-radius: 20px 0 0 20px;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+    transition: width 0.4s ease;
+    width: 260px; /* fully expanded width */
+}
+    
+/* Collapsed state only shows arrow */
+.social-footer-custom.collapsed-horizontal {
+    width: 50px;
+}
+    
+/* Toggle button (remains visible) */
+.footer-accordion-toggle {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #00A682;
+    padding: 10px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+    
+/* Content that slides in and out */
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    flex-grow: 1;
+}
+    
+/* Hide content visually on collapse */
+    .social-footer-custom.collapsed-horizontal .footer-content {
+    opacity: 0;
+    pointer-events: none;
+}
+    
+/* Social icons in a row */
+    .social-icons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+    
+.social-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    padding: 6px;
+    background-color: #f1f1f1;
+    transition: transform 0.2s, background-color 0.2s;
+}
+    
+.social-icon:hover {
+    background-color: #00A682;
+    transform: scale(1.1);
+}
+    
+.rights-text a {
+    text-decoration: none;
+    font-size: 12px;
+    color: #333;
+}
+    
+.rights-text a:hover {
+    color: #00A682;
+}
+
+/* Style for the Tutorial button */
+.tutorial-btn {
+    padding: 10px 20px;
+    background-color: #84F3DA; /* background */
+    color: rgb(0, 0, 0);
+    font-size: 25px;
+    border-radius: 5px;
+    border: 2px solid #3b9b84;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: absolute; /* Absolute positioning relative to the nearest positioned ancestor */
+    top: 100px; /* Adjust this value to make sure it's below the top bar */
+    right: 25px; /* Adjust the value to place the button on the right side */
+}
+
+/* Hover effect for the Tutorial button */
+.tutorial-btn:hover {
+    background-color: #53af9a; /* Darker red on hover */
+    color: rgb(255, 255, 255);
+}
+
+.form-content .shared-btn #public{
+    height: 100px !important;
+}
+
+#google_translate_element {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+/*--------------------------------------------------------- Flashcard Messages ---------------------------------------------------------*/
+
+#message-container {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    position: fixed; 
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%; /* Ensure messages do not exceed the container */
+    max-width: 500px; /* Limit width */
+    z-index: 1000; /* Ensure it appears above content */
+}
+
+.messages {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%; /* Adjust width for responsiveness */
+    max-width: 500px; /* Prevent messages from getting too wide */
+    z-index: 1000;
+}
+
+.alert {
+    padding: 12px 16px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal; /* Allow text to wrap */
+    overflow-wrap: break-word; /* Ensure long words do not overflow */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for visibility */
+}
+
+.alert.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f44336;
+    color: white;
+}
+
+.message {
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    font-size: 14px;
+    word-wrap: break-word; /* Ensure long messages break properly */
+    text-align: center;
+    white-space: normal; /* Allow wrapping */
+    font-weight: bold;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+  
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.warning {
+    background-color: #e3edd4;
+    color: #c1c808;
+    border: 1px solid #d5e6c3;
+}
+
+.truncate-nav {
+    display: inline-block;
+    max-width: 180px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.logout-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logout-popup button {
+    margin: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.logout-progress-bar {
+    height: 6px;
+    background-color: #28a745;
+    width: 100%;
+    border-radius: 4px;
+    animation: countdownBar 60s linear forwards;
+    margin-top: 10px;
+}
+
+@keyframes countdownBar {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Style TTS widget container */
+#ttsWidget {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+} 
+
+/* Style dropdowns inside widget */
+#ttsWidget select,
+#ttsWidget label {
+    color: white;
+    background-color: #333;
+    border: 1px solid #555;
+} 
+
+#ttsWidget select:focus {
+    outline: none;
+    box-shadow: 0 0 3px #84F3DA;
+}
+
+/* Style Read button */
+#ttsBtn {
+    background-color: #84F3DA;
+    color: black;
+    border: none;
+    transition: background-color 0.3s ease;
+} 
+
+#ttsBtn:hover {
+    background-color: #00A682;
+}  
+
+/* TTS toggle button */
+#toggleTTSWidget {
+    background-color: #333;
+    color: white;
+    border: 1px solid #444;
+}
+
+#toggleTTSWidget:hover {
+    background-color: #555;
+}
+
+#ttsControls {
+    background-color: #333;
+    color: white;
+}
+
+#mainContent {
+    flex: 1;
+    width: 100%;
+    padding: 0 20px;
+    text-align: left; /* <-- Important to prevent unintended centering */
+}
+
+.category-header {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.guest-warning-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.guest-warning {
+    color: #c00;
+    margin-bottom: 10px;
+}
+.styled-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif;
+    font-size: 20px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}  
+.styled-button:hover {
+    background-color: #00A682;
+    color: white;
+    border-color: #008B5C;
+}    

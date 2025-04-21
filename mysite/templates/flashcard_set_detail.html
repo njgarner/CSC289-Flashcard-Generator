@@ -1,0 +1,534 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <script>
+        (function applySavedColors() {
+            const colors = {
+                "--setcolor": localStorage.getItem("setcolor") || "#84F3DA",
+                "--cardcolor": localStorage.getItem("cardcolor") || "#F4F4F4",
+                "--bordercolor": localStorage.getItem("bordercolor") || "#84F3DA",
+                "--textcolor": localStorage.getItem("textcolor") || "#333333",
+            };
+
+            for (const [variable, value] of Object.entries(colors)) {
+                document.documentElement.style.setProperty(variable, value);
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <title>{{ flashcard_set.title }} - Details</title>
+    <!-- Internal CSS -->
+	<style>
+        .search-form-wrapper {
+            margin: 10px 0;
+        }
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+        #flashcard-search {
+            width: 100%;
+            padding: 8px 8px 8px 36px; /* left padding to fit the icon */
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .flashcards_list li {
+            margin-bottom: 15px;
+            list-style-position: inside; 
+        }
+        .flashcard-text,
+        .flashcard strong,
+        .flashcard p {
+            margin-bottom: 2px;
+            text-align: center;
+            margin: 0;
+            display: block;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+            font-size: 16px;
+            padding: 5px 0;
+        }
+        .title-container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 10px;
+        }      
+        .flashcard_set_title {
+            font-size: 32px;
+            text-align: center;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: break-word; 
+            max-width: 100%;
+            margin: 20px auto;
+        } 
+        .set_content {
+          max-width: 90%;
+          margin: 0 auto;
+          padding: 10px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          line-height: 1.6;
+        }
+        .set_content p {
+          font-size: 18px;
+          margin: 8px 0;
+        }
+        #editForm{
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            width: 90%; /* Or fixed width like 300px */
+        }
+        .btn-cards {
+            background-color: var(--setcolor);
+            color: var(--textcolor);
+            border-color: var(--bordercolor);
+        }
+        .btn-cards:hover {
+            background-color: var(--bordercolor);
+            color: white;
+            border-color: var(--bordercolor);
+        }
+        .flashcard {
+            background-color: var(--cardcolor); /* Uses the CSS variable */
+            border: 2px solid var(--bordercolor);
+            color: var(--textcolor);
+            display: relative;
+            width: calc(100% - 30px); /* Prevent overflow */
+            margin: 10px 15px; /* Space on all sides */
+            box-sizing: border-box;
+            max-width: 100%;
+            height: auto; /* allow height to grow */
+            flex-direction: column;
+            align-items: center; /* center horizontally */
+            gap: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            justify-content: flex-start;
+            border-radius: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #ccc #f5f5f5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        }
+        .flashcards_list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+            gap: 40px; /* space between cards */
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .card-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .card-action-button {
+            padding: 10px 20px;
+            font-family: 'Varela Round', sans-serif;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px; /* spacing between icon and text */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            height: 40px;
+            width: 120px;
+        }
+        .delete-btn-cards {
+            background-color: #F44336;
+            color: black;
+            border-color: #D32F2F;
+        }
+        .delete-btn-cards:hover {
+            background-color: #C62828;
+            color: white;
+            border-color: #B71C1C;
+        }
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap; /* Optional: allows stacking on smaller screens */
+            }
+        .button-row form {
+            margin: 0; /* removes default form margin that might misalign the button */
+        }
+    </style>
+</head>
+<body>
+    <a id="back-button"
+        href="{% if request.GET.from == 'library' %}{% url 'library_view' %}
+                {% elif request.GET.from == 'world_sets' %}{% url 'world_sets' %}
+                {% else %}{% url 'library_view' %}{% endif %}"
+        style="margin-left: 10px;">
+        &#8592; Back
+    </a>
+    <div class="title-container">
+        <h1 class="flashcard_set_title">{{ flashcard_set.title }}</h1>
+    </div>
+    <div class="set_content">
+        <p><strong>Description:</strong> {{ flashcard_set.description }}</p>
+        <p><strong>Category:</strong> {{ flashcard_set.category.name }}</p>
+        <p><strong>Created on:</strong> {{ flashcard_set.created_at }}</p>
+        <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
+        <!-- Edit Visibility Form -->
+        <form method="POST">
+            {% csrf_token %}
+            <div class="radio-group" style="display: flex; align-items: center; justify-content: center; gap: 5px; padding-bottom: 15px;">
+                <input type="radio" id="public" style="height:40px; width:40px;" name="is_shared" value="on" {% if flashcard_set.is_shared %}checked{% endif %}>
+                <label for="public">Public</label><br>
+                <input type="radio" id="private" style="height:40px; width:40px;" name="is_shared" value="off" {% if not flashcard_set.is_shared %}checked{% endif %}>
+                <label for="private">Private</label><br><br>
+                <button class="button" type="submit" style="background-color: rgb(37, 197, 189);">Save Set</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Edit Set Button -->
+    <button id="toggleEditSetForm" class="card-action-button btn-cards">
+        <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> Edit Set
+    </button>
+
+    <!-- Edit Set Form (Initially Hidden) -->
+    <form id="editSetForm" action="{% url 'edit_set' flashcard_set.set_id %}" method="POST" style="display:none; margin-top:10px;">
+        {% csrf_token %}
+        <input type="text" name="title" required value="{{ flashcard_set.title }}"><br><br>
+        <input type="text" name="category" required value="{{ flashcard_set.category.name }}"><br><br>
+        <textarea name="description">{{ flashcard_set.description }}</textarea><br><br>
+        <button type="submit" class="card-action-button btn-cards">Save Changes</button>
+    </form>
+
+    <!-- Card Count -->
+    <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/500</h2>
+
+    <!-- Button Container -->
+    <div class="button-row">
+        <!-- Create Flashcard Button -->
+        <button class="card-action-button btn-cards" onclick="window.location.href='{% url 'create_flashcard' flashcard_set.set_id %}'">
+            <img src="{% static 'anvil.png' %}" alt="Anvil Icon" class="icon"> Create Flashcards
+        </button>
+        
+        <!-- Export Flashcards Form -->
+        <form method="post" action="{% url 'export_flashcards' %}" id="export-form">
+            {% csrf_token %}
+            <input type="hidden" name="card_set" id="export-card-set-data">
+            <button class="card-action-button btn-cards" type="submit" onclick="prepareExportData()">Export to Excel</button>
+        </form>
+    </div>
+
+    <!-- Search Flashcards -->
+    <form method="GET" action="" class="search-form-wrapper" onsubmit="return false;">
+        <div class="search-input-wrapper">
+            <img src="{% static 'magnify.png' %}" alt="Search Icon" class="search-icon">
+            <input type="text" id="flashcard-search" placeholder="Search flashcards...">
+        </div>
+    </form>
+    
+    <!-- Flashcard List -->
+<div class="flashcards_list">
+    <p id="no-results-message" style="display:none; text-align:center; font-size:18px; color: gray;">
+      No flashcards found matching search.
+    </p>
+    {% if messages %}
+        <div id="message-container">
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Flashcard loop -->
+    {% for flashcard in flashcards %}
+    <div class="flashcard">
+        <strong>Question:</strong>
+        <div class="flashcard-text">{{ flashcard.question }}</div>
+        <strong>Answer:</strong>
+        <div class="flashcard-text">{{ flashcard.answer }}</div>
+
+        {% if flashcard.is_learned %}
+            <strong>Time Until Next Review:</strong> 
+            <span id="review-time-{{ flashcard.id }}" data-review-date="{{ flashcard.next_review_date|date:'c' }}"></span>
+            <strong>Next Review Date:</strong> {{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}
+        {% else %}
+            <strong>Not yet learned</strong>
+        {% endif %}
+
+        <!-- Edit/Delete Buttons Side-by-Side -->
+        <div class="card-buttons">
+            <form action="{% url 'delete_flashcard' flashcard.card_id %}" method="post" onsubmit="return confirmDelete(event);">
+                {% csrf_token %}
+                <button type="submit" class="card-action-button delete-btn-cards">
+                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon"> Delete
+                </button>
+            </form>
+
+            <button class="showFormButton card-action-button btn-cards" type="button">
+                <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> Edit
+            </button>
+        </div>
+
+        <!-- Hidden Edit Form -->
+        <form class="editForm" action="{% url 'edit_flashcard' flashcard.card_id %}" method="post" style="display: none;">
+            {% csrf_token %}
+            <input type="text" name="question" required placeholder="Enter New Question" value="{{ flashcard.question }}"><br><br>
+            <input type="text" name="answer" required placeholder="Enter New Answer" value="{{ flashcard.answer }}"><br><br>
+            <div style="display: flex; justify-content: center;">
+                <button type="submit" class="card-action-button btn-cards">Confirm</button>
+            </div>
+        </form>
+    </div>
+{% empty %}
+    <p>No flashcards available in this set.</p>
+{% endfor %}
+</div>
+
+<!-- JavaScript -->
+<script>
+    function timeUntilNextReview(nextReviewDate) {
+        const reviewDate = new Date(nextReviewDate);
+        const now = new Date();
+        const diff = reviewDate - now;
+
+        if (diff <= 0) return "Overdue";
+
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const remainingMinutes = minutes % 60;
+        const remainingHours = hours % 24;
+
+        let timeString = '';
+        if (days > 0) timeString += `${days} day${days > 1 ? 's' : ''} `;
+        if (remainingHours > 0) timeString += `${remainingHours} hour${remainingHours > 1 ? 's' : ''} `;
+        if (remainingMinutes > 0) timeString += `${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`;
+
+        return timeString || "Less than a minute";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Set review countdowns
+        document.querySelectorAll('[id^="review-time-"]').forEach(span => {
+            const rawDate = span.getAttribute("data-review-date");
+            if (rawDate) {
+                span.textContent = timeUntilNextReview(rawDate);
+            }
+        });
+
+        // Toggle individual flashcard edit form
+        document.querySelectorAll('.showFormButton').forEach(button => {
+            button.addEventListener('click', function () {
+                const clickedButton = this;
+                const clickedForm = this.parentElement.nextElementSibling;
+
+                document.querySelectorAll('.showFormButton').forEach(btn => {
+                    const form = btn.parentElement.nextElementSibling;
+
+                    if (btn === clickedButton) {
+                        const isHidden = form.style.display === "none" || form.style.display === "";
+                        form.style.display = isHidden ? "block" : "none";
+                        btn.innerHTML = `
+                            <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon">
+                            ${isHidden ? 'Hide' : 'Edit'}
+                        `;
+                    } else {
+                        form.style.display = 'none';
+                        btn.innerHTML = `
+                            <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon">
+                            Edit
+                        `;
+                    }
+                });
+            });
+        });
+
+        // Hide messages after 3 seconds
+        setTimeout(function () {
+            const messageContainer = document.getElementById("message-container");
+            if (messageContainer) {
+                messageContainer.style.display = "none";
+            }
+        }, 3000);
+
+        // Search flashcards live
+        const searchInput = document.getElementById('flashcard-search');
+        const flashcards = document.querySelectorAll('.flashcard');
+
+        searchInput.addEventListener('input', function () {
+           const query = this.value.toLowerCase();
+           let anyVisible = false;
+            
+           flashcards.forEach(card => {
+             const texts = card.querySelectorAll('.flashcard-text');
+             const question = texts[0]?.textContent.toLowerCase() ?? '';
+             const answer = texts[1]?.textContent.toLowerCase() ?? '';
+             const matches = question.includes(query) || answer.includes(query);
+             card.style.display = matches ? 'block' : 'none';
+             if (matches) anyVisible = true;
+           });
+            
+           const noResultsMessage = document.getElementById('no-results-message');
+           noResultsMessage.style.display = anyVisible ? 'none' : 'block';
+        });
+    });
+
+     // Toggle Edit Set form
+    document.getElementById("toggleEditSetForm").addEventListener("click", function () {
+        const form = document.getElementById("editSetForm");
+        form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+    });
+
+    // Confirm delete
+    function confirmDelete(event) {
+        if (!confirm("Are you sure you want to delete this flashcard?")) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+
+    // Prepare export data and inject into hidden input
+    function prepareExportData() {
+        const cards = [];
+
+        document.querySelectorAll('.flashcard').forEach(card => {
+            const question = card.querySelectorAll('.flashcard-text')[0]?.textContent.trim() || "";
+            const answer = card.querySelectorAll('.flashcard-text')[1]?.textContent.trim() || "";
+            if (question || answer) {
+                cards.push({ Question: question, Answer: answer });
+            }
+        });
+
+        if (cards.length === 0) {
+            alert("No cards to export.");
+            event.preventDefault();
+            return false;
+        }
+
+        document.getElementById('export-card-set-data').value = JSON.stringify(cards);
+        return true;
+    }
+
+    let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
+
+    function resetTimer() {
+        // Don't reset the timer if the logout warning is visible
+        if (document.getElementById("logoutWarning")) {
+            return;
+        }
+    
+        clearTimeout(inactivityTimeout);
+        clearTimeout(logoutWarningTimeout);
+    
+        // Start tracking inactivity again
+        inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+    }
+
+    function showLogoutWarning() {
+        // Remove existing warning if it exists
+        let existingWarning = document.getElementById("logoutWarning");
+        if (existingWarning) {
+            existingWarning.remove();
+        }
+    
+        let warningBox = document.createElement("div");
+        warningBox.id = "logoutWarning";
+        warningBox.innerHTML = `
+            <div class="logout-popup">
+                <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                <button onclick="logout()">Logout</button>
+                <div class="logout-progress-bar"></div>
+            </div>
+        `;
+        document.body.appendChild(warningBox);
+    
+        // Auto-logout after 1 minute if no response
+        logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+    }
+
+    function extendSession() {
+        let warningBox = document.getElementById("logoutWarning");
+        if (warningBox) {
+            warningBox.remove();
+        }
+        resetTimer();  // Reset the inactivity timer
+    }
+
+    function logout() {
+        // Create and submit a hidden logout form
+        let form = document.createElement("form");
+        form.method = "POST";
+        form.action = "{% url 'logout_user' %}";
+    
+        // CSRF Token
+        let csrfToken = document.createElement("input");
+        csrfToken.type = "hidden";
+        csrfToken.name = "csrfmiddlewaretoken";
+        csrfToken.value = getCSRFToken(); // Get the CSRF token
+    
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Function to get CSRF token from cookies
+    function getCSRFToken() {
+        return document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken'))
+            ?.split('=')[1];
+    }
+
+    // Reset timer on user activity
+    document.addEventListener("mousemove", resetTimer);
+    document.addEventListener("keydown", resetTimer);
+    document.addEventListener("click", resetTimer);
+    document.addEventListener("scroll", resetTimer);
+
+    // Start inactivity timer
+    resetTimer();
+</script>
+</body>
+</html>
