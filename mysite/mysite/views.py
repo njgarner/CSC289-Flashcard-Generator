@@ -27,18 +27,22 @@ import pandas as pd
 import tempfile
 import json
 import os
+import logging
 
 # ======================= Python files ======================= #
 
-from .models import FlashcardSet, Category, Flashcard, FavoriteSet, UserActivity, Classroom, UserProfile, Quiz, QuizResult, SavedSet
+logger = logging.getLogger(__name__)
+
+from .models import FlashcardSet, Category, Flashcard, FavoriteSet, UserActivity, Classroom, UserProfile, Quiz, QuizResult, SavedSet, Reminder
 from .forms import FlashcardForm, ChangePasswordForm
+from .tasks import send_reminder_email_task
 
 # ======================= Time Management ======================= #
 
 import datetime
 from django.utils import timezone
 from django.utils.timezone import is_naive, make_aware, now
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 # ======================== Main Pages ======================== #
 
@@ -212,6 +216,88 @@ def schedule(request):
     'recent_sets': recent_sets # Pass recent sets to the template
     })
 
+@csrf_exempt
+def create_reminder(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        try:
+            data = json.loads(request.body)
+
+            date_time_str = data.get("date_time")
+            if not date_time_str:
+                raise ValueError("Missing or invalid date_time value")
+
+            # Convert to aware datetime
+            naive_datetime = datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M:%S')
+            date_time = timezone.make_aware(naive_datetime)
+
+            reminder = Reminder.objects.create(
+                user=request.user,
+                title=data["title"],
+                description=data["description"],
+                date_time=date_time,
+                email=data.get("email"),
+                email_reminder=data.get("emailReminder", False),
+            )
+
+            # Schedule the email reminder task
+            if reminder.email_reminder:
+                send_reminder_email_task.apply_async(args=[reminder.id], eta=reminder.date_time)
+
+            return JsonResponse({"success": True})
+
+        except ValueError as e:
+            return JsonResponse({"error": "Invalid data", "message": str(e)}, status=400)
+
+        except Exception as e:
+            return JsonResponse({"error": "Failed to create reminder", "message": str(e)}, status=500)
+
+    return JsonResponse({"error": "Unauthorized or invalid request"}, status=400)
+
+def due_reminders(request):
+    if not request.user.is_authenticated:
+        return JsonResponse([], safe=False)
+
+    now = timezone.now()
+    reminders = Reminder.objects.filter(
+        user=request.user, date_time__lte=now, notified=False
+    )
+
+    # Mark as notified
+    for r in reminders:
+        r.notified = True
+        r.save()
+
+    return JsonResponse([
+        {"title": r.title, "description": r.description}
+        for r in reminders
+    ], safe=False)
+
+@login_required
+def get_reminders(request):
+    reminders = Reminder.objects.filter(user=request.user).order_by("date_time")
+    data = [{
+        "title": r.title,
+        "description": r.description,
+        "date_time": r.date_time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "email_reminder": r.email_reminder,
+        "email": r.email
+    } for r in reminders]
+    return JsonResponse(data, safe=False)
+
+@login_required
+def delete_reminder(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        title = data.get("title")
+
+        try:
+            reminder = Reminder.objects.get(user=request.user, title=title)
+            reminder.delete()
+            return JsonResponse({"success": True})
+        except Reminder.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Reminder not found."}, status=404)
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+
 @login_required  # Customization page
 def customize(request):
     # Get recent sets from session
@@ -251,7 +337,7 @@ def get_daily_quote():
         "Don’t stop when you’re tired. Stop when you’re done.",
         "Wake up with determination. Go to bed with satisfaction."
     ]
-    day_of_year = datetime.datetime.now().timetuple().tm_yday
+    day_of_year = datetime.now().timetuple().tm_yday
     return quotes[day_of_year % len(quotes)]
 
 def send_reminder_email(request):
@@ -463,7 +549,7 @@ def signup_user(request):
                 email_message.send()
 
                 messages.success(request, "Check your email for verification.")
-                return redirect(reverse('login_user')) # use reverse to get the url from the name.
+                return redirect(reverse('login_user')) # Use reverse to get the url from the name.
 
         except Exception as e:
             messages.error(request, f"An error occurred: {e}") # Log the error for debugging
@@ -926,7 +1012,7 @@ def study_view(request, set_id):
         recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
         favorite_sets = FavoriteSet.objects.filter(user=request.user).select_related('set')
-        last_viewed_set = FlashcardSet.objects.filter(user=request.user, set_id=set_id).first()
+        last_viewed_set = flashcard_set
         remaining_cards = flashcards.filter(is_learned=False).count()
     else:
         flashcard_sets = []
@@ -1220,7 +1306,7 @@ def reset_user_activity(request):
             messages.error(request, f"An error occurred while resetting the stats: {str(e)}")
 
         # Redirect back to the activity dashboard after reset
-        return redirect('activity_dashboard')  # Assuming 'activity_dashboard' is the name of your dashboard view
+        return redirect('activity_dashboard') 
 
     return redirect('activity_dashboard')  # If not a POST request, redirect to dashboard
 
@@ -1280,8 +1366,14 @@ def create_classroom(request):
             messages.error(request, "You already have a classroom with that name.")
             return render(request, 'create_classroom.html')
 
-        # Create the classroom
-        Classroom.objects.create(name=name, description=description, user=request.user)
+        # Create the classroom and assign the teacher field
+        Classroom.objects.create(
+            name=name,
+            description=description,
+            user=request.user,
+            teacher=request.user  # Auto-assign the creator as the teacher
+        )
+
         messages.success(request, "Classroom created successfully.")
         return redirect('classrooms')
 
@@ -1375,8 +1467,30 @@ def join_classroom(request):
 @login_required
 def assign_flashcard_sets(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
+
+    # Check if the logged-in user is a teacher and authorized for this classroom
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+        print(f"User Profile Role: {user_profile.role}")  # Debugging
+        print(f"Classroom Teacher: {classroom.teacher}")  # Debugging
+        print(f"Classroom Creator: {classroom.user}")     # Debugging
+
+        is_teacher = user_profile.role == 'teacher'
+        is_classroom_owner = classroom.user == request.user
+        is_assigned_teacher = classroom.teacher == request.user if classroom.teacher else False
+
+        if not is_teacher or not (is_classroom_owner or is_assigned_teacher):
+            messages.error(request, "You are not authorized to assign flashcard sets to this classroom.")
+            return redirect('home')
+    except UserProfile.DoesNotExist:
+        messages.error(request, "User profile not found.")
+        return redirect('home')
+
+    # Get the IDs of already assigned flashcard sets
     assigned_ids = classroom.flashcard_sets.values_list('set_id', flat=True)
-    flashcard_sets = FlashcardSet.objects.exclude(set_id__in=assigned_ids)
+
+    # Only show flashcard sets created by the teacher and not already assigned
+    flashcard_sets = FlashcardSet.objects.filter(user=request.user).exclude(set_id__in=assigned_ids)
 
     if request.method == 'POST':
         if 'remove_set' in request.POST:
@@ -1397,6 +1511,7 @@ def assign_flashcard_sets(request, classroom_id):
         return redirect('assign_flashcard_sets', classroom_id=classroom.id)
 
     assigned_flashcard_sets = classroom.flashcard_sets.all()
+
     return render(request, 'assign_flashcard_sets.html', {
         'classroom': classroom,
         'flashcard_sets': flashcard_sets,
