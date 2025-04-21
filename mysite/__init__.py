@@ -16,8 +16,8 @@ pymysql.install_as_MySQLdb()
 class Database:
     database_cred = {
         "host": "localhost",
-        "user": "root",
-        "password": "waketech",
+        "user": "flashcarduser",
+        "password": "Group1!!",
         "database": "flashcard_db",
         "autocommit": True,
         "cursorclass": pymysql.cursors.DictCursor,
