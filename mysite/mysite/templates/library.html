@@ -89,6 +89,7 @@
         <p>Sets: {{ set_count }}/100</p>
         <p>Favorite Sets: <span id="favorite-count">{{ favorite_count }}</span>/100</p>
 
+        <!-- Add New Set Button -->
         <div class="flashcard-sets-list" id="all-sets-list">
             <button class="add-box">
                 <a href="{% url 'create_set' %}">+</a>
@@ -108,7 +109,7 @@
         <!-- All Sets Section -->
         <div id="all-sets-section" class="tab-section active-tab">
             <div class="flashcard-sets-list" id="all-sets-list">
-                <!-- Your existing loop for all flashcard_sets here -->
+                <!-- Flashcard Sets Loop -->
                 {% for flashcard_set in flashcard_sets %}
                 <div class="flashcard-set" id="set-{{ flashcard_set.set_id }}"  
                     data-title="{{ flashcard_set.title|lower }}"
@@ -290,13 +291,14 @@
             const catSection = document.getElementById("category-section");
             const assignedSection = document.getElementById("assigned-sets-section");
             const buttons = document.querySelectorAll(".tab-button");
-    
-            // Hide all
+        
+            // Hide all sections
             allSection.classList.remove("active-tab");
             favSection.classList.remove("active-tab");
             catSection.classList.remove("active-tab");
-    
-            // Show selected
+            assignedSection.classList.remove("active-tab");
+        
+            // Show selected section
             if (tabName === 'all') {
                 allSection.classList.add("active-tab");
             } else if (tabName === 'favorites') {
@@ -305,16 +307,17 @@
                 catSection.classList.add("active-tab");
             } else {
                 assignedSection.classList.add("active-tab");
-                allSection.classList.remove("active-tab");
-                favSection.classList.remove("active-tab");
             }
-    
+        
             // Update tab button states
             buttons.forEach(btn => btn.classList.remove("active"));
             const activeBtn = document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`);
             if (activeBtn) {
                 activeBtn.classList.add("active");
             }
+        
+            // Save the last active tab to localStorage
+            localStorage.setItem("lastActiveTab", tabName);
         }
     
         function searchLibrarySets() {
@@ -382,6 +385,18 @@
         }
     
         document.addEventListener("DOMContentLoaded", function () {
+            // Check if a tab was previously selected
+            const lastActiveTab = localStorage.getItem("lastActiveTab");
+        
+            // If a tab was saved, switch to it
+            if (lastActiveTab) {
+                switchTab(lastActiveTab);
+            } else {
+                // Default to "All Sets" if no tab is stored
+                switchTab('all');
+            }
+        
+            // Set up delete confirmation for all delete buttons
             document.querySelectorAll("form[action*='delete_set']").forEach(form => {
                 form.addEventListener("submit", confirmDeleteSet);
             });
