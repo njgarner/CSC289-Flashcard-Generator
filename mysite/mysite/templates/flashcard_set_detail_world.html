@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <script>
+        (function applySavedColors() {
+            const colors = {
+                "--setcolor": localStorage.getItem("setcolor") || "#84F3DA",
+                "--cardcolor": localStorage.getItem("cardcolor") || "#F4F4F4",
+                "--bordercolor": localStorage.getItem("bordercolor") || "#84F3DA",
+                "--textcolor": localStorage.getItem("textcolor") || "#333333",
+            };
+
+            for (const [variable, value] of Object.entries(colors)) {
+                document.documentElement.style.setProperty(variable, value);
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <title>{{ flashcard_set.title }} - Details</title>
+    <!-- Internal CSS -->
+	<style>
+        .search-form-wrapper {
+            margin: 10px 0;
+        }
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+        #flashcard-search {
+            width: 100%;
+            padding: 8px 8px 8px 36px; 
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .flashcard {
+            background-color: var(--cardcolor); /* Uses the CSS variable */
+            border: 2px solid var(--bordercolor);
+            color: var(--textcolor);
+            display: relative;
+            width: calc(100% - 30px); /* Prevent overflow */
+            margin: 10px 15px; /* Space on all sides */
+            box-sizing: border-box;
+            max-width: 100%;
+            height: auto; /* allow height to grow */
+            flex-direction: column;
+            align-items: center; /* center horizontally */
+            gap: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            justify-content: flex-start;
+            border-radius: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #ccc #f5f5f5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        }
+        .flashcards_list li {
+            margin-bottom: 15px;
+            list-style-position: inside; 
+        }
+        .flashcard-text,
+        .flashcard strong,
+        .flashcard p {
+            margin-bottom: 2px;
+            text-align: center;
+            margin: 0;
+            display: block;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+            font-size: 16px;
+            padding: 5px 0;
+        }
+        .flashcards_list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+            gap: 40px; /* space between cards */
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .title-container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 10px;
+        }      
+        .flashcard_set_title {
+            font-size: 32px;
+            text-align: center;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: break-word; 
+            max-width: 100%;
+            margin: 20px auto;
+        } 
+        .set_content {
+          max-width: 90%;
+          margin: 0 auto;
+          padding: 10px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          line-height: 1.6;
+        }
+        .set_content p {
+          font-size: 18px;
+          margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <a id="back-button"
+        href="{% if request.GET.from == 'library' %}{% url 'library_view' %}
+                {% elif request.GET.from == 'world_sets' %}{% url 'world_sets' %}
+                {% else %}{% url 'library_view' %}{% endif %}"
+        style="margin-left: 10px;">
+        &#8592; Back
+    </a>
+    <div class="title-container">
+        <h1 class="flashcard_set_title">{{ flashcard_set.title }} </h1>
+    </div>
+    <div class="set_content">
+        <p><strong>Description:</strong> {{ flashcard_set.description }}</p>
+        <p><strong>Category:</strong> {{ flashcard_set.category.name }}</p>
+        <p><strong>Created on:</strong> {{ flashcard_set.created_at }}</p>
+        <p>Shared: {% if flashcard_set.is_shared %} Yes {% else %} No {% endif %}</p>
+        <p>Owner: {{ flashcard_set.user.username }}</p>  <!-- This is the creator of the set -->
+    </div>
+
+    <!-- Card Count -->
+    <h2 class="flashcards_set_details">Flashcards in this Set: {{ card_count }}/500</h2>
+
+    <!-- Search Flashcards -->
+    <div class="search-form-wrapper">
+        <div class="search-input-wrapper">
+            <img src="{% static 'magnify.png' %}" alt="Search Icon" class="search-icon">
+            <input type="text" id="flashcard-search" placeholder="Search flashcards...">
+        </div>
+    </div>
+    
+<!-- Flashcard List -->
+<div class="flashcards_list">
+    <p id="no-results-message" style="display:none; text-align:center; font-size:18px; color: gray;">
+      No flashcards found matching search.
+    </p>
+    {% if messages %}
+        <div id="message-container">
+            {% for message in messages %}
+                <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Flashcard loop -->
+    {% for flashcard in flashcards %}
+    <div class="flashcard">
+        <strong>Question:</strong>
+        <div class="flashcard-text">{{ flashcard.question }}</div>
+        <strong>Answer:</strong>
+        <div class="flashcard-text">{{ flashcard.answer }}</div>
+        {% if not is_guest %}
+            {% if flashcard.is_learned %}
+                <strong>Time Until Next Review:</strong> 
+                <span id="review-time-{{ flashcard.id }}" data-review-date="{{ flashcard.next_review_date|date:'c' }}"></span>
+                <strong>Next Review Date:</strong> {{ flashcard.next_review_date|date:'Y-m-d H:i:s' }}
+            {% else %}
+                <strong>Not yet learned</strong>
+            {% endif %}
+        {% endif %}
+        <br>
+    </div>
+{% empty %}
+    <p>No flashcards available in this set.</p>
+{% endfor %}
+</div>
+
+<!-- JavaScript -->
+<script>
+    function timeUntilNextReview(nextReviewDate) {
+        const reviewDate = new Date(nextReviewDate);
+        const now = new Date();
+        const diff = reviewDate - now;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const remainingMinutes = minutes % 60;
+        const remainingHours = hours % 24;
+        let timeString = '';
+
+        if (days > 0) timeString += days + " day" + (days > 1 ? 's' : '') + " ";
+        if (remainingHours > 0) timeString += remainingHours + " hour" + (remainingHours > 1 ? 's' : '') + " ";
+        if (remainingMinutes > 0) timeString += remainingMinutes + " minute" + (remainingMinutes > 1 ? 's' : '');
+
+        if (diff <= 0) {
+            timeString = `-${Math.abs(minutes)} minutes`;
+        }
+
+        return timeString || "Less than a minute";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Update review times
+        document.querySelectorAll('.time-until-next-review').forEach(element => {
+            const reviewDate = element.getAttribute('data-review-date');
+            const timeRemaining = timeUntilNextReview(reviewDate);
+            element.textContent = timeRemaining;
+        });
+
+        document.querySelectorAll('.calculated-time').forEach(element => {
+            const reviewDate = element.textContent;
+            console.log("Calculated time:", reviewDate, "->", timeUntilNextReview(reviewDate));
+        });
+
+        // Toggle edit form
+        const toggleBtn = document.getElementById("toggleEditSetForm");
+        if (toggleBtn) {
+            toggleBtn.addEventListener("click", function () {
+                const form = document.getElementById("editSetForm");
+                if (form) {
+                    form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+                }
+            });
+        }
+
+        document.querySelectorAll('.showFormButton').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const editForm = this.nextElementSibling;
+                const isHidden = (editForm.style.display === 'none' || editForm.style.display === '');
+                editForm.style.display = isHidden ? 'block' : 'none';
+                this.innerHTML = `
+                    <img src="{% static 'pencil.png' %}" alt="Pencil Icon" class="icon"> 
+                    ${isHidden ? 'Hide Edit Form' : 'Edit'}
+                `;
+            });
+        });
+
+        // Auto-hide messages
+        const messageContainer = document.getElementById("message-container");
+        if (messageContainer) {
+            setTimeout(() => {
+                messageContainer.style.display = "none";
+            }, 3000);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Search flashcards live
+        const searchInput = document.getElementById('flashcard-search');
+        const flashcards = document.querySelectorAll('.flashcard');
+
+        if (searchInput && flashcards.length) {
+            searchInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase();
+                let anyVisible = false;
+
+                flashcards.forEach(card => {
+                    const texts = card.querySelectorAll('.flashcard-text');
+                    const question = texts[0]?.textContent.toLowerCase() ?? '';
+                    const answer = texts[1]?.textContent.toLowerCase() ?? '';
+                    const matches = question.includes(query) || answer.includes(query);
+                    card.style.display = matches ? 'block' : 'none';
+                    if (matches) anyVisible = true;
+                });
+
+                const noResultsMessage = document.getElementById('no-results-message');
+                if (noResultsMessage) {
+                    noResultsMessage.style.display = anyVisible ? 'none' : 'block';
+                }
+            });
+        }
+    });
+
+    let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
+    
+        function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+        
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+        
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();  // Reset the inactivity timer
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
+</script>
+</body>
+</html>

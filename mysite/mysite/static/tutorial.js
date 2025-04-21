@@ -1,210 +1,441 @@
-console.log("js loaded");
+console.log("✅ favorite.js loaded");
 
-document.querySelectorAll('.tutorial-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        console.log('Tutorial button clicked');
-        const setId = button.getAttribute('data-set-id');  // Get the data-set-id attribute
-        console.log(setId);  // Log the data-set-id value (for debugging)
+// Button listener to trigger tutorial
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.tutorial-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            console.log("📌 Tutorial button clicked");
 
-        // Check if a tutorial is already active, and remove if so
-        const existingPopupContainer = document.querySelector('.tutorial-popup-container');
-        if (existingPopupContainer) {
-            existingPopupContainer.remove();
-        }
+            const setId = button.getAttribute('data-set-id');
+            console.log("👉 Set ID:", setId);
 
-        // Reset currentPopup index each time a new tutorial is triggered
-        currentPopup = 0;
+            // Remove existing popup
+            const existingPopup = document.querySelector('.tutorial-popup-container');
+            if (existingPopup) existingPopup.remove();
 
-        if (setId === 'create-tutorial') {
-            showTutorialPopup(createTutorials);  // Pass the create tutorials
-        } else if (setId === 'library-tutorial') {
-            showTutorialPopup(libraryTutorials);  // Pass the library tutorials
-        } else if (setId === 'home-tutorial') {
-            showTutorialPopup(homeTutorials);  // Pass the home tutorials
-        }
+            currentPopup = 0;
+
+            if (setId === 'study-tutorial') {
+                showTutorialPopup(studyTutorials);
+            } else if (setId === 'world-tutorial') {
+                showTutorialPopup(worldTutorials);
+            } else if (setId === 'library-tutorial') {
+                showTutorialPopup(libraryTutorials);
+            } else if (setId === 'classroom-student-tutorial') {
+                showTutorialPopup(studentTutorials);
+            } else if (setId === 'classroom-teacher-tutorial') {
+                showTutorialPopup(teacherTutorials);
+            } else if (setId === 'color-tutorial') {
+                showTutorialPopup(colorTutorials);
+            } else if (setId === 'createset-tutorial') {
+                showTutorialPopup(createsetTutorials);
+            }
+        });
     });
 });
 
 let currentPopup = 0;
 
-// Create tutorial steps
-const createTutorials = [
-    { 
-        message: "This is the Create Flashcard page. Here you can create new flashcards for your study sets.", 
-        position: { top: '80px', left: '250%' } // Position can be adjusted here
+// Tutorial Steps
+const studyTutorials = [
+    {
+        message: "This is the Study Time page. This is where you can study and practice your flashcards.",
+        target: "h1.page-title",
+        position: "bottom"
     },
-    { 
-        message: "Use this Dropdown to select which set you want to add the flashcard to.", 
-        position: { top: '140px', left: '495%' } // Position can be adjusted here
+    {
+        message: "This is where your card will be displayed.",
+        target: "#flashcard",
+        position: "top"
     },
-    { 
-        message: "This is where you can add the question to the card.", 
-        position: { top: '250px', left: '460%' } // Position for this step
+    {
+        message: "Select which set you would like to study with this dropdown!",
+        target: "#set-selector",
+        position: "right"
+    }, 
+    {
+        message: "This 'Shuffle' button will take you to a random card in the set.",
+        target: "#rand-button",
+        position: "right"
     },
-    { 
-        message: "This is where you can add the answer to the card.", 
-        position: { top: '600px', left: '460%' } // Position for this step
+    {
+        message: "This 'previous' button will take you to the previous card in the set.",
+        target: "#previous",
+        position: "top"
     },
-    { 
-        message: "Clicking 'Create Flashcard' will add the card to the set.", 
-        position: { top: '810px', left: '430%' } // Position for this step
+    {
+        message: "This 'next' button will take you to the next card in the set.",
+        target: "#next",
+        position: "top"
+    },
+    {
+        message: "This 'Learn' button will test you on the cards once you have gone through them.",
+        target: "#learn-button",
+        position: "right"
+    },
+    {
+        message: "This 'Flip' button will flip the card to show the question or answer.",
+        target: "#flip-button",
+        position: "right"
+    },
+    {
+        message: "This 'Review' button will flip the card to show the question or answer.",
+        target: "#review-button",
+        position: "right"
     }
 ];
-
-// Library tutorial steps
+const worldTutorials = [
+    {
+        message: "This is the World Sets page. Here you can view sets shared by other users.",
+        target: "h2.page-title",
+        position: "bottom"
+    },
+    {
+        message: "The search bar can be used to search for sets!",
+        target: ".clear-btn",
+        position: "right"
+    },
+    {
+        message: "The drop down allows you to filter your search by; title, description, or category.",
+        target: ".clear-btn",
+        position: "right"
+    },
+    {
+        message: "Hit the clear button to clear your search.",
+        target: ".clear-btn",
+        position: "right"
+    },
+    {
+        message: "You can select to display the sets all together or seperated by category.",
+        target: "#cat-btn",
+        position: "right"
+    }
+];
 const libraryTutorials = [
-    { 
-        message: "This is the Library page. Here you can view and manage your flashcard sets.", 
-        position: { top: '80px', left: '150%' } // Position for this step
+    {
+        message: "This is the Library page. Here you can create and view your sets.",
+        target: "h2.page-title",
+        position: "bottom"
     },
-    { 
-        message: "Clicking the '+' button will create a new flashcard set.", 
-        position: { top: '200px', left: '150%' } // Position for this step
+    {
+        message: "The search bar can be used to search for sets in your library.",
+        target: ".clear-btn",
+        position: "right"
     },
-    { 
-        message: "Flashcard sets will be displayed here. You can click on 'view details' to view their contents.", 
-        position: { top: '200px', left: '200%' } // Position for this step
+    {
+        message: "The drop down allows you to filter your search by; title, description, or category.",
+        target: ".clear-btn",
+        position: "right"
     },
-    { 
-        message: "You can display the set on the study time page by clicking 'Study'.❤️♡", 
-        position: { top: '200px', left: '200%' } // Position for this step
+    {
+        message: "Hit the clear button to clear your search.",
+        target: ".clear-btn",
+        position: "right"
     },
-    { 
-        message: "The ♡ button allows you to favorite sets ❤️ and they will appear on the navigation bar.", 
-        position: { top: '200px', left: '200%' } // Position for this step
+    {
+        message: "Sets can be created by clicking this button.",
+        target: ".add-box",
+        position: "right"
     },
-    { 
-        message: "The sets can be printed and deleted using the respective buttons.", 
-        position: { top: '200px', left: '200%' } // Position for this step
+    {
+        message: "You can display all the sets, the favorited sets, or display by category.",
+        target: "#cat-btn",
+        position: "right"
+    },
+    {
+        message: "Sets assigned by a teacher can also be displayed.",
+        target: "#cat-btn",
+        position: "right"
     }
 ];
-
-// Home tutorial steps
-const homeTutorials = [
-    { 
-        message: "This is the Study Time page. This is where you can study and practice your flashcards.", 
-        position: { top: '50px', left: '200%' } // Position for this step
+const studentTutorials = [
+    {
+        message: "This is the Classroom page. Here you can manage the classrooms you are a part of.",
+        target: "h1.page-title",
+        position: "bottom"
     },
-    { 
-        message: "This is where your card will be displayed.", 
-        position: { top: '300px', left: '500%' } // Position for this step
-    },
-    { 
-        message: "Select which set you would like to study with this dropdown!", 
-        position: { top: '120px', left: '420%' } // Position for this step
-    },
-    { 
-        message: "This 'previous' button will take you to the previous card in the set.", 
-        position: { top: '198px', left: '378%' } // Position for this step
-    },
-    { 
-        message: "This 'Random' button will take you to a random card in the set.", 
-        position: { top: '200px', left: '415%' } // Position for this step
-    },
-    { 
-        message: "This 'next' button will take you to the next card in the set.", 
-        position: { top: '200px', left: '442%' } // Position for this step
-    },
-    { 
-        message: "This 'flip' button will flip the card to show the question or answer.", 
-        position: { top: '600px', left: '405%' } // Position for this step
+    {
+        message: "Enter the classroom code provided by the teacher to join the class.",
+        target: "#join-btn",
+        position: "right"
     }
 ];
+const teacherTutorials = [
+    {
+        message: "This is the Classrooms page. Here you can create classrooms to assign sets to your students.",
+        target: "h1.page-title",
+        position: "bottom"
+    },
+    {
+        message: "The search bar can be used to search for classes.",
+        target: ".clear-btn",
+        position: "right"
+    },
+    {
+        message: "The drop down allows you to filter your search by name and description.",
+        target: ".clear-btn",
+        position: "right"
+    },
+    {
+        message: "Hit the clear button to clear your search.",
+        target: ".clear-btn",
+        position: "right"
+    },
+    {
+        message: "Classrooms can be created by clicking this button.",
+        target: ".add-box",
+        position: "right"
+    }
+];
+const colorTutorials = [
+    {
+        message: "This is the customization page. Here you change the colors of your cards and add buttons.",
+        target: "h2",
+        position: "bottom"
+    },
+    {
+        message: "Each element has 2 default colors--The first 2 boxes.",
+        target: "#clearColorsBtn",
+        position: "right"
+    },
+    {
+        message: "You can use the third box under each element to select a color from a color picker.",
+        target: "#clearColorsBtn",
+        position: "right"
+    },
+    {
+        message: "Hitting the 'clear' button resets the colors to default.",
+        target: "#clearColorsBtn",
+        position: "right"
+    }
+];
+const createsetTutorials = [
+    {
+        message: "This is the Create a Set page. This page allows you to create a set with your desired specifications.",
+        target: "h2",
+        position: "bottom"
+    },
+    {
+        message: "Type you set name here.",
+        target: "#title",
+        position: "right"
+    },
+    {
+        message: "Type a category here. When more sets are added to your library they can be grouped by categories.",
+        target: "#category",
+        position: "right"
+    },
+    {
+        message: "Add a description for your set to explain what it is.",
+        target: "#description",
+        position: "right"
+    },
+    {
+        message: "The visibility buttons decide whether the set will be visible on the World Sets page or not.",
+        target: ".radio-group",
+        position: "right"
+    },
+    {
+        message: "Make sure to save your set when your done!.",
+        target: ".button",
+        position: "right"
+    },
+];
 
-// Function to display the tutorial popups based on the tutorial steps passed
-function showTutorialPopup(tutorials) {
-    const popupContainer = document.createElement('div');
-    popupContainer.classList.add('tutorial-popup-container');
-    document.body.appendChild(popupContainer);
-    
-    // Set inline styles for popup container (removed centering logic)
-    popupContainer.style.position = 'fixed';
-    popupContainer.style.zIndex = '9999';
-    popupContainer.style.width = '300px';
-    popupContainer.style.textAlign = 'center';
 
-    showNextPopup(popupContainer, tutorials);
+
+// Inject the CSS styles directly into the document's head
+function injectCSS() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* Popup styles */
+        .tutorial-popup-container {
+            position: absolute;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .tutorial-popup {
+            position: fixed;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            width: 280px;
+            z-index: 10000;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+        }
+
+        .popup-message {
+            margin-bottom: 10px;
+        }
+
+        .next-btn {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #84F3DA;
+            border: none;
+            color: #000;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Triangle pointer styles */
+        .popup-triangle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(0, 0, 0, 0.85); /* Change color as needed */
+        }
+    `;
+    document.head.appendChild(style);
 }
 
-function showNextPopup(popupContainer, tutorials) {
-    if (currentPopup < tutorials.length) {
-        const popup = document.createElement('div');
-        popup.classList.add('tutorial-popup');
-        popup.innerHTML = `
-            <div class="popup-message">
-                <p>${tutorials[currentPopup].message}</p>
-            </div>
-            <button class="next-btn">${currentPopup === tutorials.length - 1 ? 'Close' : 'Next'}</button>
-        `;
-        popupContainer.appendChild(popup);
+// Call injectCSS to add the styles
+injectCSS();
 
-        // Create the triangle and append it to the popup
-        const triangle = document.createElement('div');
-        triangle.classList.add('triangle');
-        popup.appendChild(triangle);
+function showTutorialPopup(tutorials) {
+    const container = document.createElement('div');
+    container.className = 'tutorial-popup-container';
+    document.body.appendChild(container);
 
-        // Set inline styles for the triangle (pointing to the form, for example)
-        triangle.style.position = 'absolute';
-        triangle.style.top = '50%'; // Adjust this to position it where you want
-        triangle.style.left = '-10px'; // Adjust this to make the triangle appear to the left
-        triangle.style.width = '0';
-        triangle.style.height = '0';
-        triangle.style.borderLeft = '10px solid transparent';
-        triangle.style.borderRight = '10px solid transparent';
-        triangle.style.borderTop = '10px solid rgba(0, 0, 0, 0.8)'; // Triangle color
+    container.style.pointerEvents = 'none'; // makes popups non-interactive except for button
+    showNextPopup(container, tutorials);
+}
 
-        // Set inline styles for the individual popup
-        popup.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        popup.style.color = 'white';
-        popup.style.padding = '20px';
-        popup.style.marginBottom = '10px';
-        popup.style.borderRadius = '5px';
-        popup.style.width = '100%';
-        popup.style.boxSizing = 'border-box';
-        popup.style.position = 'absolute'; // Changed from relative to absolute for correct positioning
+function showNextPopup(container, tutorials) {
+    const step = tutorials[currentPopup];
+    const targetElement = document.querySelector(step.target);
 
-        // Dynamically position each popup based on the tutorial data
-        const position = tutorials[currentPopup].position;
+    if (!targetElement) {
+        console.warn("⚠️ Target element not found:", step.target);
+        currentPopup++;
+        if (currentPopup < tutorials.length) {
+            showNextPopup(container, tutorials);
+        } else {
+            container.remove();
+            currentPopup = 0;
+        }
+        return;
+    }
 
-        // Use fixed pixel-based values for top and left
-        const top = position.top || '100px';  // Default to 100px if not specified
-        const left = position.left || '50%';  // Default to 50% horizontally if not specified
+    const rect = targetElement.getBoundingClientRect();
+    console.log(`📐 Positioning popup near: ${step.target}`, rect);
 
-        // Apply the calculated styles
-        popup.style.top = top;
-        popup.style.left = left;
+    const popup = document.createElement('div');
+    popup.className = 'tutorial-popup';
+    popup.innerHTML = `
+        <div class="popup-message">
+            <p>${step.message}</p>
+        </div>
+        <button class="next-btn">${currentPopup === tutorials.length - 1 ? 'Close' : 'Next'}</button>
+    `;
 
-        // Set inline styles for the 'Next' or 'Close' button
-        const nextButton = popup.querySelector('.next-btn');
-        nextButton.style.backgroundColor = '#84F3DA';
-        nextButton.style.color = 'black';
-        nextButton.style.border = 'none';
-        nextButton.style.padding = '10px';
-        nextButton.style.width = '100%';
-        nextButton.style.marginTop = '10px';
-        nextButton.style.cursor = 'pointer';
-        nextButton.style.borderRadius = '5px';
+    // Style the popup
+    popup.style.position = 'fixed';
+    popup.style.zIndex = '10000';
 
-        // Hover effect for the button
-        nextButton.addEventListener('mouseover', function() {
-            nextButton.style.backgroundColor = '#53af9a';
-        });
+    // Add the triangle pointer
+    const triangle = document.createElement('div');
+    triangle.className = 'popup-triangle';
+    popup.appendChild(triangle);
 
-        nextButton.addEventListener('mouseout', function() {
-            nextButton.style.backgroundColor = '#84F3DA';
-        });
+    // Determine the position and adjust the triangle's CSS accordingly
+    if (step.position === 'top') {
+        triangle.style.top = '100%'; // Place the triangle below the box
+        triangle.style.left = '50%';
+        triangle.style.transform = 'translateX(-50%) rotate(0deg)'; // Point the triangle downwards
+    } else if (step.position === 'bottom') {
+        triangle.style.bottom = '100%'; // Place the triangle above the box
+        triangle.style.left = '50%';
+        triangle.style.transform = 'translateX(-50%) rotate(180deg)'; // Point the triangle upwards
+    } else if (step.position === 'left') {
+        triangle.style.left = '100%'; // Place the triangle to the left of the box
+        triangle.style.top = '50%';
+        triangle.style.transform = 'translateY(-50%) rotate(-90deg)'; // Point the triangle to the right
+    } else if (step.position === 'right') {
+        triangle.style.right = '100%'; // Place the triangle to the right of the box
+        triangle.style.top = '50%';
+        triangle.style.transform = 'translateY(-50%) rotate(90deg)'; // Point the triangle to the left
+    }
 
-        // Next/Close button click event
-        nextButton.addEventListener('click', function() {
-            // Remove both the popup and triangle
-            popup.remove();
-            currentPopup++;
-            if (currentPopup < tutorials.length) {
-                showNextPopup(popupContainer, tutorials); // Show next popup
-            } else {
-                popupContainer.remove(); // Remove the popup container when all tutorials are done
-                currentPopup = 0;  // Reset to allow re-triggering of tutorials
-            }
-        });
+    // Style and add button
+    const nextButton = popup.querySelector('.next-btn');
+    nextButton.addEventListener('click', function () {
+        popup.remove();
+        currentPopup++;
+        if (currentPopup < tutorials.length) {
+            showNextPopup(container, tutorials);
+        } else {
+            container.remove();
+            currentPopup = 0;
+        }
+    });
+
+    container.appendChild(popup);
+    requestAnimationFrame(() => {
+        applyPositioning(popup, rect, step.position);
+    });
+
+    function applyPositioning(popup, rect, position) {
+        const padding = 10;
+        const scrollY = window.scrollY;
+        const scrollX = window.scrollX;
+        const popupWidth = popup.offsetWidth;
+        const popupHeight = popup.offsetHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+    
+        // Try to flip position if not enough space
+        const fitsAbove = rect.top >= popupHeight + padding;
+        const fitsBelow = viewportHeight - rect.bottom >= popupHeight + padding;
+        const fitsLeft = rect.left >= popupWidth + padding;
+        const fitsRight = viewportWidth - rect.right >= popupWidth + padding;
+    
+        if (position === 'top' && !fitsAbove && fitsBelow) {
+            position = 'bottom';
+        } else if (position === 'bottom' && !fitsBelow && fitsAbove) {
+            position = 'top';
+        } else if (position === 'left' && !fitsLeft && fitsRight) {
+            position = 'right';
+        } else if (position === 'right' && !fitsRight && fitsLeft) {
+            position = 'left';
+        }
+    
+        let top, left;
+    
+        if (position === 'top') {
+            top = rect.top + scrollY - popupHeight - padding;
+            left = rect.left + rect.width / 2 - popupWidth / 2 + scrollX;
+        } else if (position === 'bottom') {
+            top = rect.bottom + scrollY + padding;
+            left = rect.left + rect.width / 2 - popupWidth / 2 + scrollX;
+        } else if (position === 'left') {
+            top = rect.top + scrollY + rect.height / 2 - popupHeight / 2;
+            left = rect.left - popupWidth - padding + scrollX;
+        } else if (position === 'right') {
+            top = rect.top + scrollY + rect.height / 2 - popupHeight / 2;
+            left = rect.right + padding + scrollX;
+        }
+    
+        // Clamp position so it stays inside viewport
+        top = Math.max(scrollY + padding, Math.min(top, scrollY + viewportHeight - popupHeight - padding));
+        left = Math.max(scrollX + padding, Math.min(left, scrollX + viewportWidth - popupWidth - padding));
+    
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+    
+        // Optional: scroll the popup into view if it's still near bottom
+        const popupRect = popup.getBoundingClientRect();
+        const isClippedBottom = popupRect.bottom > viewportHeight;
+        if (isClippedBottom) {
+            window.scrollBy({ top: popupRect.bottom - viewportHeight + 20, behavior: 'smooth' });
+        }
     }
 }

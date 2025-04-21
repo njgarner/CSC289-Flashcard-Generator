@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign a Quiz - Flashlite{% endblock %}
+
+{% block main %}
+
+{% load static %}
+
+<style>
+    .truncate-text {
+        display: inline-block;
+        max-width: 250px; 
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+    }
+    .set-info {
+        max-width: 100%;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container mt-5">
+    <a href="{% url 'view_classroom' classroom.id %}" class="btn btn-outline-secondary mb-4">&larr; Back to Classroom</a>
+    <h2 class="mb-4">Assign a Quiz for <strong title="{{ classroom.name }}"><span class="truncate-text">{{ classroom.name }}</span></strong></h2>
+
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="border p-4 rounded shadow-sm bg-light">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="title"><strong>Quiz Title</strong></label>
+            <input type="text" name="title" id="title" class="form-control" maxlength="100" placeholder="e.g. Vocabulary Quiz 1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="set_id"><strong>Select Flashcard Set</strong></label>
+            <div class="list-group" id="set-list">
+                {% for set in flashcard_sets %}
+                    <label class="list-group-item d-flex justify-content-between align-items-center">
+                        <input type="radio" name="set_id" value="{{ set.set_id }}" required>
+                        <div class="set-info">
+                            <strong class="truncate-text" title="{{ set.title }}">{{ set.title }}</strong><br>
+                            <small class="truncate-text" title="{{ set.description }}">{{ set.description }}</small>
+                        </div>
+                    </label>
+                {% empty %}
+                    <p class="text-danger">No flashcard sets have been assigned to this classroom yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="due_date"><strong>Due Date</strong> <small class="text-muted">(Optional)</small></label>
+            <input type="datetime-local" name="due_date" id="due_date" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-success">Assign Quiz</button>
+    </form>
+</div>
+{% endblock %}

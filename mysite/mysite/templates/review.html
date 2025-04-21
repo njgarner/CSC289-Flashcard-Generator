@@ -5,32 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review - Flashlite</title>
 
+    <!-- Load static files library -->
     {% load static %}
+
+    <script>
+        (function applySavedColors() {
+            const colors = {
+                "--setcolor": localStorage.getItem("setcolor") || "#84F3DA",
+                "--cardcolor": localStorage.getItem("cardcolor") || "#F4F4F4",
+                "--bordercolor": localStorage.getItem("bordercolor") || "#84F3DA",
+                "--textcolor": localStorage.getItem("textcolor") || "#333333",
+            };
+
+            for (const [variable, value] of Object.entries(colors)) {
+                document.documentElement.style.setProperty(variable, value);
+            }
+        })();
+    </script>
+
+    <!-- Link to the external styles.css file -->
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <style>
-        body {
-            font-family: 'Varela Round', sans-serif;
+        html, body {
             margin: 0;
+            padding: 0;
             height: 100vh;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        body {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: white;
+            font-family: 'Varela Round', sans-serif;
         }
-
         .flashcard-display {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             background-color: white;
-            border-radius: 20px;
-            width: 600px;
-            padding: 20px;
-            position: relative;
+            overflow: hidden;
+            font-family: 'Varela Round', sans-serif;
         }
-
         .nav-button {
             position: absolute;
             top: 10px;
@@ -46,27 +68,24 @@
 
         .flashcard {
             width: 100%;
-            height: 300px;
-            border: 12px solid #84F3DA;
+            max-height: 220px;
             text-align: center;
-            background-color: #f4f4f4;
-            color: #333;
-            border-radius: 20px;
-            padding: 15px;
+            border-radius: 15px;
+            padding: 10px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 24px;
+            align-items: center;
+            flex-grow: 1;
+            overflow: auto;
+            margin: 10px 0;
         }
-
         .answer-container {
-            margin-top: 20px;
+            margin-top: 2vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
         }
-
         .answer-input {
             font-size: 18px;
             padding: 10px;
@@ -76,7 +95,6 @@
             text-align: center;
             margin-bottom: 10px;
         }
-
         .submit-answer {
             padding: 10px 20px;
             background-color: #00A682;
@@ -86,16 +104,18 @@
             font-size: 16px;
             border-radius: 5px;
         }
-
         .submit-answer:hover {
             background-color: #008B5C;
         }
-
         .result {
-            font-size: 20px;
-            margin-top: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            text-align: center;
+            padding: 0 10px;
+            max-width: 100%;
         }
-
         .end-session {
             margin-top: 20px;
             padding: 10px 20px;
@@ -108,17 +128,14 @@
             text-decoration: none;
             text-align: center;
         }
-
         .end-session:hover {
             background-color: darkred;
         }
-
         .complete-message {
             font-size: 24px;
             text-align: center;
             margin-top: 20px;
         }
-
         .return-home {
             padding: 10px 20px;
             background-color: blue;
@@ -129,7 +146,6 @@
             text-align: center;
             margin-top: 20px;
         }
-
         .return-home:hover {
             background-color: darkblue;
         }
@@ -148,7 +164,7 @@
         </div>
 
         <div class="answer-container">
-            <input type="text" id="answer-input" class="answer-input" placeholder="Type your answer here...">
+            <input type="text" id="answer-input" maxlength="200" class="answer-input" placeholder="Type your answer here..." autocomplete="off">
             <button id="submit-answer" class="submit-answer">Submit</button>
             <div id="result" class="result"></div>
         </div>
@@ -252,6 +268,92 @@
     
             updateCardContent();
         });
+
+        let inactivityTimeout;
+        let logoutWarningTimeout;
+
+        setTimeout(() => {
+            document.querySelectorAll(".messages .alert").forEach(alert => {
+                alert.style.display = "none";
+            });
+        }, 3000); // Hide messages after 3 seconds
+    
+        function resetTimer() {
+            // Don't reset the timer if the logout warning is visible
+            if (document.getElementById("logoutWarning")) {
+                return;
+            }
+        
+            clearTimeout(inactivityTimeout);
+            clearTimeout(logoutWarningTimeout);
+        
+            // Start tracking inactivity again
+            inactivityTimeout = setTimeout(showLogoutWarning, 29 * 60 * 1000); // 29 minutes
+        }
+    
+        function showLogoutWarning() {
+            // Remove existing warning if it exists
+            let existingWarning = document.getElementById("logoutWarning");
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+        
+            let warningBox = document.createElement("div");
+            warningBox.id = "logoutWarning";
+            warningBox.innerHTML = `
+                <div class="logout-popup">
+                    <p>You've been inactive for 29 minutes. Do you want to stay logged in?</p>
+                    <button onclick="extendSession()">Yes, Keep Me Logged In</button>
+                    <button onclick="logout()">Logout</button>
+                    <div class="logout-progress-bar"></div>
+                </div>
+            `;
+            document.body.appendChild(warningBox);
+        
+            // Auto-logout after 1 minute if no response
+            logoutWarningTimeout = setTimeout(logout, 60 * 1000);
+        }
+    
+        function extendSession() {
+            let warningBox = document.getElementById("logoutWarning");
+            if (warningBox) {
+                warningBox.remove();
+            }
+            resetTimer();  // Reset the inactivity timer
+        }
+    
+        function logout() {
+            // Create and submit a hidden logout form
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{% url 'logout_user' %}";
+        
+            // CSRF Token
+            let csrfToken = document.createElement("input");
+            csrfToken.type = "hidden";
+            csrfToken.name = "csrfmiddlewaretoken";
+            csrfToken.value = getCSRFToken(); // Get the CSRF token
+        
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Function to get CSRF token from cookies
+        function getCSRFToken() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken'))
+                ?.split('=')[1];
+        }
+    
+        // Reset timer on user activity
+        document.addEventListener("mousemove", resetTimer);
+        document.addEventListener("keydown", resetTimer);
+        document.addEventListener("click", resetTimer);
+        document.addEventListener("scroll", resetTimer);
+    
+        // Start inactivity timer
+        resetTimer();
     </script>    
 </body>
 </html>

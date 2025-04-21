@@ -5,10 +5,18 @@ from .models import Flashcard, FlashcardSet, User
 class FlashcardForm(forms.ModelForm):
     class Meta:
         model = Flashcard
-        fields = ['flashcard_set', 'question', 'answer']  # Add any other fields you need
+        fields = ['question', 'answer'] 
 
-    # Remove the static queryset initialization; it'll be set in the view
-    # flashcard_set = forms.ModelChoiceField(queryset=FlashcardSet.objects.none())  # No longer needed
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['question'].widget.attrs.update({
+            'maxlength': 200,
+            'placeholder': 'Enter question (max 200 characters)',
+        })
+        self.fields['answer'].widget.attrs.update({
+            'maxlength': 200,
+            'placeholder': 'Enter answer (max 200 characters)',
+        })
 
 class ChangePasswordForm(SetPasswordForm):
     class Meta:

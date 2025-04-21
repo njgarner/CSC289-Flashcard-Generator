@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Classroom - Flashlite{% endblock title %}
+
+{% block main %}
+
+{% load static %}
+
+<style>
+    .centered-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 100px); /* Adjust if you have a header/footer */
+        padding: 2rem;
+    }
+
+    .create-classroom-container {
+        width: 100%;
+        max-width: 600px;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .create-classroom-container h1 {
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+</style>
+
+<div class="content">
+    <div class="centered-wrapper">
+        <div class="create-classroom-container">
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <a href="{% url 'classrooms' %}" class="btn btn-outline-secondary mb-4">&larr; Back to Classrooms</a>
+
+            <h1>Create Classroom</h1>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Classroom Name:</label>
+                    <input type="text" id="name" name="name" maxlength="255" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" maxlength="300" rows="4"></textarea>
+                </div>
+
+                <button class="styled-button" type="submit">Create</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main %}
