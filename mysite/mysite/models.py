@@ -138,3 +138,15 @@ class SavedSet(models.Model):
 
     def __str__(self):
         return f"{self.user.username} saved {self.flashcard_set.title}"
+    
+class Reminder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    date_time = models.DateTimeField()
+    email = models.EmailField(blank=True, null=True)
+    email_reminder = models.BooleanField(default=False)
+    notified = models.BooleanField(default=False)  # To prevent duplicate notifications
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"
