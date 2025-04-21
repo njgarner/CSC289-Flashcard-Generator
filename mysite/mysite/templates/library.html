@@ -83,7 +83,7 @@
                 <option value="description">Description</option>
                 <option value="category">Category</option>
             </select>
-            <button onclick="clearLibrarySearch()">Clear</button>
+            <button class="clear-btn" onclick="clearLibrarySearch()">Clear</button>
         </div>
         <br>
         <p>Sets: {{ set_count }}/100</p>
@@ -99,7 +99,7 @@
         <div class="library-tabs">
             <button class="tab-button active" onclick="switchTab('all')">All Sets</button>
             <button class="tab-button" onclick="switchTab('favorites')">Favorites</button>
-            <button class="tab-button" onclick="switchTab('category')">Category</button>
+            <button class="tab-button" id="cat-btn" onclick="switchTab('category')">Category</button>
             {% if assigned_sets %}
             <button class="tab-button" onclick="switchTab('assigned')">Assigned Sets</button>
             {% endif %}
@@ -398,6 +398,6 @@
     <script src="{% static 'print.js' %}"></script>
 
     <!-- Script for Tutorial Function -->
-    <script src="{% static 'tutorial.js' %}"></script>
+    <script src="{% static 'tutorial.js' %}?v=4"></script>
 
 {% endblock main %}

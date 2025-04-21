@@ -4,7 +4,10 @@
  
  
  {% block main %}
+ {% load static %}
  <h2 class="page-title">Create a Set</h2>
+     <!-- Tutorial Button -->
+     <button class="tutorial-btn" data-set-id="createset-tutorial">?</button>
  <div class="content"><!--Provides styling for the content, makes the content go in the middle of space-->
     <!-- Display Messages -->
     {% if messages %}
@@ -46,4 +49,7 @@
      <a href="{% url 'library_view' %}"  id="back-button">&#8592; Go Back</a>
      </div>
  </div>
+
+<!-- Script for Tutorial Function -->
+<script src="{% static 'tutorial.js' %}?v=4"></script>
  {% endblock main %}

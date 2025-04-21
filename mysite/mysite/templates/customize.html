@@ -3,6 +3,7 @@
 {% block title %}Customize - Flashlite{% endblock %}
 
 {% block main %}
+{% load static %}
     <!-- Internal CSS -->
     <style>
       :root {
@@ -93,6 +94,9 @@
       }
     </style>
 
+    <!-- Tutorial Button -->
+    <button class="tutorial-btn" data-set-id="color-tutorial">?</button>
+    
     <!-- Main Content -->
     <div class="content">
         <!-- Left Side: Customize Colors -->
@@ -212,4 +216,7 @@
         document.getElementById("clearColorsBtn").addEventListener("click", resetColors);
       });
     </script>
+
+    <!-- Script for Tutorial Function -->
+    <script src="{% static 'tutorial.js' %}?v=4"></script>
 {% endblock main %}

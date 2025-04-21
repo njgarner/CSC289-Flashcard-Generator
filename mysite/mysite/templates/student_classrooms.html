@@ -7,7 +7,8 @@
 {% load static %}
 
 <h1 class="page-title">Join a Classroom</h1>
-
+    <!-- Tutorial Button -->
+    <button class="tutorial-btn" data-set-id="classroom-student-tutorial">?</button>
     <div class="content">
 
         {% if messages %}
@@ -28,7 +29,7 @@
                 <label for="classroom_code">Classroom Code:</label>
                 <input type="text" id="classroom_code" name="classroom_code" maxlength="10" required placeholder="Enter code"
                        {% if student_class_count >= 50 %}disabled{% endif %}>
-                <button type="submit" class="btn btn-primary"
+                <button type="submit" class="btn btn-primary" id="join-btn"
                         {% if student_class_count >= 50 %}disabled{% endif %}>
                     Join Classroom
                 </button>
@@ -55,4 +56,7 @@
             {% endfor %}
         </div>
     </div>
+
+<!-- Script for Tutorial Function -->
+<script src="{% static 'tutorial.js' %}?v=4"></script>
 {% endblock main %}

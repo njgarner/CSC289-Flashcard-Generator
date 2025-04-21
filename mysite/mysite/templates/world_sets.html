@@ -69,14 +69,14 @@
                 <option value="description">Description</option>
                 <option value="category">Category</option>
             </select>
-            <button onclick="clearWorldSearch()">Clear</button>
+            <button class="clear-btn" onclick="clearWorldSearch()">Clear</button>
         </div>
         <br>
 
 <!-- Tabs -->
 <div class="world-tabs">
     <button class="tab-button active" onclick="switchWorldTab('all')">All Sets</button>
-    <button class="tab-button" onclick="switchWorldTab('category')">Category</button>
+    <button class="tab-button" id='cat-btn' onclick="switchWorldTab('category')">Category</button>
     
 </div>
 
@@ -245,5 +245,8 @@
 
 <!-- Script for Print Function -->
 <script src="{% static 'print.js' %}"></script>
+
+<!-- Script for Tutorial Function -->
+<script src="{% static 'tutorial.js' %}?v=4"></script>
 
 {% endblock main %}

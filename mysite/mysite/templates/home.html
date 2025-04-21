@@ -7,10 +7,10 @@
 {% load static %}
 
 <!-- Main Content Section -->
-<h1 class="page-title">Study Time!</h1>
+<h1 class="page-title" id="1">Study Time!</h1>
 
 <!-- Tutorial Button -->
-<button class="tutorial-btn" data-set-id="home-tutorial">?</button>
+<button class="tutorial-btn" data-set-id="study-tutorial">?</button>
 
 <div class="content">
     {% if messages %}
@@ -281,6 +281,6 @@
     </script>
 
     <!-- Script for Tutorial Function -->
-    <script src="{% static 'tutorial.js' %}"></script>
+    <script src="{% static 'tutorial.js' %}?v=4"></script>
 
 {% endblock main %}

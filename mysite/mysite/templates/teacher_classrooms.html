@@ -38,7 +38,8 @@
 </style>
 
 <h1 class="page-title">Classrooms</h1>
-
+    <!-- Tutorial Button -->
+    <button class="tutorial-btn" data-set-id="classroom-teacher-tutorial">?</button>
 <div class="content">
 
     {% if messages %}
@@ -62,7 +63,7 @@
             <option value="name">Name</option>
             <option value="description">Description</option>
         </select>
-        <button onclick="clearClassroomsSearch()">Clear</button>
+        <button class="clear-btn" onclick="clearClassroomsSearch()">Clear</button>
     </div>
 
     <p>Classrooms: {{ class_count }}/50</p>
@@ -147,4 +148,8 @@ function confirmDeleteClassroom(event) {
     return true;
 }
 </script>
+
+<!-- Script for Tutorial Function -->
+<script src="{% static 'tutorial.js' %}?v=4"></script>
+
 {% endblock main %}
