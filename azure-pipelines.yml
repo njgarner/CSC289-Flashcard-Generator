@@ -20,7 +20,8 @@ stages:
         steps:
           - checkout: self
           - script: |
-              sudo apt install -y python3-pytest python3-pytest-django
+              python -m pip install --upgrade pip
+              pip install django celery pytest pytest-django pandas
               cd mysite/mysite
               pytest
             displayName: 'Run Tests'
