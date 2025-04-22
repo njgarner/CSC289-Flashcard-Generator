@@ -21,7 +21,7 @@ stages:
         steps:
           - checkout: self
           - script: |
-              sudo apt install -y python3-pytest python3-pytest-django
+              sudo apt install -y python3-pytest python3-pytest-django python3-celery python3-pandas python3-pymsql
               cd mysite/mysite
               pytest
             displayName: 'Run Tests'
