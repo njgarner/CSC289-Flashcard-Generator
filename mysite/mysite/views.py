@@ -1668,22 +1668,40 @@ def search_results(request):
         'query': query
     })
 
-def world_sets(request):
-    # Determine if the user is authenticated
+def world_sets(request): 
     is_guest = not request.user.is_authenticated
 
-    # Get recent sets only if the user is logged in
+    favorite_set_ids = []
+    favorite_flashcard_sets = []
+
+    if request.user.is_authenticated:
+        favorite_sets = FavoriteSet.objects.filter(user=request.user)
+        favorite_set_ids = favorite_sets.values_list('set_id', flat=True)
+
+        # Only include shared sets in favorites tab
+        favorite_flashcard_sets = FlashcardSet.objects.filter(
+            set_id__in=favorite_set_ids,
+            is_shared=True
+        ).select_related('user', 'category')
+
     recent_sets = []
     if request.user.is_authenticated:
         recent_ids = request.session.get("recent_sets", [])
         recent_sets = list(FlashcardSet.objects.filter(set_id__in=recent_ids, user=request.user))
         recent_sets.sort(key=lambda x: recent_ids.index(x.set_id))
 
-    # Only public, shared sets with user and category info
-    public_sets = FlashcardSet.objects.filter(is_shared=True).select_related('user', 'category')
+    # All public sets EXCEPT the ones already in favorite_flashcard_sets
+    all_public_sets = FlashcardSet.objects.filter(is_shared=True).exclude(
+        set_id__in=favorite_set_ids
+    ).select_related('user', 'category')
+
+    # Merge non-favorites with favorites to form final all sets (no duplicates)
+    flashcard_sets = list(all_public_sets) + list(favorite_flashcard_sets)
 
     return render(request, 'world_sets.html', {
-        'flashcard_sets': public_sets,
+        'flashcard_sets': flashcard_sets,
+        'favorite_set_ids': favorite_set_ids,
+        'favorite_flashcard_sets': favorite_flashcard_sets,
         'recent_sets': recent_sets,
         'is_guest': is_guest,
     })
