@@ -21,7 +21,7 @@ stages:
         steps:
           - checkout: self
           - script: |
-              sudo apt install -y python3-pytest python3-pytest-django celery
+              sudo apt install -y python3-pytest python3-pytest-django celery pandas
               cd mysite/mysite
               pytest
             displayName: 'Run Tests'
