@@ -42,4 +42,4 @@ def test_user_login(client):
     })
     
     assert response.status_code == 200  # Redirect back to login
-    assert b'Invalid credentials' in response.content
+    assert b'Invalid username or password' in response.content
