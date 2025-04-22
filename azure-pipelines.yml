@@ -1,4 +1,3 @@
-
 # Python Django
 # Test a Django project on multiple versions of Python.
 # Add steps that analyze code, save build artifacts, deploy, and more:
@@ -21,8 +20,7 @@ stages:
         steps:
           - checkout: self
           - script: |
-              python3 -m pip install --upgrade pip
-              pip install django pytest pytest-django celery pandas
+              sudo apt install -y python3-pytest python3-pytest-django
               cd mysite/mysite
               pytest
             displayName: 'Run Tests'
