@@ -98,9 +98,14 @@ Refer to the provided lab materials and documentation for setup guidance.
    
 Install all required files and packages according to the specified versions in the ``requirements.txt`` or relevant setup files.
 
+``pip install -r requirements.txt``
+
 4. **Review Branch Contents**
    
 Explore and analyze the contents of each branch to understand feature development and version differences.
+
+``git checkout main``
+``git pull``
 
 5. **Launch and Use the Framework**
     
@@ -109,111 +114,92 @@ Begin working with the associated software or framework, following project-speci
 
 ## Instructions for connecting to Database
 ### Installing MySQL
-1. Install MySQL Ver 8.x
- 
+
+Download MySQL Installer 8.x:
+MySQL Installer Download
+(Use mysql-installer-community-8.0.41.0.msi)
+
 `` https://dev.mysql.com/downloads/windows/installer/8.0.html ``
 
-``(mysql-installer-community-8.0.41.0.msi)``
+Create a root password — write this down and do not forget it.
 
-2. Create your MySQL **root** password. (Write this password down and **DO NOT** forget it)
+Choose Full Installation during setup and proceed with default options.
 
+After installation, open Command Prompt and connect to MySQL:
 
+`` mysql -u root -p ``
 
-4. Opt for a full installation and follow default install procedures.
-5. Once installed, open your Command Prompt (CMD) and connect to MySQL.
+If you receive an error, ensure your environment variables include:
 
-   `` mysql -u root -p``
+``C:\Program Files\MySQL\MySQL Shell 8.0\bin\``
+``C:\Program Files\MySQL\MySQL Server 8.0\bin\``
 
-     This will prompt you for your **root** password. (Enter password)
-   - If an error is prompted, make sure to set your environment variables under 'path' to include: (MySQL Shell 8.0\bin & MySQL Server 8.0\bin). 
-   - You can check if MySQL installed successfully by running the following Command Prompt:
-   ``mysql --version``
+To verify installation:
+
+`` mysql --version ``
+
  
-   I recommend watching this video, it will make life easier:
+   Recommended Setup Video:
    
    [https://youtu.be/kj_oW8cx6Bs?si=ZjMtV0Dpg8X3Ii1w] 
 
 
-    
-    Alternatively, you can search your Windows Start for:
-
-    ``Edit the system environment variables``
-    
-    Upon opening your system properties, choose:
-    
-    ``Environment Variables...``
-    
-    Select the User Variable called: ``Path`` and then ``New``
-    
-    Add the following paths:
-    
-    ``C:\Program Files\MySQL\MySQL Shell 8.0\bin\``
-    
-    ``C:\Program Files\MySQL\MySQL Server 8.0\bin``
-    
-
-
 ### Connecting to GitHub in CMD
-1. Create directory:
 
-``mkdir c:\code``
+1. Create and navigate to a directory:
 
-2. Go to directory:
+`` mkdir C:\code ``
+`` cd C:\code ``
 
- ``cd c:\code``
+2. Generate a GitHub Personal Access Token:
+GitHub → Settings → Developer Settings → Personal Access Tokens → Generate New Token (Classic)
 
-3. Create a Token(Classic) in GitHub -> Settings -> Developer Settings -> Personal Access Tokens -> Tokens(Classic) -> Generate New Token
-4. After creating a token, return to your Command Prompt:
+3. Clone the repository with your token:
 
-``git clone https://[Token]@github.com/njgarner/CSC289-Flashcard-Generator.git`` 
+`` git clone https://[TOKEN]@github.com/njgarner/CSC289-Flashcard-Generator.git `` 
 
 *(Replace [Token] with your Personal Access Token)*
 
-5. Checkout:
+4. Navigate into the project and pull the latest code:
 
-``git checkout main``
-
-6. Pull:
-
-``git pull``
+`` cd CSC289-Flashcard-Generator 
+   git checkout main 
+   git pull ``
 
 ### Creating and Running Database Schema
-1. In the Command Prompt:
+1. Navigate to the SQL folder:
 
-``cd C:\Code\CSC289-Flashcard-Generator\sql``
+`` cd C:\Code\CSC289-Flashcard-Generator\sql ``
 
-2. Before creating schema, edit create_schema.sql to adjust application username and password:
-
-(Line numbers 2 & 3) 
-
-For Example:
-
-``CREATE USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'waketech';``
-
-``GRANT ALL PRIVILEGES ON flashcard_db.* TO 'root'@'localhost';``
+2. Update create_schema.sql to reflect your MySQL credentials (lines 2 & 3):
+   
+`` CREATE USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_password'; 
+   GRANT ALL PRIVILEGES ON flashcard_db.* TO 'root'@'localhost'; ``
 
 **That is the username and password you are going to put in the setting.py and \_\_init__.py file for Django**
 
-3. Return to Command Prompt
+3. Execute the schema creation:
 
 ``mysql -u root -p < create_schema.sql``
 
-4. This will prompt you for your **root** password (Enter Password)
+4. Enter your root password when prompted.
 
 ### Dropping Database
-1. In the Command Prompt:
+5. From the same SQL directory:
 
-``cd C:\Code\CSC289-Flashcard-Generator\sql``
-
- ``mysql -u root -p < drop_schema.sql``
-
-3. This will prompt you for your **root** password (Enter Password)
-
-4. Make sure to create the database schema again if dropped successfully.
+`` mysql -u root -p < drop_schema.sql ``
+Recreate the schema afterward if dropped.
 
 ## Setting up Django locally
 
-In order to access the MySQL database locally, you have to navigate to the files "settings.py" and "\_\_init__.py" and fill in **YOUR** SQL ``'USER'`` and ``'PASSWORD'`` credentials. 
+1. Open settings.py and __init__.py.
+
+2. Replace the MySQL credentials under the DATABASES configuration with your own:
+
+ `` 'USER': 'root',
+'PASSWORD': 'your_password', ``
+
+Ensure that both files use the same credentials that you set in MySQL and the SQL schema script.
 
 You should have something that resembles the following:
 ___
