@@ -1,19 +1,39 @@
 # CSC289-Flashcard-Generator
 
-## Flashcard Generator Application 
+## Flashlite (Flashcard Generator Application)
+
+Table of Contents
+
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Sections](#sections)
+- [Expectations](#expectations)
+  - [Visual Aid Diagram](#visual-aid-diagram)
+  - [User Instructions](#user-instructions)
+  - [Instructions for connecting to Database](#instructions-for-connecting-to-database)
+  - [Installing MySQL](#installing-mysql)
+  - [Dropping Database](#dropping-database)
+  - [Setting up Django locally](#setting-up-django-locally)
+  - [Install Required Python Packages](#install-required-python-packages)
+- [Local Server Page Links](#local-server-page-links)
+- [AWS Environment](#aws-environment)
 
 ### Project Overview
 
-The following project utilizes an **Agile** approach to software testing and development. This project will serve users/clients by giving them the means of creating their own flashcard decks. The project demonstrates how to properly operate platforms such as **AWS** and **AZURE**. The project will also implement behavior-driven (**BDD**) software development frameworks like **Django**. 
+Flashlite is a web-based flashcard platform developed using an **Agile** methodology, with a strong focus on iterative development, testing, and user feedback. The goal of the project is to empower users—students, educators, and lifelong learners—to easily create, customize, and study their own flashcard sets.
+
+The platform is built using the **Django** framework, incorporating behavior-driven development (**BDD**) practices to ensure features align with real user needs. It also demonstrates practical implementation of cloud technologies, including hosting and deployment on platforms such as **AWS** and **Azure**, ensuring scalability and reliability.
+
+Through this project, we aim to deliver a user-friendly, accessible, and educational tool that highlights modern software development techniques and infrastructure management.
 
 ---
 
-> ### **``Expect to find information and resources for the following:``**
-><br>**BDD**: Behavior-Driven Development
-<br>**TDD**: Test-Driven Development
-<br>**API**: Application Programming Interface
-<br>**CI/CD**: Continuous Integration and Development
-<br>**Django**: Web Application Creation Software
+> ### **``Throughout the Flashlite project, you can expect to find resources, documentation, and practical implementations related to key software development concepts and tools, including:``**
+><br>**BDD**: Structuring development around user behavior and expected outcomes, ensuring features align with user needs.
+<br>**TDD**: Writing tests before implementing functionality to promote clean, reliable, and maintainable code.
+<br>**API**: Implementing and interacting with APIs to support communication between the frontend, backend, and external services.
+<br>**CI/CD**: Automating the testing and deployment pipeline to support rapid, reliable updates.
+<br>**Django**: A robust Python-based web framework used to build and manage the core application structure of Flashlite.
 
 ---
 
@@ -33,10 +53,10 @@ The following project utilizes an **Agile** approach to software testing and dev
 
 ## Features
 
-* Local server powered by Django for testing and learning software tools and techniques.
-* Cloud-based server powered by AWS for deployment and public use. 
-* Comprehensive documentation following **Agile** principles.
-* Resources on relevant software testing frameworks and practices.
+* **Local Development Server:** Powered by Django, enabling hands-on testing, development, and experimentation with modern web application techniques.
+* **Cloud Deployment:** Hosted on a cloud-based server via AWS, providing reliable access for public users and real-world deployment experience.
+* **Agile Documentation:** Thorough and evolving documentation aligned with Agile principles, ensuring transparency, iteration, and collaboration throughout the development lifecycle.
+* **Testing & Framework Resources:** Includes guidance and examples on software testing practices such as **BDD**, **TDD**, and usage of relevant tools to ensure code quality and maintainability.
 
 ## Sections
 | Section | Topic           |
@@ -48,9 +68,11 @@ The following project utilizes an **Agile** approach to software testing and dev
 
 
 ### Expectations
-Identify errors, inconsistencies, or other noteworthy improvements and document them.
-Communicate openly. Notify others of resolved issues and provide feedback.
-Monitor objectives, goals, and overall progress on **GitHub** and **Trello**.
+**Identify and Document Issues:** Actively look for errors, inconsistencies, or areas for improvement, and clearly document them for the team.
+
+**Maintain Open Communication:** Share updates on resolved issues, offer constructive feedback, and stay engaged with team discussions.
+
+**Track Progress:** Regularly monitor project objectives, milestones, and task completion using tools like **GitHub** and **Trello** to ensure alignment.
 
 ## Visual aid diagram:
 ```mermaid
@@ -64,11 +86,25 @@ erDiagram
 
 # User instructions
 
-1. Clone the project to your local machine and configure interpreter.
-2. Reference lab documentation/information.
-2. Download the necessary files, in accordance to their version/dependencies.
-3. Analyze and review branch contents.
-4. Begin using the correlating software or framework.
+1. **Clone the Repository**
+   
+Clone the project to your local machine using Git, and configure your Python interpreter as needed.
+
+2. **Review Lab Documentation**
+   
+Refer to the provided lab materials and documentation for setup guidance.
+
+3. **Download Dependencies**
+   
+Install all required files and packages according to the specified versions in the ``requirements.txt`` or relevant setup files.
+
+4. **Review Branch Contents**
+   
+Explore and analyze the contents of each branch to understand feature development and version differences.
+
+5. **Launch and Use the Framework**
+    
+Begin working with the associated software or framework, following project-specific instructions and best practices.
 
 
 ## Instructions for connecting to Database
@@ -164,7 +200,7 @@ For Example:
 
 4. This will prompt you for your **root** password (Enter Password)
 
-### Dropping Database (For ReRun)
+### Dropping Database
 1. In the Command Prompt:
 
 ``cd C:\Code\CSC289-Flashcard-Generator\sql``
@@ -210,6 +246,8 @@ From the Command Prompt:
 
 ### Start the Service
 ``cd C:\Code\CSC289-Flashcard-Generator\mysite``
+
+``python manage.py makemigrations``
 
 ``python manage.py migrate``
 
