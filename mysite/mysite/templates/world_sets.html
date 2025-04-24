@@ -69,7 +69,7 @@
                 <option value="description">Description</option>
                 <option value="category">Category</option>
             </select>
-            <button onclick="clearWorldSearch()">Clear</button>
+            <button class='clear-btn' onclick="clearWorldSearch()">Clear</button>
         </div>
         <br>
 
@@ -79,7 +79,7 @@
     {% if not is_guest %}
         <button class="tab-button" onclick="switchWorldTab('favorites')">Favorites</button>
     {% endif %}
-    <button class="tab-button" onclick="switchWorldTab('category')">Category</button>
+    <button id='cat-btn' class="tab-button" onclick="switchWorldTab('category')">Category</button>
 </div>
 
 <!-- All Sets Section -->
