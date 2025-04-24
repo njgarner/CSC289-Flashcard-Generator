@@ -489,7 +489,6 @@
                         "X-CSRFToken": getCookie("csrftoken")  // CSRF token for security
                     },
                     body: JSON.stringify({
-                        activity_type: "quiz_completed",  // Type of activity (could be extended to track more activities)
                         time_spent: timeSpent,  // Send the actual time spent in seconds
                         flashcards_completed: flashcards.length  // Number of flashcards completed
                     })

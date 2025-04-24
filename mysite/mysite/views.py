@@ -1074,6 +1074,15 @@ def update_learned_flashcards(request):
             is_learned=True,
             next_review_date=timezone.now() + timedelta(minutes=2)  # Set review time to 2 minutes later
         )
+
+        # Retrieve or create the current user's activity
+        activity, created = UserActivity.objects.get_or_create(user=request.user)
+        
+        # Add the learned flashcards to the activity's learned_cards field (ManyToManyField)
+        activity.learned_cards.add(*flashcards)
+        
+        # Save the user activity
+        activity.save()
         
         # Return success response
         return JsonResponse({"success": True})
@@ -1230,38 +1239,44 @@ def activity_dashboard(request):
         'recent_flashcard': activity.recent_flashcard,
     })
 
+@csrf_exempt
 @login_required
 def update_user_activity(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        activity_type = data.get('activity_type')  # e.g., "quiz_completed"
-        time_spent = data.get('time_spent')  # Time spent in seconds
-        flashcards_completed = data.get('flashcards_completed', 0)  # Number of flashcards completed
+        try:
+            data = json.loads(request.body)
 
-        # Get or create the user activity record
-        activity, created = UserActivity.objects.get_or_create(user=request.user)
+            activity_type = data.get('activity_type')
+            total_questions = data.get('total_questions', 0)
+            time_spent = data.get('time_spent', 0)
 
-        if activity_type == "quiz_completed":
-            # Update fields in the UserActivity model (you can add more fields here as needed)
-            activity.quizzes_completed += 1
-            activity.time_spent += time_spent
-            activity.cards_viewed += flashcards_completed  # You can also track how many flashcards were viewed
+            logger.debug(f"Received activity_type: {activity_type}, total_questions: {total_questions}, time_spent: {time_spent}")
 
-            # Save the updated activity
-            activity.save()
+            # Handling the activity type 'quiz_completed'
+            if activity_type == 'quiz_completed':
+                # Log the activity (e.g., increment quiz completed count)
+                user_activity, created = UserActivity.objects.get_or_create(user=request.user)
 
-            return JsonResponse({"success": True})
-        if activity_type == "home_study":
-            # Update study time and flashcards viewed
-            activity.time_spent += time_spent
-            activity.cards_viewed += flashcards_completed
+                # Increment the quiz completed count
+                user_activity.quizzes_completed += 1
+                user_activity.save()
 
-            activity.save()
-            return JsonResponse({"success": True})
+                # Save the time spent
+                user_activity.time_spent += time_spent
+                user_activity.save()
 
-        return JsonResponse({"success": False, "message": "Invalid activity type"}, status=400)
-    
-    return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
+                logger.debug(f"Updated quizzes_completed: {user_activity.quizzes_completed}, time_spent: {user_activity.time_spent}")
+
+                return JsonResponse({'success': True, 'message': 'Activity updated successfully.'})
+
+            logger.error("Unknown activity type.")
+            return JsonResponse({'success': False, 'message': 'Unknown activity type.'})
+
+        except Exception as e:
+            logger.error(f"Error in update_user_activity: {e}")
+            return JsonResponse({'success': False, 'message': 'An error occurred.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
 @csrf_exempt
 def track_flashcard_time(request):
@@ -1556,7 +1571,6 @@ def start_quiz(request, quiz_id):
     if request.user not in classroom.students.all():
         return HttpResponseForbidden("You are not assigned to this quiz.")
 
-    # Check if the user has already taken the quiz
     existing_result = QuizResult.objects.filter(student=request.user, quiz=quiz).first()
     if existing_result:
         return render(request, 'quiz_result.html', {
@@ -1584,12 +1598,17 @@ def start_quiz(request, quiz_id):
             total=len(flashcards)
         )
 
+        user_activity, created = UserActivity.objects.get_or_create(user=request.user)
+        user_activity.quizzes_completed += 1
+        user_activity.save()
+
         return render(request, 'quiz_result.html', {
             'score': score,
             'total': len(flashcards),
             'classroom': classroom
         })
 
+    # Handle GET request (show quiz form)
     return render(request, 'start_quiz.html', {
         'quiz': quiz,
         'flashcards': flashcards,
