@@ -41,6 +41,7 @@ stages:
               cd /opt/flashcardapp
               python manage.py makemigrations
               python manage.py migrate
+              python manage.py collectstatic --noinput
               sudo systemctl start flashcardapp.service
               sudo systemctl status flashcardapp.service
             displayName: 'Deploy Application'
