@@ -1,3 +1,11 @@
+/* Root variables for color customization */
+:root {
+    --setcolor: #84F3DA;
+    --cardcolor: #F4F4F4;
+    --bordercolor: #84F3DA;
+    --textcolor: #333333;
+}
+
 /* Top bar styles */
 .top-bar {
     background-color: #84F3DA; /* Background color */
@@ -41,6 +49,8 @@
 
 /* Body styles */
 body {
+    margin: 0;
+    padding: 0;
     padding-top: 50px; /* Adds space at the top to avoid overlap with the top bar */
     font-family: 'Varela Round', sans-serif; /* Body font */
     margin: 0; /* Remove default body margin */
@@ -51,20 +61,30 @@ body {
     justify-content: flex-start; /* Start content from the top */
 }
 
+html, body {
+    height: 100%;
+}
+
+.color-bg {
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #b5c6e0, #a1c4fd, #c2e59c, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 /* Main content container styles */
 .content {
     display: flex;             /* Enable flexbox */
     flex-direction: column;    /* Stack content vertically */
-    margin-left: 220px;        /* To the right of the nav bar */
+    margin-left: 200px;        /* To the right of the nav bar */
     padding-top: 40px;         /* To give space below the top bar */
     width: calc(100% - 220px); /* Ensure content area adjusts to the right of the nav bar */
     height: calc(100vh - 50px); /* Take full height minus top bar space */
-}
-
-.page-title{
-    margin-left: 20px; /* To the right of the nav bar */
-    padding-top: 50px; /* To give space below the top bar */
-    padding-left: 220px;
 }
 
 /* Main content buttons */
@@ -90,19 +110,24 @@ body {
 
 /* Left vertical navigation bar */
 .nav-bar {
-    position: fixed; /* Fixed position on the left */
-    left: 0; /* Start visible */
+    overflow-y: auto;            /* Allow vertical scrolling */
+    overflow-x: hidden;          /* Prevent horizontal scrolling */
+    max-height: calc(100vh - 80px); /* assuming header is 80px tall */
+    scrollbar-width: thin;        /* Thin scrollbar */
+    position: fixed;              /* Fixed position on the left */
+    left: 0;                      /* Start visible */
     transition: left 0.3s ease-in-out;
-    top: 80px; /* Space below the top bar */
-    width: 200px; /* Width of the nav bar */
-    background-color: #333; /* Dark background */
-    color: white; /* Text color */
-    padding-top: 20px;
+    top: 80px;                    /* Space below the top bar */
+    width: 200px;                 /* Width of the nav bar */
+    background-color: #333;       /* Dark background */
+    color: white;                 /* Text color */
+    padding-top: 20px;            /* Padding at the top */
     font-family: 'Varela Round', sans-serif; /* Font family */
-    height: calc(100vh - 80px); /* Full height minus top bar */
+    height: calc(100vh - 80px);   /* Full height minus top bar */
     display: flex;
     flex-direction: column;
     align-items: center;
+    z-index: 1;                   /* Keep the nav bar below dropdown */
 }
 
 .nav-bar a {
@@ -145,72 +170,94 @@ body {
     left: -250px; /* Moves it off-screen */
 }
 
-/* Dropdown container */
-.dropdown {
-    position: relative; /* Position relative to the parent */
-    display: inline-block; /* Display as inline block */
+.recent-widget {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
-/* Button that opens the dropdown */
-.dropbtn {
-    color: white; /* Link color */
-    text-decoration: none; /* Remove underline */
-    padding: 15px 20px; /* Padding around the links */
-    width: 100%; /* Make links take full width of nav bar */
-    text-align: center; /* Center text inside links */
-    border-bottom: 1px solid #ddd; /* Add a separator between items */
-    font-size: 18px; /* Font size for the links */
-    background-color: #333; /* Dark background */
+/* Toggle Button */
+.recent-btn {
+    background-color: #333;
+    color: white;
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 16px;
+    gap: 8px;
+    width: 100%;
 }
 
-/* The dropdown content (hidden by default) */
-.dropdown-content {
-    display: none; /* Hide the dropdown content */
-    position: absolute; /* Position it absolutely */
-    background-color: #333; /* Background color */
-    min-width: 160px; /* Minimum width */
-    top: 0; /* Align with the button */
-    left: 100%; /* Open to the right instead of downward */
-    z-index: 1; /* Ensure it stays above other content */
-    white-space: nowrap; /* Prevent text from wrapping */
+.recent-btn:hover {
+    background-color: #555;
 }
 
-/* Links inside the dropdown */
-.dropdown-content a {
-    color: white; /* Text color */
-    padding: 12px 16px; /* Padding around the links */
-    text-decoration: none; /* Remove underline */
-    display: block; /* Make links take full width */
+/* Dropdown Container */
+.recent-dropdown {
+    margin-top: 10px;
 }
 
-/* Change color of dropdown links when hovering */
-.dropdown-content a:hover {
-    background-color: #555; /* Hover effect */
-    color: white; /* Keep text color white */
-}
-
-/* Show the dropdown content when hovering over the dropdown button */
-.dropdown:hover .dropdown-content {
+/* Link Items */
+.recent-link {
+    background-color: #444;
+    color: white;
     display: block;
+    margin: 5px 0;
+    padding: 6px 10px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: left;
 }
 
-.dropdown:hover .dropbtn {
-    background-color: #555; /* Hover effect */
+.recent-link:hover {
+    background-color: #222;
+}
+
+/* Empty State */
+.recent-empty {
+    color: white;
+    font-size: 13px;
+    margin: 5px 0;
 }
 
 /*--------------------------------------------------------- Set Selector ---------------------------------------------------------*/
 
 /* Set Selector Dropdown Style */
 .set-selector-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 220px;
     padding: 8px 12px;
-    font-family: 'Varela Round', sans-serif; /* Font family */
-    font-size: 20px;           /* Font size */
-    color: black;              /* Text color */
-    background-color: #84F3DA; /* Background color */
-    border: 2px solid #00A682; /* Border color */
-    border-radius: 5px;        /* Rounded corners */
-    cursor: pointer;          /* Change cursor to pointer */
-    transition: background-color 0.3s ease; /* Smooth background transition */
+    font-family: 'Varela Round', sans-serif;
+    font-size: 20px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Styling for the truncated title */
+.selected-set-title {
+    display: inline-block;
+    max-width: 140px; 
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 /* Hover effect for Set Selector buttons */
@@ -223,12 +270,24 @@ body {
 #set-selector-content {
     display: none;
     background-color: #f4f4f4; /* Background color */
-    min-width: 200px;
+    min-width: 140px;
     position: absolute;
     border: #00A682;
     border-style: solid;
     z-index: 1;
     text-align: center;
+}
+
+#set-selector-content.visible {
+    display: block;
+}
+
+.selector-shuffle-bar {
+    display: flex;
+    flex-direction: column;  /* Stack items vertically */
+    align-items: center;
+    gap: 16px; /* Adjust the space between the set selector and shuffle button */
+    margin-top: 20px; /* Adjust to your layout */
 }
 
 #set-selector-content a {
@@ -272,19 +331,18 @@ body {
 /*--------------------------------------------------------- Flashcard styles ---------------------------------------------------------*/
 
 .flashcard {
+    background-color: var(--cardcolor);
+    color: var(--textcolor);
+    border: 12px solid var(--bordercolor); /* Combine border style and color */
     width: 600px;
     height: 300px;
-    border: 12px solid #84F3DA;
     text-align: center;
-    line-height: normal; /* Centers the text vertically */
-    background-color: #f4f4f4;
-    color: #333;
-    border-radius: 20px; /* Rounds out the border edges */
-    align-content: center; /* Centers the text to be in the middle of the flashcard */
-    padding-top: 5px;
-    padding-bottom: 15px;
-    padding-left: 10px;
-    padding-right: 10px
+    line-height: normal;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
 }
 
 .flashcard-display {
@@ -367,17 +425,27 @@ body {
     margin-left: 5px; /* Add spacing between text and icon */
 }
 
+.large-icon {
+    width: 64px;
+    height: 64px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
 .patrick-hand-regular {
     font-family: 'Patrick Hand', cursive;
     font-weight: 400;
     font-style: normal;
 }
 
-.flashcard-text { /* Style for the text for the flashcard below the name
-    text-decoration: underline; /* Underlines the flashcard text, used to simulate the lines on actual flashcards */
-    line-height: 1.6; /* Adjusts the height of the line spacing */
-    word-wrap: break-word; /* Used to make the text break when reaching the other side */
-    font-size: 35px; /* Makes the font size bigger or smaller */
+.flashcard-text {
+    word-break: break-word;        /* Break long words or single-character strings */
+    white-space: pre-wrap;         /* Preserve line breaks but allow wrapping */
+    font-size: clamp(16px, 2vw, 24px); /* Responsive font size between 16px and 24px */
+    max-height: 100%;              /* Prevent overflow */
+    overflow-wrap: break-word;     /* Break long words when needed */
+    text-align: center;            /* Optional: for better presentation */
+    padding: 1rem;
 }
 
 .flashcard-display label { /* Styles the label elements in flashcard-display class elements */
@@ -398,6 +466,15 @@ body {
     justify-content: center;
     gap: 15px;
     margin-top: 3px;
+}
+
+#search-favorite {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 .shuffle-container {
@@ -534,6 +611,7 @@ body {
     cursor: pointer;          /* Change cursor to pointer */
     transition: background-color 0.3s ease; /* Smooth background transition */
     text-decoration: none;
+    width: fit-content;
 }
 
 /* Hover effect for back buttons */
@@ -555,8 +633,8 @@ body {
 .add-box {
     width: 200px;
     height: 200px;
-    background-color: #84F3DA; /* Green background */
-    color: black; /* Black text color */
+    background-color: var(--setcolor);
+    color: var(--textcolor);
     font-size: 50px; /* Large font size for the plus symbol */
     display: flex;
     justify-content: center;
@@ -569,16 +647,17 @@ body {
 
 /* hover effect */
 .content .add-box:hover {
-    background-color: #00A682; /* Darker background on hover */
-    color: white; /* Text color changes to white */
-    border-color: #008B5C; /* Darker border on hover */
+    transition: filter 0.3s ease;
+    filter: brightness(80%);
 }
 
 .page-title {
-    text-align: center;
+    text-align: left;
     font-family: 'Varela Round', sans-serif;
-    margin-top: 20px;
     font-size: 60px;
+    margin-left: 10px; /* To the right of the nav bar */
+    padding-top: 50px; /* To give space below the top bar */
+    padding-left: 200px;
 }
 
 .setting-item {
@@ -594,7 +673,7 @@ body {
     color: black;              /* Text color */
     background-color: #84F3DA; /* Background color */
     border: 2px solid #00A682; /* Border color */
-    margin-bottom: 20px;       /* Space between buttons */
+    margin-bottom: 10px;       /* Space between buttons */
     border-radius: 5px;        /* Rounded corners */
     cursor: pointer;          /* Change cursor to pointer */
     transition: background-color 0.3s ease; /* Smooth background transition */
@@ -639,15 +718,15 @@ hr {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjusts to your existing size */
     gap: 20px; /* Space between the cards */
     padding: 20px;
-    justify-items: center; /* Centers each flashcard deck inside the grid cell */
+    justify-items: center; /* Centers each flashcard set inside the grid cell */
 }
 
 /* Style for each flashcard set (buttons) */
 .flashcard-set {
     width: 200px;
     height: 200px;
-    background-color: #84F3DA; /* Green background */
-    color: black; /* Black text color */
+    background-color: var(--setcolor);
+    color: var(--textcolor);
     font-size: 15px; /* Font size for the content */
     display: flex;
     justify-content: center;
@@ -665,11 +744,28 @@ hr {
     word-wrap: break-word;      /* Break long words or URLs */
 }
 
+.truncate-text {
+    width: 100%;
+    max-width: 100%;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.truncate-title {
+    display: inline-block;
+    max-width: 180px; /* adjust as needed based on layout */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
 /* Hover effect */
 .flashcard-set:hover {
-    background-color: #00A682; /* Darker green on hover */
-    color: white; /* Text turns white */
-    border-color: #008B5C; /* Darker border on hover */
+    transition: filter 0.3s ease;
+    filter: brightness(80%);
 }
 
 /* Add this CSS to ensure the hearts are centered inside the button */
@@ -792,7 +888,6 @@ hr {
     background-color: #C62828; /* Darker red on hover */
     color: white;
 }
-
 /* form-content class style */
 .form-content { /* Centers elements to be in the middle of the page */
     margin-left: auto;
@@ -832,28 +927,6 @@ hr {
     border-color: #008B5C; /* Darker border on hover */
 }
 
-/* Style for back buttons */
-#back-button {
-    padding: 10px;
-    font-family: 'Varela Round', sans-serif; /* Font family */
-    font-size: 20px;           /* Font size */
-    color: black;              /* Text color */
-    background-color: #9ebfe9; /* Background color */
-    border: 2px solid #354c99; /* Border color */
-    margin-bottom: 20px;       /* Space between buttons */
-    border-radius: 5px;        /* Rounded corners */
-    cursor: pointer;          /* Change cursor to pointer */
-    transition: background-color 0.3s ease; /* Smooth background transition */
-    text-decoration: none;
-}
-
-/* Hover effect for back buttons */
-#back-button:hover {
-    background-color: #5e8dcc; /* Darker background on hover */
-    color: white; /* Text color changes to white */
-    border-color: #31478f; /* Darker border on hover */
-}
-
 /* Social media link container */
 .social-media-links {
     display: flex;              /* Use Flexbox to arrange the icons horizontally */
@@ -864,7 +937,7 @@ hr {
     left: 0;                    /* Align to the left */
     bottom: 0;                  /* Align to the bottom */
     width: 100%;                /* Full width */
-    background-color: #fff;     /* Background color to make sure it’s not transparent */
+    background-color: #fff;     /* Background color to make sure it is not transparent */
     box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for visual effect */
     z-index: 1000;              /* Ensure it stays above other content */
 }
@@ -911,25 +984,131 @@ hr {
     }
 }
 
-.social-footer {
-    background-color: #f8f9fa;
-    padding: 10px 0;
-    text-align: center;
+/* Scroll to top button */
+.toggle-scroll-btn {
     position: fixed;
-    bottom: 0;
-    width: 100%;
-    border-top: 1px solid #dee2e6;
+    bottom: 10px;
+    right: 20px;
+    z-index: 1100;
+    padding: 10px;
+    background-color: #00A682;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-.social-icons {
+/* Accordion toggle inside footer */
+.footer-accordion-toggle {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+/* Content area that gets collapsed */
+.footer-content {
     display: flex;
-    justify-content: center;
-    gap: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    overflow: hidden;
+    max-height: 300px;
+    opacity: 1;
 }
 
+.footer-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Container for the entire bar */
+.social-footer-custom {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    border-radius: 20px 0 0 20px;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+    transition: width 0.4s ease;
+    width: 260px; /* fully expanded width */
+}
+    
+/* Collapsed state only shows arrow */
+.social-footer-custom.collapsed-horizontal {
+    width: 50px;
+}
+    
+/* Toggle button (remains visible) */
+.footer-accordion-toggle {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #00A682;
+    padding: 10px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+    
+/* Content that slides in and out */
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    flex-grow: 1;
+}
+    
+/* Hide content visually on collapse */
+    .social-footer-custom.collapsed-horizontal .footer-content {
+    opacity: 0;
+    pointer-events: none;
+}
+    
+/* Social icons in a row */
+    .social-icons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+    
 .social-icon {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    padding: 6px;
+    background-color: #f1f1f1;
+    transition: transform 0.2s, background-color 0.2s;
+}
+    
+.social-icon:hover {
+    background-color: #00A682;
+    transform: scale(1.1);
+}
+    
+.rights-text a {
+    text-decoration: none;
+    font-size: 12px;
+    color: #333;
+}
+    
+.rights-text a:hover {
+    color: #00A682;
 }
 
 /* Style for the Tutorial button */
@@ -953,6 +1132,10 @@ hr {
     color: rgb(255, 255, 255);
 }
 
+.form-content .shared-btn #public{
+    height: 100px !important;
+}
+
 #google_translate_element {
     display: inline-block;
     margin-left: 20px;
@@ -961,11 +1144,14 @@ hr {
 /*--------------------------------------------------------- Flashcard Messages ---------------------------------------------------------*/
 
 #message-container {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
     position: fixed; 
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80%; /* Ensure messages don’t exceed the container */
+    width: 80%; /* Ensure messages do not exceed the container */
     max-width: 500px; /* Limit width */
     z-index: 1000; /* Ensure it appears above content */
 }
@@ -988,7 +1174,7 @@ hr {
     text-align: center;
     word-wrap: break-word;
     white-space: normal; /* Allow text to wrap */
-    overflow-wrap: break-word; /* Ensure long words don’t overflow */
+    overflow-wrap: break-word; /* Ensure long words do not overflow */
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for visibility */
 }
 
@@ -1017,6 +1203,7 @@ hr {
     word-wrap: break-word; /* Ensure long messages break properly */
     text-align: center;
     white-space: normal; /* Allow wrapping */
+    font-weight: bold;
 }
 
 .error {
@@ -1036,3 +1223,134 @@ hr {
     color: #c1c808;
     border: 1px solid #d5e6c3;
 }
+
+.truncate-nav {
+    display: inline-block;
+    max-width: 180px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.logout-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logout-popup button {
+    margin: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.logout-progress-bar {
+    height: 6px;
+    background-color: #28a745;
+    width: 100%;
+    border-radius: 4px;
+    animation: countdownBar 60s linear forwards;
+    margin-top: 10px;
+}
+
+@keyframes countdownBar {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Style TTS widget container */
+#ttsWidget {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+} 
+
+/* Style dropdowns inside widget */
+#ttsWidget select,
+#ttsWidget label {
+    color: white;
+    background-color: #333;
+    border: 1px solid #555;
+} 
+
+#ttsWidget select:focus {
+    outline: none;
+    box-shadow: 0 0 3px #84F3DA;
+}
+
+/* Style Read button */
+#ttsBtn {
+    background-color: #84F3DA;
+    color: black;
+    border: none;
+    transition: background-color 0.3s ease;
+} 
+
+#ttsBtn:hover {
+    background-color: #00A682;
+}  
+
+/* TTS toggle button */
+#toggleTTSWidget {
+    background-color: #333;
+    color: white;
+    border: 1px solid #444;
+}
+
+#toggleTTSWidget:hover {
+    background-color: #555;
+}
+
+#ttsControls {
+    background-color: #333;
+    color: white;
+}
+
+#mainContent {
+    flex: 1;
+    width: 100%;
+    padding: 0 20px;
+    text-align: left; /* <-- Important to prevent unintended centering */
+}
+
+.category-header {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.guest-warning-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.guest-warning {
+    color: #c00;
+    margin-bottom: 10px;
+}
+.styled-button {
+    padding: 10px;
+    font-family: 'Varela Round', sans-serif;
+    font-size: 20px;
+    color: black;
+    background-color: #84F3DA;
+    border: 2px solid #00A682;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}  
+.styled-button:hover {
+    background-color: #00A682;
+    color: white;
+    border-color: #008B5C;
+}    

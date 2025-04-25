@@ -4,58 +4,160 @@
 
 {% block main %}
 
-    {% load static %}
+{% load static %}
 
-    <!-- Main Content Section -->
-    <h1 class="page-title"><u>Settings</u></h1>
-    <div class="content">
-        
-        <!-- UserName -->
-        <div class="setting-item">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" value="{{ user|safe }}" readonly>
-        </div>
+<style>
+    .section-divider {
+        margin-top: 30px;
+        margin-bottom: 15px;
+        border-top: 2px solid #ccc;
+        padding-top: 15px;
+    }
 
-        <!-- Email -->
-        <div class="setting-item">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
-        </div>
+    .setting-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
-         <!-- Role -->
-        <div class="setting-item">
-            <label for="role">Role</label>
-            <input type="text" id="role" name="role" value="{{ user.role|safe }}" readonly>
-        </div>
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    /* Toggle switch styling */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0;
+        right: 0; bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px; width: 18px;
+        left: 3px; bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: #00A682;
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+</style>
 
-        <hr>
-
-        <!-- Customize -->
-        <div class="setting-item">
-            <button class="button" onclick="window.location.href='{% url 'customize' %}'">Customize</button>
-        </div>
-        
-        <!-- Change Password -->
-        <div class="setting-item">
-            <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
-        </div>
-        
-        <!-- Reset Password -->
-        <div class="setting-item">
-            <button class="button" onclick="window.location.href='{% url 'password_reset' %}'">Reset Password</button>
-        </div>
-
-        <!-- Delete Account -->
-        <div class="setting-item">
-            <button class="delete-button" onclick="window.location.href='{% url 'account_delete' %}'">
-                <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon"> Delete Account
-            </button>
-        </div>
-
-        <!-- Terms and Conditions -->
-        <br><br><br><br>
-        <footer class="footer">
-            <a href="{% url 'terms' %}">&copy; 2025 FlashLite. All Rights Reserved.</a>
-        </footer>
+<!-- Main Content Section -->
+<h1 class="page-title">Settings</h1>
+<div class="content">
+    
+    <hr>
+    <!-- Section 1: User Info -->
+    <div class="section-title">User Info</div>
+    <div class="setting-item">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" value="{{ user|safe }}" readonly>
     </div>
+
+    <div class="setting-item">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ user.email|safe }}" readonly>
+    </div>
+
+    <div class="setting-item">
+        <label for="role">Role</label>
+        <input type="text" id="role" name="role" value="{{ user.userprofile.role|safe|upper }}" readonly>
+    </div>
+
+    <!-- Section 2: User Tools -->
+    <div class="section-divider">
+        <div class="section-title">User Tools</div>
+        <div class="setting-actions">
+            <div class="setting-item">
+                <img src="{% static 'editIcon.png' %}" alt="Brush Icon" class="large-icon">
+                <button class="button" onclick="window.location.href='{% url 'customize' %}'">Customize</button>
+            </div>
+
+            <div class="setting-item">
+                <img src="{% static 'report.png' %}" alt="Report Icon" class="large-icon">
+                <button class="button" onclick="window.location.href='{% url 'activity_dashboard' %}'">View Activity Reports</button>
+            </div>
+
+            <label for="bg-toggle">Color Background</label>
+            <label class="switch">
+                <input type="checkbox" id="bg-toggle" {% if request.session.color_background %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Section 3: Account Management -->
+    <div class="section-divider">
+        <div class="section-title">Account Management</div>
+        <div class="setting-actions">
+
+           <!-- Password Buttons Row -->
+           <div class="setting-item" style="display: flex; align-items: center; justify-content: flex-start; gap: 20px;">
+                <!-- Change Password -->
+                <div>
+                    <button class="button" onclick="window.location.href='{% url 'change_password' %}'">Change Password</button>
+                </div>
+
+                <!-- Vertical Divider -->
+                <div style="height: 32px; border-left: 2px solid #00A682;"></div>
+
+                <!-- Reset Password -->
+                <div>
+                    <button class="button" onclick="window.location.href='{% url 'password_reset' %}'">Reset Password</button>
+                </div>
+            </div>
+
+            <!-- Delete Account -->
+            <div class="setting-item">
+                <button class="delete-button" onclick="window.location.href='{% url 'account_delete' %}'">
+                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon"> Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const bgToggle = document.getElementById('bg-toggle');
+        bgToggle.addEventListener('change', function () {
+            const isEnabled = this.checked;
+    
+            // Instantly update background visually
+            document.body.classList.toggle('color-bg', isEnabled);
+    
+            // Persist in session via backend
+            fetch("{% url 'toggle_background' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ enabled: isEnabled })
+            }).then(response => {
+                if (!response.ok) {
+                    alert("Failed to update background setting.");
+                }
+            });
+        });
+    </script>
 {% endblock main %}
