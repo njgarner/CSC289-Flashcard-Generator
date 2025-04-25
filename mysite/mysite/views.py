@@ -1353,12 +1353,15 @@ def teacher_classrooms(request):
     classrooms = Classroom.objects.filter(user=request.user)
     return render(request, 'teacher_classrooms.html', {'classrooms': classrooms})
 
-# Student-specific classrooms view
 @login_required
 def student_classrooms(request):
-    # Only students will access this view
     classrooms = Classroom.objects.filter(students=request.user)
-    return render(request, 'student_classrooms.html', {'classrooms': classrooms})
+    student_class_count = classrooms.count()
+    return render(request, 'student_classrooms.html', {
+        'classrooms': classrooms,
+        'student_class_count': student_class_count
+    })
+
 
 @login_required
 def create_classroom(request):
