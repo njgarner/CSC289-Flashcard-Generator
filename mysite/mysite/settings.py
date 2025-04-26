@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a%n88vt#j1mgtipaz^ax)+-c=x2g()$7v3@uu+nl6k!cy(*7%^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -141,3 +142,6 @@ EMAIL_HOST_PASSWORD = "slhs iewn sxzw huyk"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 LOGOUT_REDIRECT_URL = 'login_user'
+
+STATIC_ROOT = BASE_DIR / "mysite/static"
+
