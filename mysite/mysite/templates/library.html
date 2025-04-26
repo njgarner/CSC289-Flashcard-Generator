@@ -83,7 +83,7 @@
                 <option value="description">Description</option>
                 <option value="category">Category</option>
             </select>
-            <button class='clear-btn' onclick="clearLibrarySearch()">Clear</button>
+            <button onclick="clearLibrarySearch()">Clear</button>
         </div>
         <br>
         <p>Sets: {{ set_count }}/100</p>
@@ -100,7 +100,7 @@
         <div class="library-tabs">
             <button class="tab-button active" onclick="switchTab('all')">All Sets</button>
             <button class="tab-button" onclick="switchTab('favorites')">Favorites</button>
-            <button id='cat-btn' class="tab-button" onclick="switchTab('category')">Category</button>
+            <button class="tab-button" onclick="switchTab('category')">Category</button>
             {% if assigned_sets %}
             <button class="tab-button" onclick="switchTab('assigned')">Assigned Sets</button>
             {% endif %}
@@ -257,24 +257,7 @@
                         <a href="{% url 'study_view' flashcard_set.set_id %}" class="study-button">Study</a>
 
                         <div>
-                            <!-- Favorite Button -->
-                            <button class="favorite-btn" data-set-id="{{ flashcard_set.set_id }}">
-                                {% if flashcard_set.set_id in favorite_set_ids %}
-                                    ❤️  <!-- Filled heart if favorited -->
-                                {% else %}
-                                    ♡  <!-- Empty heart if not favorited -->
-                                {% endif %}
-                            </button>
-
                             <button type="submit" class="print-button" data-set-id="{{ flashcard_set.set_id }}">Print</button>
-
-                            <!-- Delete Flashcard Set Form -->
-                            <form action="{% url 'delete_set' set_id=flashcard_set.set_id %}" method="POST" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="delete-button">
-                                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
-                                </button>
-                            </form>
                         </div>
                     </div>
                 {% empty %}
