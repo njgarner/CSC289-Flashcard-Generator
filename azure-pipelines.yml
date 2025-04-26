@@ -43,7 +43,7 @@ stages:
               sudo apt install -y python3-django python3-cryptography python3-pymysql python3-whitenoise
               python manage.py makemigrations
               python manage.py migrate
-              python manage.py collectstatic --noinput
+              sudo python manage.py collectstatic --noinput
               sudo systemctl start flashcardapp.service
               sudo systemctl status flashcardapp.service
             displayName: 'Deploy Application'
