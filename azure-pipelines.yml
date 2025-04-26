@@ -39,7 +39,7 @@ stages:
               sudo chmod -R 755 /opt/flashcardapp
               sudo chown -R flashcardapp:flashcardapp /opt/flashcardapp
               cd /opt/flashcardapp
-              python -m pip install --user flashcardapp -requirements.txt
+              sudo apt install -y python3-django python3-cryptography python3-pymysql python3-whitenoise
               python manage.py makemigrations
               python manage.py migrate
               #python manage.py collectstatic --noinput
