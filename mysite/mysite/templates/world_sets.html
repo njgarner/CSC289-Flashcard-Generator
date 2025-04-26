@@ -195,7 +195,11 @@
 </div>
 
 <script>
+    // Function to switch tabs and store the active tab in localStorage
     function switchWorldTab(tabName) {
+        // Store the active tab in localStorage
+        localStorage.setItem("lastActiveTab", tabName);
+
         const allSection = document.getElementById("all-sets-section");
         const catSection = document.getElementById("category-section");
         const favSection = document.getElementById("favorites-section");
@@ -220,6 +224,17 @@
         }
     }
 
+    // Function to load the last active tab from localStorage on page load
+    document.addEventListener("DOMContentLoaded", function () {
+        const lastActiveTab = localStorage.getItem("lastActiveTab");
+        if (lastActiveTab) {
+            switchWorldTab(lastActiveTab);  // Switch to the last active tab if available
+        } else {
+            switchWorldTab('all');  // Default to 'all' if no active tab is stored
+        }
+    });
+
+    // Function to search through the world sets
     function searchWorldSets() {
         const input = document.getElementById("world-search-input").value.toLowerCase();
         const filterType = document.getElementById("search-filter").value;
@@ -271,6 +286,7 @@
         });
     }
     
+    // Function to clear search and reset filters
     function clearWorldSearch() {
         document.getElementById("world-search-input").value = '';
         document.getElementById("search-filter").value = 'all';
