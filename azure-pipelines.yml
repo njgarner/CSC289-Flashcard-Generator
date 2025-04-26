@@ -37,7 +37,7 @@ stages:
               sudo systemctl stop flashcardapp.service
               sudo rm -rf /opt/flashcardapp/*
               sudo cp -r mysite/* /opt/flashcardapp/
-              sudo chmod -R 755 /opt/flashcardapp
+              sudo chmod -R 775 /opt/flashcardapp
               sudo chown -R flashcardapp:flashcardapp /opt/flashcardapp
               cd /opt/flashcardapp
               sudo apt install -y python3-django python3-cryptography python3-pymysql python3-whitenoise
