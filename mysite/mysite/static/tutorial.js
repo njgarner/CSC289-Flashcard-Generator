@@ -1,13 +1,13 @@
-console.log("✅ favorite.js loaded");
+// console.log("favorite.js loaded");
 
 // Button listener to trigger tutorial
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.tutorial-btn').forEach(button => {
         button.addEventListener('click', function () {
-            console.log("📌 Tutorial button clicked");
+            // console.log("Tutorial button clicked");
 
             const setId = button.getAttribute('data-set-id');
-            console.log("👉 Set ID:", setId);
+            // console.log("Set ID:", setId);
 
             // Remove existing popup
             const existingPopup = document.querySelector('.tutorial-popup-container');
@@ -314,7 +314,7 @@ function showNextPopup(container, tutorials) {
     const targetElement = document.querySelector(step.target);
 
     if (!targetElement) {
-        console.warn("⚠️ Target element not found:", step.target);
+        // console.warn("Target element not found:", step.target);
         currentPopup++;
         if (currentPopup < tutorials.length) {
             showNextPopup(container, tutorials);
@@ -326,7 +326,7 @@ function showNextPopup(container, tutorials) {
     }
 
     const rect = targetElement.getBoundingClientRect();
-    console.log(`📐 Positioning popup near: ${step.target}`, rect);
+    // console.log(`Positioning popup near: ${step.target}`, rect);
 
     const popup = document.createElement('div');
     popup.className = 'tutorial-popup';
