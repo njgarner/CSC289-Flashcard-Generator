@@ -1078,6 +1078,13 @@ def study_view(request, set_id):
         # Count the remaining flashcards that have not been learned yet
         remaining_cards = flashcards.filter(is_learned=False).count()
 
+    else:
+        flashcard_sets = []
+        recent_sets = []
+        favorite_sets = []
+        last_viewed_set = None
+        remaining_cards = 0
+
     return render(request, 'home.html', {
         "flashcard_set": flashcard_set,
         "flashcards": flashcards,
