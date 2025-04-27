@@ -1,32 +1,41 @@
-# Flashcard Generator Test Plan
+# Flashlite (Flashcard Generator) Test Plan
 
 ## Overview
 
-The following will outline how to test our product, including what tools and strategies to use. Expect to find resources, templates, and success criteria for testing specific new features and software. 
+This document outlines how to effectively test the Flashlite product, including recommended tools, testing strategies, and guidelines for validating new features and software updates.
 
+You’ll find:
 
-This document will ensure you make solid test plans and understand the testing phases and developmental processes necessary for delivering a successful product.
+- Clear success criteria for feature testing
 
+- Testing resources and templates
 
-**Remember to test locally first before uploading code to our cloud-based server.**
+- Best practices for writing strong test plans
 
-Please review the **TESTGUIDE.md** document for information on going between servers for testing purposes.
+- Guidance for each testing phase throughout development
+
+Our goal is to ensure consistent, reliable testing that supports a smooth and stable release process.
+
+**Important Reminder:**
+Always test your changes locally before pushing to the cloud-based server.
+
+Pushing untested or broken code to the AWS environment can impact the entire team.
 
 ---
 
 > ## **``Table of Contents``**
 
-> ### <br>*Server Details*: <small>The characteristics of the separate servers</small>
-> ### <br>*Introduction*: <small>General testing information</small>
-> ### <br>*Test Risks / Issues*: <small>Identify and avoid the risks</small>
-> ### <br>*Diagram*: <small>Visual aid on testing processes</small>
+> ### <br>*Server Details*: <small>Characteristics of the local and cloud-based servers</small>
+> ### <br>*Introduction*: <small>Overview of testing goals and responsibilities</small>
+> ### <br>*Test Risks / Issues*: <small>Common risks and how to mitigate them</small>
+> ### <br>*Diagram*: <small>Visual representation of the testing workflow</small>
 
 
-> ### <br>*Testing Scope*: <small>Defines the extent of testing</small>
-> ### <br>*Test Plans / Strategies*: <small>How testing will be conducted</small>
-> ### <br>*Using GitHub*: <small>How to use GitHub for testing purposes</small>
+> ### <br>*Testing Scope*: <small>Defines what will and won’t be tested</small>
+> ### <br>*Test Plans / Strategies*: <small>Approaches, levels, and types of testing to be used</small>
+> ### <br>*Using GitHub*: <small>Instructions for version control and testing collaboration</small>
 
-> ### <br>*Test Case Templates*: <small>Templates for use in making test cases</small>
+> ### <br>*Test Case Templates*: <small>Reusable structures for writing test cases</small>
 
 
 ---
@@ -41,29 +50,30 @@ Please review the **TESTGUIDE.md** document for information on going between ser
 
 
 ## Introduction
-The purpose of the Test Plan for this specific project is to ensure we fulfill the deliverables outlined in our Statement of Required Services (SRS). By referencing the requirements specified in the SRS, we can define what features and software to test and how to test them most effectively.
+The purpose of this Test Plan is to ensure that all project deliverables align with the specifications outlined in the Statement of Required Services (SRS). By referencing the SRS, we can define which features and software components must be tested, as well as identify the most effective testing methods.
 
-The responsibility falls on both the tester and developer. At least one person should test a developer's code locally before allowing it to reach the main branch. In certain circumstances, like when a developer finishes code for a core feature, developers will act as separate testers and test their code. The decision to test code collaboratively is situational. But, a passing unit test always confirms that the code functions as it should.
+Testing is a shared responsibility between developers and testers. Ideally, at least one team member should test each piece of code locally before it is merged into the main branch. In some cases—such as the completion of a core feature—developers may take on the role of testers for their own work. While collaborative testing is encouraged, it is conditional based on the complexity and impact of the update. Ultimately, passing unit tests serve as confirmation that a piece of code performs as expected.
 
-* **Remember** to use the **local server** for **testing** and **learning** code techniques.
+**Always test locally before pushing to the cloud-based server.**
 
+* Use the local server for testing, debugging, and experimenting with new techniques.
 
-* **Remember** to use the **cloud-based server** after local tests **pass**.
+* Use the cloud-based server only after local tests pass successfully.
 
 ## Test Risks / Issues
 
-Here are the risks associated with our test plan and their mitigation strategies.
+The following table outlines potential risks that may impact testing, along with mitigation strategies to address them:
 
-| Test Plan Risk          | Mitigation Strategy                                               |
-| ----------------------- | ----------------------------------------------------------------- |
-| Incomplete Requirements | Specify clear requirements for testing.                           |
-| Inadequate Resources    | Adjust the scope of testing and priortize.                        |
-| Undefined Scope         | Identify the goal and determine the purpose.                      |
-| Overwriting Code        | Utilize Git or other version control software.                    |
-| Insufficient Tools      | Resort to manual testing techniques like exploratory testing.     |
-| Conflicting Code        | Communicate the problem and use version control.                  |
-| Lack of Testing         | Ask team members to test a newly-implemented feature or function. |
-| Delayed Testing         | Work collaboratively and create user stories.                     |
+| Test Plan Risk          | Mitigation Strategy                                                   |
+| ----------------------- | --------------------------------------------------------------------- |
+| Incomplete Requirements | Ensure all testing is guided by clearly defined requirements.         |
+| Inadequate Resources    | Adjust the testing scope and prioritize critical paths.               |
+| Undefined Scope         | Define specific goals and establish clear testing boundaries.         |
+| Overwriting Code        | Use Git and maintain regular commits with clear messages.             |
+| Insufficient Tools      | Apply manual testing methods, such as exploratory testing.            |
+| Conflicting Code        | Use version control tools and communicate effectively with teammates. |
+| Lack of Testing         | Assign another team member to test each newly implemented feature.    |
+| Delayed Testing         | Create user stories and collaborate closely to stay on schedule.      |
 
 ## Diagram:
 ```mermaid
@@ -85,72 +95,84 @@ journey
 
 ## Testing Scope
 
-Here is information regarding the items/features/functions that will be tested, how they'll be tested, when, and who will test them.
+This section outlines the key features and functionalities that are within the scope of this test plan. It includes what will be tested, how it will be tested, when testing is expected to occur, and who is responsible.
 
-**Items not in the scope of this test plan will be listed seperately.**
+**Note:** Items not included in this testing scope will be documented separately.
 
-| Test Item              | Description                            | Date | Responsibility       |
-| ---------------------- | -------------------------------------- | ---- | -------------------- |
-| Deck                   | Test if user can create decks.         | N/A  | Tester & Developer   |
-| Flashcard              | Test if user can create flashcards.    | N/A  | Tester & Developer   |
-| Publishing             | Test if user can publish decks.        | N/A  | Tester               |
-| Navigation             | Test if user can navigate efficiently. | N/A  | Tester               |
-| Pop-ups                | Test if pop-ups function and appear.   | N/A  | Tester               |
+| Test Item              | Description                                              | Date | Responsibility       |
+| ---------------------- | -------------------------------------------------------- | ---- | -------------------- |
+| Set                    | Verify users can create and save new sets.               | N/A  | Tester & Developer   |
+| Flashcard              | Verify users can add flashcards to sets.                 | N/A  | Tester & Developer   |
+| Publishing             | Confirm that sets can be published successfully.         | N/A  | Tester               |
+| Navigation             | Ensure smooth and logical user navigation flow.          | N/A  | Tester               |
+| Pop-ups                | Confirm modals/pop-ups appear and function as expected.  | N/A  | Tester               |
 
 
 ### Test Levels and Test Types / Strategies
 
-Here are the test plans and their strategies that will help prioritize the testing efforts and explain the techniques and approaches necessary for success.
+To ensure a thorough testing process, we apply different test levels and test types, each with a targeted strategy to validate the quality of the product.
 
 | Test Level | Description                                                                      | Strategy                                                 |
 | ---------- | -------------------------------------------------------------------------------  | -------------------------------------------------------- |
-| System     | Tests a complete and fully integrated software product.                          |  Cover all the paths.                                    | 
-| Acceptance | Tests whether it meets user needs and Software Requirements Specification (SRS). |  Determine if it is ready for release.                   |
+| System     | Verifies the entire software system functions as expected.                       | Ensure full end-to-end coverage.                         | 
+| Acceptance | Validates that the system meets business and user requirements as per the SRS.   | Evaluate if the product is release-ready.                |
 
 
-| Test Type  | Description                                              | Strategy                                                     |
-| ---------- | -------------------------------------------------------- | ------------------------------------------------------------ |
-| Functional | Verifies that features and functions work as intended.   | Review and validate each feature.                            |
-| Usability  | Makes the design more user-friendly and intuitive.       | Identify feedback and improve the user experience.           |
-| Regression | Ensures new code has not broken previously working code. | Take a risk-based approach and diagnose high-priority areas. |
+| Test Type  | Description                                                        | Strategy                                                      |
+| ---------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| Functional | Validates that each feature works according to the specifications. | Review implementation against requirements.                   |
+| Usability  | Focuses on design intuitiveness and user satisfaction.	          | Collect feedback and refine the UX/UI.                        |
+| Regression | Ensures that new changes haven’t introduced new bugs.              | Prioritize high-risk areas and retest core functionality. |
 
-There are many things to consider when aiming to test effectively. A well-structured software test case should cover only the functional requirements needed to replicate it. Sometimes, a unit test will be used, and other times, a user story, but all tests need to be documented in some way. 
+A solid testing strategy involves more than just executing test cases. Each test—whether it’s a unit test or part of a **user story**—should be well-documented and traceable to the feature or requirement it validates. Well-structured, repeatable test cases are key to ensuring the reliability of both new and existing functionality.
 
 ## Using GitHub / Git
 
 ### GitHub Issues
-GitHub Issues are a versatile item designed to help, plan, discuss, and track testing. In the repository, you can access GitHub Issues to document bugs or mandate testing for specific code and features. Users can assign these issues to themselves and other specific team members. 
+GitHub Issues are versatile tools designed to help plan, track, and discuss testing. In the repository, you can create Issues to document bugs or flag features that need testing. Users can assign Issues to themselves or others on the team.
 
-GitHub Issues can be read in markup languages like Markdown, meaning that the templates provided in this document will work with GitHub Issues. GitHub Issues can be either open or closed. Open indicates that testing is ongoing, and closed is for finished testing. It is a good idea to inform others when you open a GitHub Issue, especially those assigned to it. 
+Because Issues support Markdown formatting, the templates provided in this document can be pasted directly into an Issue. An Issue should be marked open while testing is ongoing, and closed once testing is complete.
 
-Using this feature before opening a pull request will help expedite the review process. Issues will serve as documentation on which parts of the code are functional. Issues can open and close at any time. If testing has already occurred, you can still create an Issue, documentate, and close.
+* **Tip:** Let your team know when you open an Issue—especially those assigned to it.
+
+Using Issues before opening a pull request helps speed up code reviews and keeps testing transparent. Even after testing is complete, you can retroactively create an Issue for documentation purposes.
 
 ### Git
-Users have several options available to clone from the GitHub repository. The first is to download it as a project. First, navigate to the repository you want to download and use the green 'Code' button to download the entire repository as a zip file. Afterward, you unzip the file on your local machine and extract the contents of the specific folder you need. Another way is to download Git and access Git Bash. Git Bash offers a command line experience from which you do several things. These include cloning an entire repository or a specific branch with written prompts. Check below for steps and commands on how to do it:
+There are multiple ways to access the GitHub repository.
 
-Plain text URL: ```https://git-scm.com/downloads```
+### Option 1: Download as a Zip
+Navigate to the repository
 
-#### Clone an entire repository:
+Click the green Code button
 
-##### Open Git Bash on Windows.
+Select Download ZIP
 
-##### Run the command:
+Unzip the folder on your machine and extract what you need
+
+### Option 2: Use Git Bash
+Download Git Bash
+
+Git Bash gives you a terminal interface to interact with Git.
+
+#### To clone a full repository:
 
 ``
 git clone <repository-url>
 ``
 
-Replace ``<repository-url>`` with the URL of the Git repository you wish to clone. Find this URL on the GitHub repository under the green 'Code' button.
+Replace <repository-url> with the URL found under the Code button on GitHub.
 
-You can clone to a specific directory by specifying the direct name at the end of the command:
+#### To clone to a specific directory:
 
 ``
 git clone <repository-url> <directory>
 ``
 
-Replace ``<directory>`` with your desired directory name or file path. If this directory does not exist, Git will create it for you. 
+Git will create the <directory> if it doesn’t already exist
 
 #### Clone a specific branch:
+
+To clone a specific branch:
 
 Use the ``b`` option with ``git clone``:
 
@@ -158,24 +180,21 @@ Use the ``b`` option with ``git clone``:
 git clone -b <branch-name> <repository-url>
 ``
 
-Replace`` <branch-name>`` with the branch's name you want to clone. 
+Replace ``<branch-name>`` with the name of the branch you want to clone.
 
 ### GitHub DeskTop
 
-The DeskTop app version of GitHub has a GUI interface and assists in performing Git commands without using the command line. It provides an easy and intuitive means for working on a repository hosted on the GitHub website. 
+GitHub Desktop provides a user-friendly GUI to interact with Git and GitHub without needing the command line. It is the recommended tool for managing pull requests, testing branches, and reviewing commits.
 
-GitHub Desktop is the recommended tool, especially when it comes to testing and creating pull requests. More information on using GitHub Desktop for testing is available in the TESTGUIDE.md file. 
+More guidance on using GitHub Desktop for testing can be found in the TESTGUIDE.md file.
 
 Plain text URL: ```https://desktop.github.com/download/```
 
 # Test Case Templates
 
-**The following are templates.** 
+**These are templates.**
 
-Avoid filling out test cases in this document.
-
-You can copy the code for use in testing documentation. 
-
+Please do not fill them out in this document. Instead, copy them into your own testing documentation or GitHub Issues when needed.
 
 
 | Test Item | Description | Date | Responsibility |
