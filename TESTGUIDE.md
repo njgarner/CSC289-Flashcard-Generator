@@ -2,7 +2,7 @@
 
 ## Overview
 
-The following guide will demonstrate how to access the project locally and using a cloud-based server powered by AWS. This guide will explain the differences between the two servers, their testing procedures, and their information.
+This guide outlines how to access the Flashlite project both locally and through a cloud-based server hosted on AWS. It details the key differences between the two environments, the corresponding testing procedures, and relevant information for each setup.
 
 ---
 
@@ -10,7 +10,6 @@ The following guide will demonstrate how to access the project locally and using
 
 > ### <br>*Server Details*: <small>The characteristics of the separate servers</small>
 > ### <br>*Testing Protocol*: <small>Guide to testing and pushing changes</small>
-> ### <br>*Diagram*: <small>Visual aid on server switching</small>
 
 
 > ### <br>*User Instructions*: <small>Directions for accessing local and cloud servers</small>
@@ -30,65 +29,37 @@ The following guide will demonstrate how to access the project locally and using
 |Local|Django|http://127.0.0.1:8000|
 |Cloud|AWS|http://ec2-54-172-119-63.compute-1.amazonaws.com:8000/login_user?next=/home|
 
-
-
 ## Testing Protocol
-Think of the local server as a testing server. Changes you make to the server on your local PC won't affect others. You should ensure the code works locally before pushing it to AWS. On the cloud, we share a site and a database. If someone pushes broken code to the AWS server, **everyone suffers**. 
+Think of the local server as your personal testing environment. Any changes you make locally will only affect your own machine. This is the space to test, debug, and experiment with new code. Always verify that your code works locally before pushing it to the shared cloud server.
 
-We must test things locally before updating the code to cloud/AWS.
+The cloud-based server (AWS) is a shared environment—with a shared site and database. If broken or untested code is pushed here, it can disrupt everyone’s workflow. To maintain stability, only push to AWS after your changes have been fully tested and confirmed to work locally.
 
-If new code makes it to the main branch, it should be because it functions and does not conflict with existing code or cause errors. 
+Code should only reach the main branch when it is functional, error-free, and does not conflict with existing code.
 
-* **Remember** to use the **local server** for **testing** and **learning** code techniques.
+* **Remember** use the **local server** for testing, learning, and developing.
 
 
-* **Remember** to use the **cloud-based server** after local tests **pass**.
-
-### Diagram:
-```mermaid
-sequenceDiagram
-    participant local
-    participant mysite
-    link local: Server @ http://127.0.0.1:8000/
-    link mysite: Server @ http://ec2-54-172-119-63.compute-1.amazonaws.com:8000/home
-    local->> mysite: settings_local.py __init__local.py
-    mysite-->> local: settings.py __init__.py
-    Note right of mysite: Renaming
-    mysite->> local: settings_local.py __init__local.py
-    local-->> mysite: settings.py __init__.py
-```
+* **Remember** use the **cloud server** only after successful local testing.
 
 ## User Instructions
 
-1. Download the 'local' folder from the main branch.
-2. Insert the 'local' folder inside your 'mysite' folder.
-3. Open the files contained within the 'local' folder in a code editor.
-4. Analyze and review code contents.
-5. Begin filling in your local database credentials where directed.
-6. Save the files once you've entered correct MySQL database credentials.
+To run the project correctly, you’ll need to provide your own database credentials. This is done by editing the **__init__.py** and **settings.py** files located in your mysite folder.
 
-### Using Local
-Whenever you want to use the local server. Take the **\_\_init__.py** and **settings.py** files out of the **mysite** folder. 
+### Using Local Server
+Step-by-Step
+1. Open the **__init__.py** and **settings.py** files in the mysite directory using your code editor.
 
-Then, put them in the **local folder**.
+2. Look for the sections that require database configuration (usually under DATABASES in settings.py).
 
-Your **local folder** should now contain **four files**:
+3. Enter your personal MySQL credentials (username, password, host, etc.).
 
-``__init__.py ``
-``__init__local.py ``
-`` settings.py`` 
-`` settings_local.py``
+4. Save the changes.
 
-Put the **__init__local.py** and **settings_local.py** files in the **mysite** folder.
-
-Your **mysite folder** should now contain:
-
-``__init__local.py ``
-``settings_local.py``
-
-Rename the files so they no longer have the word **local**. (\_\_init__.py & settings.py)
+**Important:** These credentials are specific to your machine. If you push them to the repository, the AWS server will crash when trying to use them.
 
 You should follow the same CMD procedures for running a local project:
+
+``py manage.py makemigrations ``
 
 ``py manage.py migrate ``
 
@@ -101,40 +72,37 @@ If successful, you can proceed with using the local server. Doing this will not 
 
 ### Using AWS
 
-You likely won't push the **\_\_init__.py** or **settings.py** files to GitHub. These files will rarely need to experience changes. But, If you were ever going to push these files to GitHub, on their own or in combination with other files, you would need to change the local files back to their AWS versions before doing so.
+Keep your AWS-compatible **settings.py** and **__init__.py** in a backup or version control branch, separate from your local testing configuration.
 
-When you want to return to the AWS server, rename the files to include local again:
+Before pushing these files **(if ever needed)**, make sure they contain the correct AWS database credentials.
 
-``__init__local.py ``
-``settings_local.py ``
-
-Now, the files can go to the **local folder**, which should have **four files** again.
-
-``__init__.py ``
-``__init__local.py ``
-`` settings.py`` 
-`` settings_local.py``
+Double-check every push using **GitHub Desktop** to avoid breaking the cloud server.
 
 The original **AWS** files should go in the **mysite** folder.
 
-| Folder (mysite)| Folder (local)     |
-| -------------- | ------------------ |
-| \_\_init__.py  | \_\_init__local.py |
-| settings.py    | settings_local.py  |
-
-Now, uploading these files won't cause errors with the AWS server. When you need to test again, revisit the **Using Local** section and repeat the process to get back to the local server.
 
 ### Using GitHub Desktop
 
+GitHub Desktop allows you to selectively push changes. Here’s how to avoid accidentally pushing sensitive credentials:
+
+1. After committing your changes locally, open GitHub Desktop.
+
+2. Review the changed files—you’ll see a list of everything modified.
+
+3. Uncheck settings.py and __init__.py if they contain your personal database info.
+
+4. Only push safe, non-sensitive code to the remote repository.
+
+ **Push:** feature updates, bug fixes, frontend improvements, etc.
+ **Don’t push:** personal database settings or any files with hardcoded local credentials.
+
 # Database Templates
 
-**The following is a record.** 
+This section serves as a **backup and reference.**
 
-**Treat this as a precautionary measure only.**
+Use it only as a **precaution** in case original database credentials are lost, overwritten, or misconfigured.
 
-In case the original database code is overwritten, lost, or altered.
-
-You can find the code for the cloud and local database below. 
+Below are the credential templates for both the local and AWS cloud databases.
 
 ## Django / Local Database
 
