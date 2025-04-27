@@ -1,4 +1,4 @@
-# Flashcard Generator User Guide
+# Flashlite (Flashcard Generator) User Guide
 
 ## Scope & Overview
 
@@ -25,7 +25,7 @@ The following guide will provide instructions for using our software/system, des
 ## Introduction
 **1.1 Intended use and unintended use**
 
-FlashLite is an interactive, free-to-use website intended for creating, storing, and sharing decks of flashcards. The website should be accessed on a desktop, from a browser, through a URL. Anyone can use the site, though it is purposefully designed with students and instructors in mind.
+FlashLite is an interactive, free-to-use website intended for creating, storing, and sharing sets of flashcards. The website should be accessed on a desktop, from a browser, through a URL. Anyone can use the site, though it is purposefully designed with students and instructors in mind.
 
 This website should be used to:
 >* Create and share appropriate, informative flashcard decks suitable for learning.
@@ -44,13 +44,13 @@ This website may only be used according to its instructions as defined in this g
 
 **1.2 General working principle**
 
-This website's online platform is designed to help users study through interactive flashcard tools and allow them to create their decks and study sets to enhance their learning experience.
+This website's online platform is designed to help users study through interactive flashcard tools and allow them to create their sets and study sets to enhance their learning experience.
 
-The digital flashcard system can create curriculums, goals, and instructional methods on various topics by allowing users to design their cards. Users can access and utilize these decks and share them for others on the platform to see and use. 
+The digital flashcard system can create curriculums, goals, and instructional methods on various topics by allowing users to design their cards. Users can access and utilize these sets and share them for others on the platform to see and use. 
 
 There are two ways to learn and interact with this website:
-- Creating your decks of flashcards for personal use or sharing.
-- Utilizing the public library of decks other users have created and shared.
+- Creating your sets of flashcards for personal use or sharing.
+- Utilizing the public library of sets other users have created and shared.
 
 ### Process
 **2.1 How to navigate and utilize the site features**
@@ -59,15 +59,17 @@ To traverse the site, users have access to a navigational bar. This bar is avail
 
 These pages include:
 
-- *Home* - Also known as 'Study Time', this page automatically displays cards from the user's favorite decks.
+- *Home* - Also known as 'Study Time', this page automatically displays cards from the user's recent sets.
 
-- *Create Flashcards* - This page allows users to create and customize their flashcards and decks.
+- *Create Flashcards* - This page allows users to create and customize their flashcards and sets.
 
-- *The Library* - In the library, users can find their decks and the decks other users have published to the site. Users can edit and manage their decks and flashcards from this page.
+- *The Library* - In the library, users can find their sets. Users can edit and manage their dsets and flashcards from this page.
+
+- *World Sets* - Here users can find sets that other users have published to the site.
 
 - *Settings* - Users can access settings to change their passwords, delete their accounts, view their credentials, and make other account configurations. 
 
-- *Favorite Decks* - The user's favorite decks will appear in this drop-down menu. It conveniently lets them quickly access a deck from their favorites without searching for it in the library. 
+- *Recent sets* - The user's recent sets will appear in this drop-down menu. It conveniently lets them quickly access a set they recently accessed without searching for it in the library. 
 
 - *Contact* - Users can contact support and find links to all the site's social media accounts and services.
 
@@ -108,18 +110,17 @@ flowchart TD
 
 The key aspects of FlashLite's workflow:
 
-> - **Creating a deck:** Starting by adding a title, category, and description, users can create a deck for holding flashcards.
+> - **Creating a set:** Starting by adding a title, category, and description, users can create a set for holding flashcards.
 > - **Adding flashcards:** Whether terms and definitions or questions and answers, users can name their flashcards and customize the front and back sides of their cards.
-> - **Organizing and favoriting decks:** Arrange decks into categories and favorite decks to easily reference them later.
-> - **Studying with different modes:** Choose from multiple-choice options or practice writing answers.
-> - **Reviewing progress and proficiency:** Track your performance with statistics like proficiency, and identify areas requiring further study.
-> - **Sharing decks with other users:** Users can make their decks public from the library so other users can engage with them and collaboratively learn. 
+> - **Organizing and favoriting sets:** Arrange sets into categories and favorite sets to easily reference them later.
+> - **Reviewing progress and proficiency:** Track your performance with statistics, and identify areas requiring further study.
+> - **Sharing sets with other users:** Users can make their sets public from the library so other users can engage with them and collaboratively learn. 
 
 
 ```mermaid
 erDiagram
-    DECK ||--o{ USER : creates
-    DECK {
+    SET ||--o{ USER : creates
+    SET {
         VARCHAR(100) title
         INT_NOT_NULL category_id
         TEXT description
@@ -132,7 +133,7 @@ erDiagram
         VARCHAR(255) password_hash "Only 255 characters are allowed"
         TIMESTAMP created_at
     }
-    DECK ||--o{ FLASHCARD : contains
+    SET ||--o{ FLASHCARD : contains
     FLASHCARD {
         INT set_id
         INT_NOT_NULL user_id
@@ -148,7 +149,7 @@ erDiagram
 ```
 ```mermaid
 erDiagram
-    USER ||--o{ DECK : creates
+    USER ||--o{ SET : creates
     USER {
         VARCHAR(50) username 
         VARCHAR password
@@ -156,8 +157,8 @@ erDiagram
         VARCHAR(255) password_hash
         TIMESTAMP created_at
     }
-    DECK ||--|{ FLASHCARD : contains
-    DECK {
+    SET ||--|{ FLASHCARD : contains
+    SET {
         VARCHAR(100) title
         INT_NOT_NULL category_id
         TEXT description
@@ -183,30 +184,28 @@ Step 1. Open a browser and access the site's URL.
 
 Step 2. Existing users log in. New users sign up.
 
-Step 3. Access the flashcard deck creation tool to create a deck.
+Step 3. Access the flashcard set creation tool to create a deck.
 
-Step 4. Create and fill your deck with individual flashcards.
+Step 4. Create and fill your set with individual flashcards.
 
-Step 5. Share your deck with other users or begin studying.
+Step 5. Share your set with other users or begin studying.
 
 ### Conventions
 **5.1 Formatting decks and flashcards**
 
-Decks consist of three main pieces of information: A deck name, category, and description.
+Sets consist of three main pieces of information: A set name, category, and description.
 
-Deck names should be unique and are the main source of identification for your deck. It is not possible to have decks with the same name. 
+Set names should be unique and are the main source of identification for your set. It is not possible to have sets with the same name. 
 
-The category classifies your deck by subject, concept, or other means. Decks are grouped based on whether or not they share a category. 
+The category classifies your set by subject, concept, or other means. Sets are grouped based on whether or not they share a category. 
 
-The description is an optional means for describing the contents of your deck at length. Descriptions should be relevant to their deck's contents.
+The description is an optional means for describing the contents of your set at length. Descriptions should be relevant to their set's contents.
 
 Flashcards consist of three main pieces of information: A flashcard name, a question, and an answer.
 
-Flashcard names should be unique and are the main source for identifying your flashcards. Cards in the same deck cannot share a name.
+Flashcard names should be unique and are the main source for identifying your flashcards. Cards in the same set cannot share a name.
 
 The question section of a flashcard is for posing a question, query, or other answerable statement. 
-
-The answer section of a flashcard can have multiple correct and incorrect answers. Answer sections can be in multiple-choice format or allow the user to type a single response.
 
 ## Errors & Malfunctions
 
