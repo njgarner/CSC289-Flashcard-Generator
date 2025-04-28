@@ -212,3 +212,18 @@ The question section of a flashcard is for posing a question, query, or other an
 **6.1 Things to avoid**
 
 Existing users should not attempt to create additional accounts using the same email.
+
+## User Stories
+
+1. As a new user, I want to create an account quickly, so that I can start building flashcards without delay.
+2. As a returning user, I want to log into my account easily, so that I can access and manage my sets.
+3. As a student, I want to create custom sets with flashcards, so that I can study specific topics I'm learning in class.
+4. As an instructor, I want to share my flashcard sets publicly, so that my students can use them for learning.
+5. As a user, I want to favorite sets, so that I can quickly access the ones I study most often.
+6. As a user, I want to organize my sets into categories, so that I can keep my study materials structured and easy to find.
+7. As a user, I want to edit and delete flashcards within a set, so that I can keep my information accurate and up-to-date.
+8. As a user, I want to see my study statistics, so that I can track my proficiency and identify areas for improvement.
+9. As a user, I want to contact support if I encounter any technical issues so that I can quickly resolve my problems and keep studying.
+10. As a user, I want to change my account settings (like password or account deletion), so that I have control over my personal information.
+11. As a guest, I want to browse public sets, so that I can study without needing an account immediately.
+12. As a user, I want an intuitive navigation bar on every page, so that I can easily find any section of the site.
