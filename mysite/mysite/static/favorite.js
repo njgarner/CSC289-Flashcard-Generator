@@ -1,52 +1,57 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Loop through each favorite button
-    document.querySelectorAll('.favorite-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            let setId = this.dataset.setId; // Get set ID from button's data attribute
+    const favList = document.getElementById("favorites-sets-list");
+    const allList = document.getElementById("all-sets-list");
 
-            fetch(`/toggle_favorite/${setId}/`, {  // Send AJAX request to backend
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": getCSRFToken(),  // Get CSRF token
-                    "Content-Type": "application/json"
-                },
-                credentials: "same-origin"
-            })
-            .then(response => response.json()) // Parse JSON from response
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);  // Alert user if max favorites reached
-                } else {
-                    // Toggle button state
-                    this.classList.toggle("favorited", data.favorited);
-                    this.innerHTML = data.favorited ? "❤️" : "♡";  // Match original design
+    function handleFavoriteClick(event) {
+        const button = event.currentTarget;
+        const setId = button.dataset.setId;
 
-                    console.log("Favorite count before update:", document.getElementById("favorite-count").textContent);
-                    console.log("New favorite count:", data.favorite_count);
+        fetch(`/toggle_favorite/${setId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken(),
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin"
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
 
-                    // Update the favorite count dynamically
-                    document.getElementById("favorite-count").textContent = data.favorite_count;
+            button.innerHTML = data.favorited ? "❤️" : "♡";
+            document.getElementById("favorite-count").textContent = data.favorite_count;
 
-                    // Update dropdown text dynamically without reloading
-                    if (data.last_viewed_set) {
-                        let setSelector = document.getElementById("set-selector");
-                        if (setSelector) {
-                            setSelector.innerText = data.last_viewed_set + " ▼";
-                        }
-                    }
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
-    });
+            const setElement = document.getElementById(`set-${setId}`);
+
+            if (data.favorited) {
+                const clone = setElement.cloneNode(true);
+                clone.id = `set-${setId}`; // ensure ID is consistent
+                favList.appendChild(clone);
+                attachFavoriteHandler(clone.querySelector('.favorite-btn'));
+            } else {
+                const favSet = favList.querySelector(`#set-${setId}`);
+                if (favSet) favSet.remove();
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function attachFavoriteHandler(button) {
+        button.addEventListener('click', handleFavoriteClick);
+    }
+
+    // Attach to initial buttons
+    document.querySelectorAll('.favorite-btn').forEach(attachFavoriteHandler);
 });
 
-// Function to get CSRF token from cookies (Required for Django POST requests)
 function getCSRFToken() {
-    let cookies = document.cookie.split("; ");
+    const cookies = document.cookie.split("; ");
     for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].split("=");
-        if (cookie[0] === "csrftoken") return cookie[1];
+        const [name, value] = cookies[i].split("=");
+        if (name === "csrftoken") return value;
     }
     return "";
 }

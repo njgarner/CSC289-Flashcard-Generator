@@ -145,3 +145,13 @@ LOGOUT_REDIRECT_URL = 'login_user'
 
 STATIC_ROOT = BASE_DIR / "mysite/static"
 
+# Celery Configuration
+CELERY_BROKER_URL = 'sqs://'
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'region': 'us-east-1',  # Change to your AWS region
+    'queue_name_prefix': 'celery-',  # Optional: Add a prefix for your queue
+}
+CELERY_RESULT_BACKEND = 'django-db'  # Optional: Store task results in your database
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE

@@ -17,9 +17,9 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from . import views
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,12 +28,20 @@ urlpatterns = [
     path('signup_user', views.signup_user, name="signup_user"),
     path("user_login/", views.user_login, name="user_login"),
     path('create_set/', views.create_set, name='create_set'),
+    path('world_sets/', views.world_sets, name='world_sets'),
+    path('search/', views.search_results, name='search_results'),
     path('account_delete', views.account_delete, name="account_delete"),
     path('delete_account', views.delete_account, name="delete_account"),
     path('delete_set/<int:set_id>/', views.delete_set, name='delete_set'),  # Ensure consistency here
+    path('library/export/', views.export_card_set, name='export_flashcards'),
     path('library/', views.library_view, name="library_view"),
     path('settings/', views.settings, name="settings"),
+    path("toggle_background/", views.toggle_background, name="toggle_background"),
     path('schedule/', views.schedule, name="schedule"),
+    path("api/create-reminder/", views.create_reminder, name="create_reminder"),
+    path("api/due-reminders/", views.due_reminders, name="due_reminders"),
+    path("get-reminders/", views.get_reminders, name="get_reminders"),
+    path("delete-reminder/", views.delete_reminder, name="delete_reminder"),
     path("send-reminder-email/", views.send_reminder_email, name="send_reminder_email"),
     path('customize/', views.customize, name="customize"),
     path('flashcard-set/<int:set_id>/', views.view_flashcard_set, name='view_flashcard_set'),  # Detailed view URL
@@ -41,7 +49,7 @@ urlpatterns = [
     path('about/', views.about, name="about"),
     path('terms', views.terms, name="terms"),
     path('', include("django.contrib.auth.urls")),
-    path('create_flashcard/', views.create_flashcard, name='create_flashcard'),
+    path('create_flashcard/<int:set_id>/', views.create_flashcard, name='create_flashcard'),
     path("activate/<uidb64>/<token>/", views.activate_account, name="activate_account"),
     path("toggle_favorite/<int:set_id>/", views.toggle_favorite, name="toggle_favorite"),
     path('favorites/', views.favorite_sets, name='favorite_sets'),
@@ -59,6 +67,30 @@ urlpatterns = [
     path('update_flashcard_level/<int:card_id>/<str:action>/', views.update_flashcard_level, name='update_flashcard_level'),
     path('mark_flashcard_as_learned/<int:card_id>/', views.mark_flashcard_as_learned, name='mark_flashcard_as_learned'),
     path('update_flashcard_review/<int:card_id>/', views.update_flashcard_review, name='update_flashcard_review'),
+    path('activity-dashboard/', views.activity_dashboard, name='activity_dashboard'),
+    path('update-user-activity/', views.update_user_activity, name='update_user_activity'),
+    path('reset-user-activity/', views.reset_user_activity, name='reset_user_activity'),
+    path('update_flashcard_review/<int:flashcard_id>/', views.mark_flashcard_as_learned, name='mark_flashcard_as_learned'),
+    path('track_flashcard_time/', views.track_flashcard_time, name='track_flashcard_time'),
+    path('track-time-spent/', views.track_time_spent, name='track_time_spent'),
+    path('classrooms/create/', views.create_classroom, name='create_classroom'),
+    path('classrooms/<int:classroom_id>/', views.view_classroom, name='view_classroom'),
+    path('classrooms/<int:classroom_id>/delete/', views.delete_classroom, name='delete_classroom'),
+    path('classrooms/', views.classrooms_view, name='classrooms'),  # Combined view for teachers and students
+    # Teacher and student-specific views
+    path('teacher_classrooms/', views.teacher_classrooms, name='teacher_classrooms'),  
+    path('student_classrooms/', views.student_classrooms, name='student_classrooms'),  
+    # Classroom joining
+    path('join-classroom/', views.join_classroom, name='join_classroom'),
+    # Classroom actions
+    path('classrooms/<int:classroom_id>/assign_flashcard_sets/', views.assign_flashcard_sets, name='assign_flashcard_sets'),  # Path for assigning flashcard sets to classrooms
+    path('classrooms/<int:classroom_id>/assign_flashcard_sets/', views.assign_flashcard_sets, name='assign_flashcard_sets'),
+    path('classrooms/<int:classroom_id>/assign_quiz/', views.assign_quiz, name='assign_quiz'),
+    path('quiz/<int:quiz_id>/delete/', views.delete_quiz, name='delete_quiz'),
+    path('quiz/<int:quiz_id>/start/', views.start_quiz, name='start_quiz'),
+    path('quiz-result/<int:result_id>/toggle-grade/', views.toggle_grade_status, name='toggle_grade_status'),
+    path('classroom/<int:classroom_id>/student/scores/<int:student_id>/', views.student_scores, name='student_scores'),
+    path('classroom/<int:classroom_id>/student/<int:student_id>/unenroll/', views.unenroll_student, name='unenroll_student'),
     path('change_password/', views.change_password, name='change_password'),
     path('password_change_done/', views.password_change_done, name='password_change_done'),
     path('password_reset/', views.CustomPasswordResetView.as_view(), name='password_reset'), 
@@ -73,4 +105,3 @@ urlpatterns = [
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
 ]
-
