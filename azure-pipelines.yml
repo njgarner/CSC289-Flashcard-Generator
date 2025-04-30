@@ -47,4 +47,3 @@ stages:
               sudo systemctl start flashcardapp.service
               sudo systemctl status flashcardapp.service
             displayName: 'Deploy Application'
-
