@@ -40,7 +40,7 @@ stages:
               sudo chmod -R 775 /opt/flashcardapp
               sudo chown -R flashcardapp:flashcardapp /opt/flashcardapp
               cd /opt/flashcardapp
-              sudo apt install -y python3-django python3-cryptography python3-pymysql python3-whitenoise
+              sudo apt install -y python3-django python3-cryptography python3-pymysql python3-whitenoise python3-pandas
               python manage.py makemigrations
               python manage.py migrate
               sudo python manage.py collectstatic --noinput
