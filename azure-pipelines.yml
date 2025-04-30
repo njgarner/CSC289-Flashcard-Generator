@@ -21,16 +21,12 @@ stages:
         steps:
           - checkout: self
           - script: |
-              sudo apt update
-              sudo apt install -y python3-venv
-              python3 -m venv env
-              source env/bin/activate
-              python3 -m pip install --upgrade pip setuptools wheel
-              python3 -m pip install django pytest pytest-django celery pandas pymysql
+              sudo apt install -y python3-pytest python3-pytest-django
               cd mysite/mysite
               pytest
             displayName: 'Run Tests'
   - stage: DeployApplication
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     jobs:
       - job: DeployApplication
         workspace:
@@ -41,11 +37,13 @@ stages:
               sudo systemctl stop flashcardapp.service
               sudo rm -rf /opt/flashcardapp/*
               sudo cp -r mysite/* /opt/flashcardapp/
-              sudo chmod -R 755 /opt/flashcardapp
+              sudo chmod -R 775 /opt/flashcardapp
               sudo chown -R flashcardapp:flashcardapp /opt/flashcardapp
               cd /opt/flashcardapp
+              sudo apt install -y python3-django python3-cryptography python3-pymysql python3-whitenoise
               python manage.py makemigrations
               python manage.py migrate
+              sudo python manage.py collectstatic --noinput
               sudo systemctl start flashcardapp.service
               sudo systemctl status flashcardapp.service
             displayName: 'Deploy Application'
