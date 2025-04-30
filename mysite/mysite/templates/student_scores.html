@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Scores - Flashlite{% endblock %}
+
+{% block main %}
+
+{% load static %}
+
+<style>
+    .truncate-cell {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        vertical-align: bottom;
+    }
+    table td {
+        max-width: 250px;
+        word-wrap: break-word;
+    }
+</style>
+
+<div class="content">
+
+    {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Unenroll button -->
+    <form action="{% url 'unenroll_student' classroom.id student.id %}" method="POST" onsubmit="return confirm('Are you sure you want to unenroll this student?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Unenroll Student</button>
+    </form>
+
+    <h3>{{ student.username }}'s Quiz Scores</h3>
+
+    <a href="{% url 'view_classroom' classroom.id %}" class="btn btn-outline-secondary mb-4">&larr; Back to Classroom</a>
+
+    {% if quizzes %}
+        <button onclick="markAllAsGraded()" class="btn btn-primary mb-3">Mark All as Graded</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Quiz Title</th>
+                    <th>Score</th>
+                    <th>Total</th>
+                    <th>Percentage</th>
+                    <th>Date Taken</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz in quizzes %}
+                <tr>
+                    <td><span class="truncate-cell" title="{{ quiz.title }}">{{ quiz.title }}</span></td>
+                    <td>
+                        {% if quiz.result %}
+                            {{ quiz.result.score }}
+                        {% else %}
+                            Not Taken
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if quiz.result %}
+                            {{ quiz.result.total }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if quiz.result %}
+                            {{ quiz.result.percentage }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if quiz.result %}
+                            {{ quiz.result.date_taken }}
+                            <br>
+                            <form method="POST" action="{% url 'toggle_grade_status' quiz.result.id %}" class="grade-form">
+                                {% csrf_token %}
+                                {% if quiz.result.graded %}
+                                    <button type="submit" class="btn btn-warning btn-sm mt-1">Remove Grade</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-success btn-sm mt-1">Mark as Graded</button>
+                                {% endif %}
+                            </form>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No quizzes assigned to this student yet.</p>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        window.markAllAsGraded = function () {
+            const forms = document.querySelectorAll('form.grade-form');
+    
+            forms.forEach(form => {
+                const button = form.querySelector('button');
+                if (button && button.textContent.includes('Mark as Graded')) {
+                    const formData = new FormData(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        },
+                        body: formData,
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.error('Failed to mark graded:', response.statusText);
+                        }
+                    });
+                }
+            });
+    
+            // Optionally reload after a delay to reflect updates
+            setTimeout(() => {
+                window.location.reload();
+            }, 500); // Adjust timing as needed
+        };
+    });
+    </script>
+    
+
+{% endblock %}

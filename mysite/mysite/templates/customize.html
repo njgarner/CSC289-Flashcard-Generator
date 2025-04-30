@@ -3,6 +3,9 @@
 {% block title %}Customize - Flashlite{% endblock %}
 
 {% block main %}
+
+{% load static %}
+
     <!-- Internal CSS -->
     <style>
       :root {
@@ -92,6 +95,9 @@
           border-color: #008B5C; /* Darker border on hover */
       }
     </style>
+
+    <!-- Tutorial Button -->
+    <button class="tutorial-btn" data-set-id="color-tutorial">?</button>
 
     <!-- Main Content -->
     <div class="content">
@@ -212,4 +218,7 @@
         document.getElementById("clearColorsBtn").addEventListener("click", resetColors);
       });
     </script>
+
+    <!-- Script for Tutorial Function -->
+    <script src="{% static 'tutorial.js' %}?v=4"></script>
 {% endblock main %}

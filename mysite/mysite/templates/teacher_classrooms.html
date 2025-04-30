@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Classrooms - Flashlite{% endblock title %}
+
+{% block main %}
+
+{% load static %}
+
+<style>
+    .classrooms-search-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        width: 20px;
+        height: 20px;
+        pointer-events: none;
+    }
+    #classrooms-search-input {
+        padding: 0.5rem 0.5rem 0.5rem 2.2rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    #no-results {
+        font-style: italic;
+        color: #888;
+        margin-top: 1rem;
+    }
+</style>
+
+<h1 class="page-title">Classrooms</h1>
+
+<!-- Tutorial Button -->
+<button class="tutorial-btn" data-set-id="classroom-teacher-tutorial">?</button>
+
+<div class="content">
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="classrooms-search-bar">
+        <div class="search-input-wrapper">
+            <label for="classrooms-search-input" class="sr-only">Search classrooms</label>
+            <img src="{% static 'magnify.png' %}" alt="Search Icon" class="search-icon">
+            <input type="text" id="classrooms-search-input" placeholder="Search classrooms..." onkeyup="searchClassrooms()">
+        </div>
+        <select id="search-filter" onchange="searchClassrooms()">
+            <option value="all">All</option>
+            <option value="name">Name</option>
+            <option value="description">Description</option>
+        </select>
+        <button class='clear-btn' onclick="clearClassroomsSearch()">Clear</button>
+    </div>
+
+    <p>Classrooms: {{ class_count }}/50</p>
+
+    <div class="flashcard-sets-list">
+
+        <button class="add-box">
+            <a href="{% url 'create_classroom' %}">+</a>
+        </button>
+
+        {% for classroom in classrooms %}
+        <div class="flashcard-set"
+             data-title="{{ classroom.name|lower }}"
+             data-description="{{ classroom.description|lower }}">
+
+            <p class="truncate-text">{{ classroom.name|truncatechars:25 }}</p>
+            <p class="truncate-text">{{ classroom.description|truncatechars:25 }}</p>
+
+            <a href="{% url 'view_classroom' classroom.id %}" class="view-button">View Classroom</a>
+            <br>
+
+            <form method="post" action="{% url 'delete_classroom' classroom.id %}" onsubmit="return confirmDeleteClassroom(event)">
+                {% csrf_token %}
+                <button type="submit" class="delete-button">
+                    <img src="{% static 'trashcan.png' %}" alt="Trashcan Icon" class="icon">
+                </button>
+            </form>
+        </div>
+        {% empty %}
+            <p>No classrooms created yet.</p>
+        {% endfor %}
+
+        <p id="no-results" style="display: none;">No classrooms found.</p>
+
+    </div>
+</div>
+
+<script>
+function searchClassrooms() {
+    const input = document.getElementById("classrooms-search-input").value.trim().toLowerCase();
+    const filterType = document.getElementById("search-filter").value;
+    const sets = document.getElementsByClassName("flashcard-set");
+
+    let anyVisible = false;
+
+    Array.from(sets).forEach(set => {
+        const title = set.getAttribute("data-title") || "";
+        const description = set.getAttribute("data-description") || "";
+
+        let textToSearch = "";
+        if (filterType === "name") {
+            textToSearch = title;
+        } else if (filterType === "description") {
+            textToSearch = description;
+        } else {
+            textToSearch = title + " " + description;
+        }
+
+        if (textToSearch.includes(input)) {
+            set.style.display = "";
+            anyVisible = true;
+        } else {
+            set.style.display = "none";
+        }
+    });
+
+    document.getElementById("no-results").style.display = anyVisible ? "none" : "block";
+}
+
+function clearClassroomsSearch() {
+    document.getElementById("classrooms-search-input").value = '';
+    document.getElementById("search-filter").value = 'all';
+    searchClassrooms();
+}
+
+function confirmDeleteClassroom(event) {
+    const confirmed = confirm("Are you sure you want to delete this classroom? This action cannot be undone.");
+    if (!confirmed) {
+        event.preventDefault();
+        return false;
+    }
+    return true;
+}
+</script>
+
+<!-- Script for Tutorial Function -->
+<script src="{% static 'tutorial.js' %}?v=4"></script>
+{% endblock main %}

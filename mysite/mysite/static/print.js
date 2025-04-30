@@ -2,7 +2,7 @@ document.querySelectorAll('.print-button').forEach(button => {
     button.addEventListener('click', function() {
         // Get the set ID from the button's data attribute
         const setId = button.getAttribute('data-set-id');
-        console.log('Printing flashcards for set ID:', setId);
+        // console.log('Printing flashcards for set ID:', setId);
 
         // Create the hover box
         let hoverBox = document.createElement('div');
