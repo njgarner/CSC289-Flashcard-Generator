@@ -303,137 +303,148 @@
             localStorage.setItem('footerCollapsed', isNowCollapsed);
         });
 
-        // Toggle visibility of TTS controls
-        document.getElementById("toggleTTSWidget").addEventListener("click", () => {
-            const controls = document.getElementById("ttsControls");
-            controls.style.display = controls.style.display === "none" ? "block" : "none";
-        });
-
-        // Recent Sets Dropdown Toggle
-        const toggleBtn = document.getElementById("toggleRecentSets");
-        const dropdown = document.getElementById("recentSetsDropdown");
-        
-        // Initialize dropdown visibility
-        toggleBtn.addEventListener("click", function () {
-            dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
-        });
-
-        // Optional: close dropdown when clicking outside
-        document.addEventListener("click", function (event) {
-            if (!document.getElementById("recentSetsWidget").contains(event.target)) {
-                dropdown.style.display = "none";
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            // Toggle visibility of TTS controls
+            const toggleTTSBtn = document.getElementById("toggleTTSWidget");
+            const ttsControls = document.getElementById("ttsControls");
+            if (toggleTTSBtn && ttsControls) {
+                toggleTTSBtn.addEventListener("click", () => {
+                    ttsControls.style.display = ttsControls.style.display === "none" ? "block" : "none";
+                });
             }
-        });
         
-        // TTS API
-        let voices = [];
-        let utterance;
-        let isSpeaking = false;
-
-        function populateVoiceList() {
-            voices = speechSynthesis.getVoices();
-
-            if (!voices.length) {
-                // Retry if voices are not loaded yet
-                setTimeout(populateVoiceList, 100);
-                return;
+            // Recent Sets Dropdown Toggle
+            const toggleBtn = document.getElementById("toggleRecentSets");
+            const dropdown = document.getElementById("recentSetsDropdown");
+            if (toggleBtn && dropdown) {
+                toggleBtn.addEventListener("click", function () {
+                    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+                });
+        
+                document.addEventListener("click", function (event) {
+                    const widget = document.getElementById("recentSetsWidget");
+                    if (widget && !widget.contains(event.target)) {
+                        dropdown.style.display = "none";
+                    }
+                });
             }
-
+        
+            // TTS API
+            let voices = [];
+            let utterance;
+            let isSpeaking = false;
+        
             const languageSelect = document.getElementById("languageSelect");
             const voiceSelect = document.getElementById("voiceSelect");
-
-            const supportedLangs = {
-                "en-US": "English",
-                "zh-CN": "Chinese (Simplified)",
-                "fr-FR": "French",
-                "de-DE": "German",
-                "it-IT": "Italian",
-                "ja-JP": "Japanese",
-                "ko-KR": "Korean",
-                "pt-BR": "Portuguese (Brazil)",
-                "ru-RU": "Russian",
-                "es-ES": "Spanish"
-            };
-
-            const availableLangs = voices
-                .map(voice => voice.lang)
-                .filter(lang => Object.keys(supportedLangs).includes(lang));
-
-            const uniqueLangs = [...new Set(availableLangs)];
-
-            languageSelect.innerHTML = '';
-            uniqueLangs.forEach(lang => {
-                const option = document.createElement("option");
-                option.value = lang;
-                option.textContent = supportedLangs[lang];
-                languageSelect.appendChild(option);
-            });
-
-            languageSelect.addEventListener("change", () => {
-                const selectedLang = languageSelect.value;
-                const filteredVoices = voices.filter(voice => voice.lang === selectedLang);
-
-                voiceSelect.innerHTML = '';
-                filteredVoices.forEach(voice => {
-                    const option = document.createElement("option");
-                    option.value = voice.name;
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    voiceSelect.appendChild(option);
-                });
-            });
-
-            languageSelect.dispatchEvent(new Event("change"));
-        }
-
-        // Fallback in case `onvoiceschanged` doesn't trigger
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoiceList;
-        } else {
-            populateVoiceList();
-        }
-
-        // TTS Play/Stop toggle button
-        document.getElementById("ttsBtn").addEventListener("click", () => {
-            const ttsBtn = document.getElementById("ttsBtn");
-
-            if (isSpeaking) {
-                speechSynthesis.cancel();
-                isSpeaking = false;
-                ttsBtn.textContent = "🔊 Read";
-                ttsBtn.classList.remove("btn-danger");
-                ttsBtn.classList.add("btn-primary");
-            } else {
-                const mainContent = document.getElementById("mainContent");
-                if (!mainContent) return alert("Main content not found!");
-
-                utterance = new SpeechSynthesisUtterance(mainContent.innerText.trim());
-                utterance.lang = document.getElementById("languageSelect").value;
-
-                const selectedVoiceName = document.getElementById("voiceSelect").value;
-                const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
-                if (selectedVoice) utterance.voice = selectedVoice;
-
-                utterance.rate = 1;
-                utterance.pitch = 1;
-
-                speechSynthesis.speak(utterance);
-                isSpeaking = true;
-                ttsBtn.textContent = "⏹ Stop";
-                ttsBtn.classList.remove("btn-primary");
-                ttsBtn.classList.add("btn-danger");
-
-                utterance.onend = () => {
-                    isSpeaking = false;
-                    ttsBtn.textContent = "🔊 Read";
-                    ttsBtn.classList.remove("btn-danger");
-                    ttsBtn.classList.add("btn-primary");
+        
+            function populateVoiceList() {
+                voices = speechSynthesis.getVoices();
+        
+                if (!voices.length) {
+                    setTimeout(populateVoiceList, 100);
+                    return;
+                }
+        
+                const supportedLangs = {
+                    "en-US": "English",
+                    "zh-CN": "Chinese (Simplified)",
+                    "fr-FR": "French",
+                    "de-DE": "German",
+                    "it-IT": "Italian",
+                    "ja-JP": "Japanese",
+                    "ko-KR": "Korean",
+                    "pt-BR": "Portuguese (Brazil)",
+                    "ru-RU": "Russian",
+                    "es-ES": "Spanish"
                 };
+        
+                const availableLangs = voices
+                    .map(voice => voice.lang)
+                    .filter(lang => Object.keys(supportedLangs).includes(lang));
+                const uniqueLangs = [...new Set(availableLangs)];
+        
+                if (languageSelect && voiceSelect) {
+                    languageSelect.innerHTML = '';
+                    uniqueLangs.forEach(lang => {
+                        const option = document.createElement("option");
+                        option.value = lang;
+                        option.textContent = supportedLangs[lang];
+                        languageSelect.appendChild(option);
+                    });
+        
+                    languageSelect.addEventListener("change", () => {
+                        const selectedLang = languageSelect.value;
+                        const filteredVoices = voices.filter(voice => voice.lang === selectedLang);
+        
+                        voiceSelect.innerHTML = '';
+                        filteredVoices.forEach(voice => {
+                            const option = document.createElement("option");
+                            option.value = voice.name;
+                            option.textContent = `${voice.name} (${voice.lang})`;
+                            voiceSelect.appendChild(option);
+                        });
+                    });
+        
+                    languageSelect.dispatchEvent(new Event("change"));
+                }
             }
-        });
-
-        // Stop Button
-        document.getElementById("stopTTSBtn").addEventListener("click", () => {
-            speechSynthesis.cancel();
+        
+            if (typeof speechSynthesis !== "undefined") {
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = populateVoiceList;
+                } else {
+                    populateVoiceList();
+                }
+            }
+        
+            // TTS Play/Stop Button
+            const ttsBtn = document.getElementById("ttsBtn");
+            if (ttsBtn) {
+                ttsBtn.addEventListener("click", () => {
+                    if (isSpeaking) {
+                        speechSynthesis.cancel();
+                        isSpeaking = false;
+                        ttsBtn.textContent = "🔊 Read";
+                        ttsBtn.classList.remove("btn-danger");
+                        ttsBtn.classList.add("btn-primary");
+                    } else {
+                        const mainContent = document.getElementById("mainContent");
+                        if (!mainContent) return alert("Main content not found!");
+        
+                        utterance = new SpeechSynthesisUtterance(mainContent.innerText.trim());
+                        if (languageSelect) utterance.lang = languageSelect.value;
+        
+                        const selectedVoiceName = voiceSelect?.value;
+                        const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+                        if (selectedVoice) utterance.voice = selectedVoice;
+        
+                        utterance.rate = 1;
+                        utterance.pitch = 1;
+        
+                        speechSynthesis.speak(utterance);
+                        isSpeaking = true;
+                        ttsBtn.textContent = "⏹ Stop";
+                        ttsBtn.classList.remove("btn-primary");
+                        ttsBtn.classList.add("btn-danger");
+        
+                        utterance.onend = () => {
+                            isSpeaking = false;
+                            ttsBtn.textContent = "🔊 Read";
+                            ttsBtn.classList.remove("btn-danger");
+                            ttsBtn.classList.add("btn-primary");
+                        };
+                    }
+                });
+            }
+        
+            // Stop Button
+            const stopBtn = document.getElementById("stopTTSBtn");
+            if (stopBtn) {
+                stopBtn.addEventListener("click", () => {
+                    speechSynthesis.cancel();
+                });
+            }
         });
     </script>
 </body>
